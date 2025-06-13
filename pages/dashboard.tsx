@@ -136,6 +136,329 @@ export default function Dashboard() {
     return Object.entries(triggerCount).sort(([,a], [,b]) => b - a)[0][0]
   }
 
+  const generateMedicalReport = () => {
+    const reportDate = new Date().toLocaleDateString()
+    const reportTime = new Date().toLocaleTimeString()
+    
+    // Filter seizures for last 12 months
+    const twelveMonthsAgo = new Date()
+    twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12)
+    const last12MonthsSeizures = seizures.filter(s => new Date(s.date) >= twelveMonthsAgo)
+    
+    // Calculate analytics
+    const monthlyData = Array.from({ length: 12 }, (_, i) => {
+      const monthDate = new Date()
+      monthDate.setMonth(monthDate.getMonth() - i)
+      const monthName = monthDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+      const monthSeizures = last12MonthsSeizures.filter(s => {
+        const seizureDate = new Date(s.date)
+        return seizureDate.getMonth() === monthDate.getMonth() && 
+               seizureDate.getFullYear() === monthDate.getFullYear()
+      })
+      return { month: monthName, count: monthSeizures.length, seizures: monthSeizures }
+    }).reverse()
+    
+    const totalSeizures12Months = last12MonthsSeizures.length
+    const averagePerMonth = (totalSeizures12Months / 12).toFixed(1)
+    const seizureTypes = last12MonthsSeizures.reduce((acc: {[key: string]: number}, s) => {
+      acc[s.type] = (acc[s.type] || 0) + 1
+      return acc
+    }, {})
+    
+    const triggerAnalysis = last12MonthsSeizures
+      .map(s => s.triggers)
+      .filter(t => t)
+      .reduce((acc: {[key: string]: number}, trigger) => {
+        acc[trigger] = (acc[trigger] || 0) + 1
+        return acc
+      }, {})
+    
+    return `
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Medical Seizure Report - ${user.name}</title>
+    <style>
+        body { 
+            font-family: 'Times New Roman', serif; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            line-height: 1.6;
+            color: #333;
+        }
+        .header { 
+            background: #003087; 
+            color: white; 
+            padding: 30px; 
+            text-align: center; 
+            margin-bottom: 30px; 
+            border-radius: 8px;
+        }
+        .patient-info {
+            background: #f8f9fa;
+            border: 2px solid #003087;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+        }
+        .section { 
+            margin-bottom: 30px; 
+            page-break-inside: avoid;
+        }
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .stat-box {
+            background: #e8f4fd;
+            border: 1px solid #005EB8;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #003087;
+        }
+        .seizure-entry { 
+            border: 1px solid #ddd; 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-radius: 5px; 
+            background: #fafafa;
+        }
+        .monthly-summary {
+            background: #fff;
+            border: 1px solid #ddd;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin: 20px 0; 
+        }
+        th, td { 
+            border: 1px solid #ddd; 
+            padding: 12px; 
+            text-align: left; 
+        }
+        th { 
+            background-color: #003087; 
+            color: white;
+            font-weight: bold;
+        }
+        .chart-placeholder {
+            background: #f0f0f0;
+            border: 2px dashed #ccc;
+            padding: 40px;
+            text-align: center;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #003087;
+            font-size: 12px;
+            color: #666;
+        }
+        @media print { 
+            body { margin: 0; font-size: 12px; } 
+            .no-print { display: none; } 
+            .section { page-break-inside: avoid; }
+        }
+        .important-note {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>COMPREHENSIVE SEIZURE MEDICAL REPORT</h1>
+        <h2>12-Month Clinical Summary</h2>
+        <p>Report Generated: ${reportDate} at ${reportTime}</p>
+        <p>For Medical Review & Neurological Assessment</p>
+    </div>
+
+    <div class="patient-info">
+        <h2 style="margin-top: 0; color: #003087;">Patient Information</h2>
+        <table>
+            <tr><td><strong>Patient Name:</strong></td><td>${user.name}</td></tr>
+            <tr><td><strong>Account Type:</strong></td><td>${user.type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</td></tr>
+            <tr><td><strong>Report Period:</strong></td><td>12 Months (${twelveMonthsAgo.toLocaleDateString()} - ${new Date().toLocaleDateString()})</td></tr>
+            <tr><td><strong>Data Source:</strong></td><td>NeuroLog Digital Seizure Diary</td></tr>
+            ${user.organizationName ? `<tr><td><strong>Care Provider:</strong></td><td>${user.organizationName}</td></tr>` : ''}
+        </table>
+    </div>
+
+    <div class="important-note">
+        <h3 style="margin-top: 0; color: #856404;">📋 For Healthcare Professionals</h3>
+        <p>This report contains comprehensive seizure documentation over the past 12 months. Please review in conjunction with clinical examination and other diagnostic information. All timestamps reflect patient/carer reported data.</p>
+    </div>
+
+    <div class="section">
+        <h2 style="color: #003087;">Executive Summary</h2>
+        <div class="analytics-grid">
+            <div class="stat-box">
+                <div class="stat-number">${totalSeizures12Months}</div>
+                <div>Total Seizures (12 months)</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">${averagePerMonth}</div>
+                <div>Average per Month</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">${last12MonthsSeizures.length > 0 ? getAverageSeverity() : 'N/A'}</div>
+                <div>Average Severity (1-5)</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">${last12MonthsSeizures.length > 0 ? Math.round((Date.now() - new Date(last12MonthsSeizures[0]?.date || Date.now()).getTime()) / (1000 * 60 * 60 * 24)) : 'N/A'}</div>
+                <div>Days Since Last</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 style="color: #003087;">Monthly Seizure Pattern Analysis</h2>
+        <div class="chart-placeholder">
+            <strong>Seizure Frequency by Month</strong><br>
+            (Chart visualization recommended for clinical software)
+        </div>
+        
+        ${monthlyData.map(month => `
+            <div class="monthly-summary">
+                <h4>${month.month}: ${month.count} seizures</h4>
+                ${month.seizures.length > 0 ? `
+                    <div style="font-size: 14px; color: #666;">
+                        Average Severity: ${(month.seizures.reduce((sum, s) => sum + s.severity, 0) / month.seizures.length).toFixed(1)}/5 |
+                        Most Common Type: ${Object.entries(
+                          month.seizures.reduce((acc: {[key: string]: number}, s) => {
+                            acc[s.type] = (acc[s.type] || 0) + 1
+                            return acc
+                          }, {})
+                        ).sort(([,a], [,b]) => b - a)[0]?.[0] || 'None'}
+                    </div>
+                ` : '<div style="color: #666; font-style: italic;">No seizures recorded this month</div>'}
+            </div>
+        `).join('')}
+    </div>
+
+    <div class="section">
+        <h2 style="color: #003087;">Seizure Type Distribution</h2>
+        <table>
+            <thead>
+                <tr><th>Seizure Type</th><th>Frequency</th><th>Percentage</th><th>Average Severity</th></tr>
+            </thead>
+            <tbody>
+                ${Object.entries(seizureTypes).map(([type, count]) => {
+                  const typeSeizures = last12MonthsSeizures.filter(s => s.type === type)
+                  const avgSeverity = typeSeizures.reduce((sum, s) => sum + s.severity, 0) / typeSeizures.length
+                  const percentage = ((count / totalSeizures12Months) * 100).toFixed(1)
+                  return `<tr>
+                    <td>${type}</td>
+                    <td>${count}</td>
+                    <td>${percentage}%</td>
+                    <td>${avgSeverity.toFixed(1)}/5</td>
+                  </tr>`
+                }).join('')}
+            </tbody>
+        </table>
+        ${totalSeizures12Months === 0 ? '<p style="text-align: center; color: #666;">No seizure data available for analysis</p>' : ''}
+    </div>
+
+    <div class="section">
+        <h2 style="color: #003087;">Trigger Analysis</h2>
+        ${Object.keys(triggerAnalysis).length > 0 ? `
+            <table>
+                <thead>
+                    <tr><th>Reported Trigger</th><th>Frequency</th><th>Percentage of Seizures</th></tr>
+                </thead>
+                <tbody>
+                    ${Object.entries(triggerAnalysis)
+                      .sort(([,a], [,b]) => b - a)
+                      .map(([trigger, count]) => `
+                        <tr>
+                            <td>${trigger}</td>
+                            <td>${count}</td>
+                            <td>${((count / totalSeizures12Months) * 100).toFixed(1)}%</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        ` : '<p>No specific triggers have been consistently recorded during this period.</p>'}
+    </div>
+
+    <div class="section">
+        <h2 style="color: #003087;">Detailed Seizure Log</h2>
+        <p><em>Complete chronological record of all seizures in the past 12 months:</em></p>
+        
+        ${last12MonthsSeizures.length === 0 ? '<p>No seizures recorded in the past 12 months.</p>' : ''}
+        ${last12MonthsSeizures.slice(0, 50).map((seizure, index) => `
+            <div class="seizure-entry">
+                <h4>Seizure #${totalSeizures12Months - index} - ${seizure.date} at ${seizure.time}</h4>
+                <table>
+                    <tr><td width="150px"><strong>Type:</strong></td><td>${seizure.type}</td></tr>
+                    <tr><td><strong>Duration:</strong></td><td>${seizure.duration}</td></tr>
+                    <tr><td><strong>Severity:</strong></td><td>${seizure.severity}/5</td></tr>
+                    <tr><td><strong>Triggers:</strong></td><td>${seizure.triggers || 'None reported'}</td></tr>
+                    <tr><td><strong>Symptoms:</strong></td><td>${seizure.symptoms || 'None reported'}</td></tr>
+                    <tr><td><strong>Medication:</strong></td><td>${seizure.medication || 'None administered'}</td></tr>
+                    <tr><td><strong>Notes:</strong></td><td>${seizure.notes || 'None'}</td></tr>
+                    <tr><td><strong>Recorded:</strong></td><td>${new Date(seizure.createdAt).toLocaleString()}</td></tr>
+                </table>
+            </div>
+        `).join('')}
+        
+        ${last12MonthsSeizures.length > 50 ? `
+            <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                <strong>Note:</strong> This report shows the most recent 50 seizures. Complete records available in digital format.
+                Total seizures in 12-month period: ${totalSeizures12Months}
+            </div>
+        ` : ''}
+    </div>
+
+    <div class="section">
+        <h2 style="color: #003087;">Clinical Recommendations for Review</h2>
+        <div style="background: #e8f4fd; padding: 20px; border-radius: 8px; border-left: 4px solid #005EB8;">
+            <h4>Suggested Areas for Clinical Discussion:</h4>
+            <ul>
+                <li><strong>Seizure Frequency:</strong> ${totalSeizures12Months === 0 ? 'No seizures reported - consider medication review' : 
+                    totalSeizures12Months > 12 ? 'More than 1 seizure per month - medication optimization may be needed' : 
+                    'Frequency within expected range'}</li>
+                <li><strong>Seizure Pattern:</strong> ${Object.keys(seizureTypes).length > 1 ? 'Multiple seizure types observed - comprehensive evaluation recommended' : 'Consistent seizure type pattern'}</li>
+                <li><strong>Trigger Management:</strong> ${Object.keys(triggerAnalysis).length > 0 ? 'Identifiable triggers present - lifestyle modification discussion recommended' : 'No consistent triggers identified'}</li>
+                <li><strong>Severity Trends:</strong> Average severity ${last12MonthsSeizures.length > 0 ? getAverageSeverity() : 'N/A'}/5 - ${parseFloat(getAverageSeverity()) > 3 ? 'Consider intervention strategies' : 'Currently well-controlled'}</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="footer">
+        <h3 style="color: #003087;">Medical Report Footer</h3>
+        <p><strong>Report Generated:</strong> ${reportDate} ${reportTime}</p>
+        <p><strong>Data Source:</strong> NeuroLog Digital Seizure Management System</p>
+        <p><strong>Patient/Carer:</strong> ${user.name}</p>
+        <p><strong>Report Type:</strong> 12-Month Comprehensive Medical Summary</p>
+        <p><strong>Next Review:</strong> Recommended within 3-6 months or as clinically indicated</p>
+        
+        <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #ddd;">
+            <p><em>This report is generated from patient/carer-reported data and should be used in conjunction with clinical examination and professional medical judgment. All times and dates reflect information as entered by the reporting individual.</em></p>
+        </div>
+    </div>
+</body>
+</html>
+    `.trim()
+  }
+
   const generateAuditReport = () => {
     const reportDate = new Date().toLocaleDateString()
     const reportTime = new Date().toLocaleTimeString()
@@ -878,7 +1201,64 @@ export default function Dashboard() {
                 boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                 border: '1px solid #e1e5e9'
               }}>
-                <h2 style={{ margin: '0 0 20px 0', color: '#003087' }}>Seizure Insights</h2>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                  <h2 style={{ margin: '0', color: '#003087' }}>Seizure Insights & Medical Reports</h2>
+                  <div style={{ display: 'flex', gap: '12px' }}>
+                    <button
+                      onClick={() => {
+                        const medicalReport = generateMedicalReport();
+                        const printWindow = window.open('', '_blank');
+                        if (printWindow) {
+                          printWindow.document.write(medicalReport);
+                          printWindow.document.close();
+                          printWindow.print();
+                        }
+                      }}
+                      style={{
+                        background: '#005EB8',
+                        color: 'white',
+                        border: 'none',
+                        padding: '12px 20px',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px'
+                      }}
+                    >
+                      🖨️ Print Medical Report
+                    </button>
+                    <button
+                      onClick={() => {
+                        const medicalReport = generateMedicalReport();
+                        const blob = new Blob([medicalReport], { type: 'text/html' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `Medical_Seizure_Report_${user.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.html`;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                      }}
+                      style={{
+                        background: '#28a745',
+                        color: 'white',
+                        border: 'none',
+                        padding: '12px 20px',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px'
+                      }}
+                    >
+                      📄 Download PDF Report
+                    </button>
+                  </div>
+                </div>
                 
                 {seizures.length < 3 ? (
                   <div style={{ textAlign: 'center', color: '#666', padding: '40px 0' }}>
