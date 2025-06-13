@@ -357,12 +357,37 @@ export default function Register() {
           </form>
 
           <div style={{ textAlign: 'center', marginTop: '24px' }}>
-            <p style={{ color: '#666', margin: 0 }}>
+            <p style={{ color: '#666', margin: '0 0 16px 0' }}>
               Already have an account?{' '}
               <Link href="/auth/login" style={{ color: '#005EB8', textDecoration: 'none', fontWeight: '500' }}>
                 Sign In
               </Link>
             </p>
+            <div style={{ 
+              padding: '16px', 
+              background: '#f8f9fa', 
+              borderRadius: '8px',
+              border: '1px solid #e1e5e9'
+            }}>
+              <p style={{ color: '#666', margin: '0 0 12px 0', fontSize: '14px' }}>
+                Healthcare Professional?
+              </p>
+              <Link 
+                href="/doctor-portal" 
+                style={{ 
+                  display: 'inline-block',
+                  background: 'linear-gradient(135deg, #005EB8 0%, #003087 100%)',
+                  color: 'white',
+                  textDecoration: 'none',
+                  padding: '12px 24px',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}
+              >
+                🏥 Access Doctor Portal
+              </Link>
+            </div>
           </div>
         </div>
       </div>
