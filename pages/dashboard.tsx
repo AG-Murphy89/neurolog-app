@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -745,4 +746,30 @@ export default function Dashboard() {
                       borderRadius: '12px',
                       border: '1px solid #e1e5e9'
                     }}>
-                      <h3 style={{ margin: '0 0 16px 0', color: '#003087
+                      <h3 style={{ margin: '0 0 16px 0', color: '#003087' }}>Pattern Recognition</h3>
+                      <div style={{ color: '#666' }}>
+                        <p>Most common seizure type: <strong style={{ color: '#005EB8' }}>
+                          {seizures.length > 0 ? 
+                            Object.entries(
+                              seizures.reduce((acc: {[key: string]: number}, s) => {
+                                acc[s.type] = (acc[s.type] || 0) + 1
+                                return acc
+                              }, {})
+                            ).sort(([,a], [,b]) => b - a)[0][0] 
+                            : 'None'
+                          }
+                        </strong></p>
+                        <p>Average severity: <strong style={{ color: '#005EB8' }}>{getAverageSeverity()}/5</strong></p>
+                        <p>Most common trigger: <strong style={{ color: '#005EB8' }}>{getMostCommonTrigger()}</strong></p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  )
+}
