@@ -1,53 +1,66 @@
-
-import React from 'react';
-import Head from 'next/head';
-import styles from '../styles/Home.module.css';
+import React from "react";
+import Head from "next/head";
+import styles from "../styles/Home.module.css";
 
 export default function NeuroLog() {
   return (
     <div className={styles.container}>
       <Head>
         <title>NeuroLog</title>
-        <meta name="description" content="NeuroLog - Neural Network Logging and Analysis" />
+        <meta name="description" content="NeuroLog - Seizure Tracking" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <main className={styles.main}>
         <h1 className={styles.title}>
-          Welcome to <span style={{ color: '#0070f3' }}>NeuroLog</span>
+          Welcome to <span style={{ color: "#0070f3" }}>NeuroLog</span>
         </h1>
 
         <p className={styles.description}>
-          Neural Network Logging and Analysis Platform
+          "Professional Seizure Management System"
         </p>
 
         <div className={styles.grid}>
           <div className={styles.card}>
-            <h2>Data Collection &rarr;</h2>
-            <p>Collect and organize neural network training data and metrics in real-time.</p>
+            <h2>Clinical Data Management &rarr;</h2>
+            <p>
+              Securely collect and organize seizure patterns, medication
+              responses, and clinical outcomes for better patient care.
+              real-time.
+            </p>
           </div>
 
           <div className={styles.card}>
-            <h2>Model Analytics &rarr;</h2>
-            <p>Analyze model performance with detailed visualizations and insights.</p>
+            <h2>Seizure Pattern Analysis &rarr;</h2>
+            <p>
+              Generate comprehensive reports and visualizations of seizure
+              frequency, triggers, and medication effectiveness for clinical
+              review.
+            </p>
           </div>
 
           <div className={styles.card}>
-            <h2>Experiment Tracking &rarr;</h2>
-            <p>Track experiments, hyperparameters, and compare model versions.</p>
+            <h2>Treatment Monitoring &rarr;</h2>
+            <p>
+              Monitor medication changes, dosage adjustments, and treatment
+              responses to optimize patient care.
+            </p>
           </div>
 
           <div className={styles.card}>
-            <h2>Collaborative Research &rarr;</h2>
-            <p>Share findings and collaborate with your research team seamlessly.</p>
+            <h2>CQC Compliance&rarr;</h2>
+            <p>
+              Full audit trails, GDPR compliance, and professional documentation
+              standards for healthcare providers.
+            </p>
           </div>
         </div>
       </main>
 
       <footer className={styles.footer}>
         <p>
-          Powered by{' '}
-          <span style={{ fontWeight: 'bold', color: '#0070f3' }}>NeuroLog</span>
+          Powered by{" "}
+          <span style={{ fontWeight: "bold", color: "#0070f3" }}>NeuroLog</span>
         </p>
       </footer>
     </div>
