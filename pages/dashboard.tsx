@@ -58,7 +58,7 @@ export default function Dashboard() {
     if (savedSeizures) {
       setSeizures(JSON.parse(savedSeizures))
     }
-  }, [])
+  }, [router])
 
   const handleLogout = () => {
     localStorage.removeItem('neurolog_user')

@@ -20,6 +20,35 @@ export default function NeuroLog() {
           "Professional Seizure Management System"
         </p>
 
+        <div style={{ marginBottom: '2rem' }}>
+          <button
+            onClick={() => {
+              // Mock user login
+              const mockUser = {
+                id: 'user123',
+                name: 'Demo User',
+                email: 'demo@example.com',
+                type: 'patient'
+              };
+              localStorage.setItem('neurolog_user', JSON.stringify(mockUser));
+              window.location.href = '/dashboard';
+            }}
+            style={{
+              background: 'linear-gradient(135deg, #005EB8 0%, #003087 100%)',
+              color: 'white',
+              border: 'none',
+              padding: '16px 32px',
+              borderRadius: '12px',
+              fontSize: '18px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              boxShadow: '0 6px 20px rgba(0, 94, 184, 0.4)'
+            }}
+          >
+            Access Dashboard
+          </button>
+        </div>
+
         <div className={styles.grid}>
           <div className={styles.card}>
             <h2>Clinical Data Management &rarr;</h2>
