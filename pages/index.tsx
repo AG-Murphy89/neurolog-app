@@ -50,7 +50,7 @@ export default function NeuroLog() {
               cursor: 'pointer'
             }}
           >
-            Sign Up
+            Register
           </button>
         </div>
 

@@ -4,7 +4,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 
-interface SignupFormData {
+interface RegisterFormData {
   email: string
   password: string
   confirmPassword: string
@@ -16,8 +16,8 @@ interface SignupFormData {
   gdprConsent: boolean
 }
 
-export default function Signup() {
-  const [formData, setFormData] = useState<SignupFormData>({
+export default function Register() {
+  const [formData, setFormData] = useState<RegisterFormData>({
     email: '',
     password: '',
     confirmPassword: '',
@@ -84,7 +84,7 @@ export default function Signup() {
   return (
     <>
       <Head>
-        <title>Sign Up - NeuroLog</title>
+        <title>Register - NeuroLog</title>
       </Head>
 
       <div style={{
@@ -112,7 +112,7 @@ export default function Signup() {
               fontSize: '28px',
               fontWeight: 'bold'
             }}>
-              Create Account
+              Register Account
             </h1>
             <p style={{ color: '#666', margin: 0 }}>Join NeuroLog to start tracking seizures</p>
           </div>
@@ -185,25 +185,47 @@ export default function Signup() {
                 <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
                   Account Type *
                 </label>
-                <select
-                  value={formData.userType}
-                  onChange={(e) => setFormData({...formData, userType: e.target.value as any})}
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    borderRadius: '8px',
-                    border: '2px solid #e1e5e9',
-                    fontSize: '16px',
-                    backgroundColor: 'white',
-                    boxSizing: 'border-box'
-                  }}
-                >
-                  <option value="patient">Patient</option>
-                  <option value="family">Family Member</option>
-                  <option value="home_carer">Home Carer</option>
-                  <option value="care_home">Care Home</option>
-                  <option value="professional">Healthcare Professional</option>
-                </select>
+                <div style={{ marginBottom: '16px' }}>
+                  <h4 style={{ color: '#003087', margin: '0 0 8px 0', fontSize: '16px' }}>Individual/Family Care</h4>
+                  <select
+                    value={formData.userType === 'patient' || formData.userType === 'family' || formData.userType === 'home_carer' ? formData.userType : ''}
+                    onChange={(e) => setFormData({...formData, userType: e.target.value as any})}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      borderRadius: '8px',
+                      border: '2px solid #e1e5e9',
+                      fontSize: '16px',
+                      backgroundColor: 'white',
+                      boxSizing: 'border-box'
+                    }}
+                  >
+                    <option value="">Select individual/family type</option>
+                    <option value="patient">Patient</option>
+                    <option value="family">Family Member</option>
+                    <option value="home_carer">Home Carer</option>
+                  </select>
+                </div>
+                <div>
+                  <h4 style={{ color: '#003087', margin: '0 0 8px 0', fontSize: '16px' }}>Professional/Care Home</h4>
+                  <select
+                    value={formData.userType === 'care_home' || formData.userType === 'professional' ? formData.userType : ''}
+                    onChange={(e) => setFormData({...formData, userType: e.target.value as any})}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      borderRadius: '8px',
+                      border: '2px solid #e1e5e9',
+                      fontSize: '16px',
+                      backgroundColor: 'white',
+                      boxSizing: 'border-box'
+                    }}
+                  >
+                    <option value="">Select professional type</option>
+                    <option value="care_home">Care Home</option>
+                    <option value="professional">Healthcare Professional</option>
+                  </select>
+                </div>
               </div>
 
               {(formData.userType === 'care_home' || formData.userType === 'professional') && (
@@ -329,7 +351,7 @@ export default function Signup() {
                   boxShadow: '0 6px 20px rgba(0, 94, 184, 0.4)'
                 }}
               >
-                Create Account
+                Register Account
               </button>
             </div>
           </form>
