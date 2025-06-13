@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -48,10 +47,9 @@ interface User {
 export default function Medication() {
   const [user, setUser] = useState<User | null>(null)
   const [medications, setMedications] = useState<Medication[]>([])
-  const [showAddForm, setShowAddForm] = useState(false)
-  const [editingMedication, setEditingMedication] = useState<Medication | null>(null)
   const [activeTab, setActiveTab] = useState('overview')
   const [todaySchedule, setTodaySchedule] = useState<DoseSchedule[]>([])
+  const [editingMedication, setEditingMedication] = useState<Medication | null>(null)
   const [formData, setFormData] = useState({
     name: '',
     genericName: '',
@@ -104,10 +102,10 @@ export default function Medication() {
       router.push('/auth/login')
       return
     }
-    
+
     const userData = JSON.parse(savedUser)
     setUser(userData)
-    
+
     // Load medication data
     const savedMedications = localStorage.getItem(`neurolog_medications_${userData.id}`)
     if (savedMedications) {
@@ -136,50 +134,6 @@ export default function Medication() {
           notes: 'Helps control tonic-clonic seizures effectively',
           status: 'active',
           createdAt: new Date().toISOString()
-        },
-        {
-          id: '2',
-          name: 'Lamotrigine',
-          genericName: 'Lamictal',
-          dose: 100,
-          unit: 'mg',
-          frequency: 'twice_daily',
-          times: { am: '08:00', pm: '20:00' },
-          startDate: '2024-01-01',
-          prescribingDoctor: 'Dr. Sarah Johnson',
-          doctorContact: '01234 567890',
-          pharmacyName: 'Central Pharmacy',
-          pharmacyPhone: '01234 987654',
-          sideEffects: ['Mild headache'],
-          effectiveness: 5,
-          daysSupply: 25,
-          nextRefillDate: '2024-02-12',
-          specialInstructions: 'Increase dose gradually',
-          notes: 'Primary seizure medication, very effective',
-          status: 'active',
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: '3',
-          name: 'Lorazepam',
-          genericName: 'Ativan',
-          dose: 1,
-          unit: 'mg',
-          frequency: 'as_needed',
-          times: {},
-          startDate: '2024-01-15',
-          prescribingDoctor: 'Dr. Sarah Johnson',
-          doctorContact: '01234 567890',
-          pharmacyName: 'Central Pharmacy',
-          pharmacyPhone: '01234 987654',
-          sideEffects: ['Sedation'],
-          effectiveness: 4,
-          daysSupply: 10,
-          nextRefillDate: '2024-03-01',
-          specialInstructions: 'Use only for prolonged seizures',
-          notes: 'Emergency rescue medication',
-          status: 'active',
-          createdAt: new Date().toISOString()
         }
       ]
       setMedications(sampleMedications)
@@ -192,7 +146,7 @@ export default function Medication() {
     const schedule: DoseSchedule[] = []
     const today = new Date().toDateString()
     const savedSchedule = localStorage.getItem(`neurolog_schedule_${user?.id}_${today}`)
-    
+
     if (savedSchedule) {
       setTodaySchedule(JSON.parse(savedSchedule))
     } else {
@@ -238,7 +192,7 @@ export default function Medication() {
 
   const handleAddMedication = (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     const times: { am?: string; midday?: string; pm?: string } = {}
     if (formData.timeAm) times.am = formData.timeAm
     if (formData.timeMidday) times.midday = formData.timeMidday
@@ -266,17 +220,17 @@ export default function Medication() {
       status: formData.status,
       createdAt: editingMedication?.createdAt || new Date().toISOString()
     }
-    
+
     let updatedMedications
     if (editingMedication) {
       updatedMedications = medications.map(med => med.id === editingMedication.id ? newMedication : med)
     } else {
       updatedMedications = [newMedication, ...medications]
     }
-    
+
     setMedications(updatedMedications)
     localStorage.setItem(`neurolog_medications_${user?.id}`, JSON.stringify(updatedMedications))
-    
+
     // Reset form
     setFormData({
       name: '',
@@ -300,8 +254,8 @@ export default function Medication() {
       notes: '',
       status: 'active'
     })
-    setShowAddForm(false)
     setEditingMedication(null)
+    setActiveTab('overview')
   }
 
   const editMedication = (medication: Medication) => {
@@ -328,7 +282,7 @@ export default function Medication() {
       status: medication.status
     })
     setEditingMedication(medication)
-    setShowAddForm(true)
+    setActiveTab('add')
   }
 
   const deleteMedication = (id: string) => {
@@ -343,7 +297,7 @@ export default function Medication() {
     const updatedSchedule = [...todaySchedule]
     updatedSchedule[index].taken = !updatedSchedule[index].taken
     setTodaySchedule(updatedSchedule)
-    
+
     const today = new Date().toDateString()
     localStorage.setItem(`neurolog_schedule_${user?.id}_${today}`, JSON.stringify(updatedSchedule))
   }
@@ -351,11 +305,11 @@ export default function Medication() {
   const getNextDoseTime = () => {
     const now = new Date()
     const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
-    
+
     const upcomingDoses = todaySchedule
       .filter(dose => !dose.taken && dose.time > currentTime)
       .sort((a, b) => a.time.localeCompare(b.time))
-    
+
     return upcomingDoses[0]?.time || 'No more doses today'
   }
 
@@ -366,9 +320,9 @@ export default function Medication() {
   if (!user) {
     return <div>Loading...</div>
   }
-  return (
-  <>
 
+  return (
+    <>
       <Head>
         <title>Medications - NeuroLog</title>
       </Head>
@@ -460,7 +414,7 @@ export default function Medication() {
             display: 'flex',
             gap: '32px'
           }}>
-            {['overview', 'schedule', 'medications', 'add', 'history'].map(tab => (
+            {['overview', 'schedule', 'medications', 'add'].map(tab => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -570,59 +524,6 @@ export default function Medication() {
                 </button>
               </div>
 
-              {/* Today's Schedule Preview */}
-              <div style={{
-                background: 'white',
-                borderRadius: '16px',
-                padding: '24px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                border: '1px solid #e1e5e9',
-                marginBottom: '32px'
-              }}>
-                <h3 style={{ margin: '0 0 20px 0', color: '#003087', fontSize: '20px' }}>Today's Schedule</h3>
-                {todaySchedule.length === 0 ? (
-                  <div style={{ textAlign: 'center', color: '#666', padding: '20px 0' }}>
-                    No scheduled doses for today
-                  </div>
-                ) : (
-                  <div style={{ display: 'grid', gap: '12px' }}>
-                    {todaySchedule.slice(0, 5).map((dose, index) => (
-                      <div key={index} style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: '12px',
-                        background: dose.taken ? '#e8f5e8' : '#f8f9fa',
-                        borderRadius: '8px',
-                        border: dose.taken ? '1px solid #4caf50' : '1px solid #e1e5e9'
-                      }}>
-                        <div>
-                          <div style={{ fontWeight: '600', color: '#003087' }}>
-                            {dose.time} - {dose.medicationName}
-                          </div>
-                          <div style={{ color: '#666', fontSize: '14px' }}>
-                            {dose.dose}
-                          </div>
-                        </div>
-                        <div style={{
-                          width: '20px',
-                          height: '20px',
-                          borderRadius: '50%',
-                          backgroundColor: dose.taken ? '#4caf50' : '#ddd',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: 'white',
-                          fontSize: '12px'
-                        }}>
-                          {dose.taken ? '✓' : ''}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
               {/* Current Medications */}
               <div style={{
                 background: 'white',
@@ -665,7 +566,7 @@ export default function Medication() {
                             Active
                           </div>
                         </div>
-                        
+
                         <div style={{ marginBottom: '12px' }}>
                           <div style={{ fontSize: '14px', color: '#666', marginBottom: '4px' }}>
                             <strong>Frequency:</strong> {medication.frequency.replace('_', ' ')}
@@ -677,7 +578,7 @@ export default function Medication() {
                             <strong>Next refill:</strong> {new Date(medication.nextRefillDate).toLocaleDateString()}
                           </div>
                         </div>
-                        
+
                         <div style={{ display: 'flex', gap: '8px' }}>
                           <button
                             onClick={() => editMedication(medication)}
@@ -726,173 +627,95 @@ export default function Medication() {
               border: '1px solid #e1e5e9'
             }}>
               <h2 style={{ margin: '0 0 24px 0', color: '#003087' }}>Weekly Medication Schedule</h2>
-              
+
               {/* Current Week Navigation */}
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '32px' }}>
-                <button style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#005EB8',
-                  fontSize: '18px',
-                  cursor: 'pointer',
-                  padding: '8px'
-                }}>
-                  ←
-                </button>
                 <span style={{ 
                   fontSize: '18px', 
                   fontWeight: '600', 
                   color: '#003087',
                   margin: '0 24px'
                 }}>
-                  {currentWeekStart.toLocaleDateString('en-GB', { 
-                    day: 'numeric',
-                    month: 'short'
-                  })} - {new Date(currentWeekStart.getTime() + 6 * 24 * 60 * 60 * 1000).toLocaleDateString('en-GB', { 
+                  Week of {currentWeekStart.toLocaleDateString('en-GB', { 
                     day: 'numeric',
                     month: 'short',
                     year: 'numeric'
                   })}
                 </span>
-                <button style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#005EB8',
-                  fontSize: '18px',
-                  cursor: 'pointer',
-                  padding: '8px'
-                }}>
-                  →
-                </button>
               </div>
 
-              {/* Weekly Schedule - Responsive Design */}
-              <div style={{ marginBottom: '24px' }}>
-                {/* Desktop View */}
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-                  gap: '8px',
-                  '@media (min-width: 1024px)': {
-                    gridTemplateColumns: 'repeat(7, 1fr)'
-                  }
-                }}>
-                  {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day, dayIndex) => {
-                    const today = new Date()
-                    const currentDay = new Date(currentWeekStart)
-                    currentDay.setDate(currentWeekStart.getDate() + dayIndex)
-                    const isToday = currentDay.toDateString() === today.toDateString()
-                    
-                    return (
-                      <div key={day} style={{
-                        border: isToday ? '2px solid #005EB8' : '1px solid #e1e5e9',
-                        borderRadius: '8px',
-                        padding: '12px',
-                        background: isToday ? '#f0f8ff' : '#f8f9fa',
-                        minHeight: '200px'
+              {/* Weekly Schedule */}
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+                gap: '8px',
+                marginBottom: '24px'
+              }}>
+                {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day, dayIndex) => {
+                  const today = new Date()
+                  const currentDay = new Date(currentWeekStart)
+                  currentDay.setDate(currentWeekStart.getDate() + dayIndex)
+                  const isToday = currentDay.toDateString() === today.toDateString()
+
+                  return (
+                    <div key={day} style={{
+                      border: isToday ? '2px solid #005EB8' : '1px solid #e1e5e9',
+                      borderRadius: '8px',
+                      padding: '12px',
+                      background: isToday ? '#f0f8ff' : '#f8f9fa',
+                      minHeight: '160px'
+                    }}>
+                      <div style={{
+                        textAlign: 'center',
+                        marginBottom: '12px',
+                        borderBottom: '1px solid #e1e5e9',
+                        paddingBottom: '6px'
                       }}>
                         <div style={{
-                          textAlign: 'center',
-                          marginBottom: '12px',
-                          borderBottom: '1px solid #e1e5e9',
-                          paddingBottom: '6px'
+                          fontSize: '12px',
+                          fontWeight: '600',
+                          color: isToday ? '#005EB8' : '#003087',
+                          marginBottom: '2px'
                         }}>
-                          <div style={{
-                            fontSize: '12px',
-                            fontWeight: '600',
-                            color: isToday ? '#005EB8' : '#003087',
-                            marginBottom: '2px'
-                          }}>
-                            {day.slice(0, 3)}
-                          </div>
-                          <div style={{
-                            fontSize: '16px',
-                            fontWeight: 'bold',
-                            color: isToday ? '#005EB8' : '#666'
-                          }}>
-                            {currentDay.getDate()}
-                          </div>
+                          {day}
                         </div>
-
-                        {/* Time slots for the day */}
-                        <div style={{ display: 'grid', gap: '6px' }}>
-                          {['08:00', '12:00', '20:00'].map(time => {
-                            // For today, show actual schedule, for other days show sample
-                            const hasMedication = isToday && todaySchedule.some(dose => dose.time === time)
-                            const medication = isToday ? todaySchedule.find(dose => dose.time === time) : null
-                            
-                            return (
-                              <div key={time} style={{
-                                padding: '6px',
-                                borderRadius: '4px',
-                                border: hasMedication ? '1px solid #4caf50' : '1px dashed #ddd',
-                                background: hasMedication ? (medication?.taken ? '#e8f5e8' : '#fff9c4') : 'transparent',
-                                minHeight: '32px',
-                                fontSize: '10px'
-                              }}>
-                                <div style={{
-                                  fontWeight: '500',
-                                  color: '#666',
-                                  marginBottom: '2px'
-                                }}>
-                                  {time}
-                                </div>
-                                {hasMedication && medication && (
-                                  <div>
-                                    <div style={{
-                                      fontSize: '9px',
-                                      fontWeight: '600',
-                                      color: '#003087',
-                                      marginBottom: '1px',
-                                      wordBreak: 'break-word'
-                                    }}>
-                                      {medication.medicationName}
-                                    </div>
-                                    <div style={{
-                                      fontSize: '8px',
-                                      color: '#666'
-                                    }}>
-                                      {medication.dose}
-                                    </div>
-                                    {isToday && (
-                                      <button
-                                        onClick={() => toggleDoseTaken(todaySchedule.indexOf(medication))}
-                                        style={{
-                                          width: '14px',
-                                          height: '14px',
-                                          borderRadius: '50%',
-                                          border: medication.taken ? '1px solid #4caf50' : '1px solid #ddd',
-                                          backgroundColor: medication.taken ? '#4caf50' : 'white',
-                                          color: medication.taken ? 'white' : '#666',
-                                          cursor: 'pointer',
-                                          fontSize: '8px',
-                                          display: 'flex',
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                          marginTop: '2px'
-                                        }}
-                                      >
-                                        {medication.taken ? '✓' : ''}
-                                      </button>
-                                    )}
-                                  </div>
-                                )}
-                                {!hasMedication && isToday && (
-                                  <div style={{
-                                    color: '#ccc',
-                                    fontSize: '8px',
-                                    fontStyle: 'italic'
-                                  }}>
-                                    No med
-                                  </div>
-                                )}
-                              </div>
-                            )
-                          })}
+                        <div style={{
+                          fontSize: '16px',
+                          fontWeight: 'bold',
+                          color: isToday ? '#005EB8' : '#666'
+                        }}>
+                          {currentDay.getDate()}
                         </div>
                       </div>
-                    )
-                  })}
+
+                      {/* Today's schedule or placeholder */}
+                      {isToday && todaySchedule.length > 0 ? (
+                        <div style={{ display: 'grid', gap: '4px' }}>
+                          {todaySchedule.slice(0, 3).map((dose, index) => (
+                            <div key={index} style={{
+                              padding: '4px',
+                              borderRadius: '4px',
+                              background: dose.taken ? '#e8f5e8' : '#fff9c4',
+                              border: '1px solid ' + (dose.taken ? '#4caf50' : '#ffc107'),
+                              fontSize: '10px'
+                            }}>
+                              <div style={{ fontWeight: '600', color: '#003087' }}>
+                                {dose.time}
+                              </div>
+                              <div style={{ color: '#666' }}>
+                                {dose.medicationName.substring(0, 10)}...
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div style={{ color: '#ccc', fontSize: '10px', textAlign: 'center' }}>
+                          {isToday ? 'No doses scheduled' : 'Future day'}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
               </div>
 
               {/* Today's Detailed Schedule */}
@@ -901,11 +724,10 @@ export default function Medication() {
                   background: '#f8f9fa',
                   borderRadius: '12px',
                   padding: '20px',
-                  border: '1px solid #e1e5e9',
-                  marginBottom: '20px'
+                  border: '1px solid #e1e5e9'
                 }}>
                   <h3 style={{ margin: '0 0 16px 0', color: '#003087' }}>Today's Medication Schedule</h3>
-                  <div style={{ display: 'grid', gap: '12px', marginBottom: '20px' }}>
+                  <div style={{ display: 'grid', gap: '12px' }}>
                     {todaySchedule.map((dose, index) => (
                       <div key={index} style={{
                         display: 'flex',
@@ -914,16 +736,10 @@ export default function Medication() {
                         padding: '16px',
                         background: dose.taken ? '#e8f5e8' : 'white',
                         borderRadius: '8px',
-                        border: dose.taken ? '2px solid #4caf50' : '1px solid #e1e5e9',
-                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                        border: dose.taken ? '2px solid #4caf50' : '1px solid #e1e5e9'
                       }}>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ 
-                            fontWeight: '600', 
-                            color: '#003087', 
-                            marginBottom: '4px',
-                            fontSize: '16px'
-                          }}>
+                        <div>
+                          <div style={{ fontWeight: '600', color: '#003087', fontSize: '16px' }}>
                             {dose.time} - {dose.medicationName}
                           </div>
                           <div style={{ color: '#666', fontSize: '14px' }}>
@@ -940,11 +756,7 @@ export default function Medication() {
                             backgroundColor: dose.taken ? '#4caf50' : 'white',
                             color: dose.taken ? 'white' : '#666',
                             cursor: 'pointer',
-                            fontSize: '16px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            transition: 'all 0.2s ease'
+                            fontSize: '16px'
                           }}
                         >
                           {dose.taken ? '✓' : '○'}
@@ -952,80 +764,8 @@ export default function Medication() {
                       </div>
                     ))}
                   </div>
-                  
-                  {/* Progress Summary */}
-                  <div style={{ borderTop: '1px solid #e1e5e9', paddingTop: '16px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                      <span style={{ fontWeight: '500' }}>Progress Today</span>
-                      <span style={{ fontWeight: '600', color: '#005EB8' }}>
-                        {getTakenDosesCount()}/{getTodayDosesCount()} doses ({Math.round((getTakenDosesCount() / Math.max(1, getTodayDosesCount())) * 100)}%)
-                      </span>
-                    </div>
-                    <div style={{
-                      width: '100%',
-                      height: '10px',
-                      backgroundColor: '#e1e5e9',
-                      borderRadius: '5px',
-                      overflow: 'hidden'
-                    }}>
-                      <div style={{
-                        width: `${(getTakenDosesCount() / Math.max(1, getTodayDosesCount())) * 100}%`,
-                        height: '100%',
-                        backgroundColor: '#4caf50',
-                        transition: 'width 0.3s ease'
-                      }} />
-                    </div>
-                    <div style={{ marginTop: '12px', fontSize: '14px', color: '#666' }}>
-                      <strong>Next dose:</strong> {getNextDoseTime()}
-                    </div>
-                  </div>
                 </div>
               )}
-
-              {/* Legend */}
-              <div style={{
-                marginTop: '24px',
-                padding: '16px',
-                background: '#f8f9fa',
-                borderRadius: '8px',
-                border: '1px solid #e1e5e9'
-              }}>
-                <div style={{ fontSize: '14px', fontWeight: '500', color: '#003087', marginBottom: '8px' }}>
-                  Legend:
-                </div>
-                <div style={{ display: 'flex', gap: '24px', fontSize: '12px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <div style={{
-                      width: '12px',
-                      height: '12px',
-                      backgroundColor: '#e8f5e8',
-                      border: '1px solid #4caf50',
-                      borderRadius: '4px'
-                    }} />
-                    <span>Taken</span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <div style={{
-                      width: '12px',
-                      height: '12px',
-                      backgroundColor: '#fff9c4',
-                      border: '1px solid #4caf50',
-                      borderRadius: '4px'
-                    }} />
-                    <span>Scheduled</span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <div style={{
-                      width: '12px',
-                      height: '12px',
-                      backgroundColor: '#f0f8ff',
-                      border: '2px solid #005EB8',
-                      borderRadius: '4px'
-                    }} />
-                    <span>Today</span>
-                  </div>
-                </div>
-              </div>
             </div>
           )}
 
@@ -1055,7 +795,7 @@ export default function Medication() {
                   Add Medication
                 </button>
               </div>
-              
+
               {medications.length === 0 ? (
                 <div style={{ textAlign: 'center', color: '#666', padding: '40px 0' }}>
                   <div style={{ fontSize: '48px', marginBottom: '16px' }}>💊</div>
@@ -1082,8 +822,7 @@ export default function Medication() {
                       border: '1px solid #e1e5e9',
                       borderRadius: '12px',
                       padding: '24px',
-                      background: medication.status === 'active' ? '#f8fffe' : 
-                                 medication.status === 'paused' ? '#fff8e1' : '#fafafa'
+                      background: medication.status === 'active' ? '#f8fffe' : '#fafafa'
                     }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
                         <div>
@@ -1097,10 +836,8 @@ export default function Medication() {
                         <div style={{
                           padding: '4px 12px',
                           borderRadius: '12px',
-                          backgroundColor: medication.status === 'active' ? '#e8f5e8' : 
-                                          medication.status === 'paused' ? '#fff3cd' : '#f0f0f0',
-                          color: medication.status === 'active' ? '#2e7d32' : 
-                                medication.status === 'paused' ? '#856404' : '#666',
+                          backgroundColor: medication.status === 'active' ? '#e8f5e8' : '#f0f0f0',
+                          color: medication.status === 'active' ? '#2e7d32' : '#666',
                           fontSize: '12px',
                           fontWeight: '500',
                           textTransform: 'capitalize'
@@ -1108,11 +845,11 @@ export default function Medication() {
                           {medication.status}
                         </div>
                       </div>
-                      
+
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '16px' }}>
                         <div>
-                          <strong style={{ color: '#003087' }}>Prescribing Doctor:</strong><br/>
-                          <span style={{ color: '#666' }}>{medication.prescribingDoctor}</span>
+                          <strong style={{ color: '#003087' }}>Doctor:</strong><br/>
+                          <span style={{ color: '#666' }}>{medication.prescribingDoctor || 'Not specified'}</span>
                         </div>
                         <div>
                           <strong style={{ color: '#003087' }}>Times:</strong><br/>
@@ -1129,19 +866,13 @@ export default function Medication() {
                           </span>
                         </div>
                       </div>
-                      
-                      {medication.sideEffects.length > 0 && (
-                        <div style={{ marginBottom: '12px' }}>
-                          <strong style={{ color: '#003087' }}>Side Effects:</strong> {medication.sideEffects.join(', ')}
-                        </div>
-                      )}
-                      
+
                       {medication.notes && (
                         <div style={{ marginBottom: '16px', fontStyle: 'italic', color: '#666' }}>
                           "{medication.notes}"
                         </div>
                       )}
-                      
+
                       <div style={{ display: 'flex', gap: '12px' }}>
                         <button
                           onClick={() => editMedication(medication)}
@@ -1156,28 +887,6 @@ export default function Medication() {
                           }}
                         >
                           Edit
-                        </button>
-                        <button
-                          onClick={() => {
-                            const updatedMeds = medications.map(med => 
-                              med.id === medication.id 
-                                ? { ...med, status: med.status === 'active' ? 'paused' : 'active' as const }
-                                : med
-                            )
-                            setMedications(updatedMeds)
-                            localStorage.setItem(`neurolog_medications_${user?.id}`, JSON.stringify(updatedMeds))
-                          }}
-                          style={{
-                            padding: '8px 16px',
-                            background: medication.status === 'active' ? '#ff9800' : '#4caf50',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '6px',
-                            fontSize: '14px',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          {medication.status === 'active' ? 'Pause' : 'Resume'}
                         </button>
                         <button
                           onClick={() => deleteMedication(medication.id)}
@@ -1214,7 +923,7 @@ export default function Medication() {
               <h2 style={{ margin: '0 0 24px 0', color: '#003087', textAlign: 'center' }}>
                 {editingMedication ? 'Edit Medication' : 'Add New Medication'}
               </h2>
-              
+
               <form onSubmit={handleAddMedication}>
                 <div style={{ display: 'grid', gap: '24px' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
@@ -1238,7 +947,7 @@ export default function Medication() {
                         }}
                       />
                     </div>
-                    
+
                     <div>
                       <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
                         Generic Name
@@ -1281,7 +990,7 @@ export default function Medication() {
                         }}
                       />
                     </div>
-                    
+
                     <div>
                       <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
                         Unit
@@ -1306,7 +1015,7 @@ export default function Medication() {
                         <option value="capsules">capsules</option>
                       </select>
                     </div>
-                    
+
                     <div>
                       <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
                         Frequency *
@@ -1328,7 +1037,6 @@ export default function Medication() {
                         <option value="once_daily">Once daily</option>
                         <option value="twice_daily">Twice daily</option>
                         <option value="three_times_daily">Three times daily</option>
-                        <option value="four_times_daily">Four times daily</option>
                         <option value="as_needed">As needed</option>
                       </select>
                     </div>
@@ -1393,50 +1101,6 @@ export default function Medication() {
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                     <div>
                       <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
-                        Start Date
-                      </label>
-                      <input
-                        type="date"
-                        value={formData.startDate}
-                        onChange={(e) => setFormData({...formData, startDate: e.target.value})}
-                        style={{
-                          width: '100%',
-                          padding: '12px',
-                          borderRadius: '8px',
-                          border: '2px solid #e1e5e9',
-                          fontSize: '16px',
-                          boxSizing: 'border-box'
-                        }}
-                      />
-                    </div>
-                    
-                    <div>
-                      <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
-                        Status
-                      </label>
-                      <select
-                        value={formData.status}
-                        onChange={(e) => setFormData({...formData, status: e.target.value as 'active' | 'paused' | 'discontinued'})}
-                        style={{
-                          width: '100%',
-                          padding: '12px',
-                          borderRadius: '8px',
-                          border: '2px solid #e1e5e9',
-                          fontSize: '16px',
-                          backgroundColor: 'white',
-                          boxSizing: 'border-box'
-                        }}
-                      >
-                        <option value="active">Active</option>
-                        <option value="paused">Paused</option>
-                        <option value="discontinued">Discontinued</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                    <div>
-                      <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
                         Prescribing Doctor
                       </label>
                       <input
@@ -1454,89 +1118,7 @@ export default function Medication() {
                         }}
                       />
                     </div>
-                    
-                    <div>
-                      <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
-                        Doctor Contact
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.doctorContact}
-                        onChange={(e) => setFormData({...formData, doctorContact: e.target.value})}
-                        placeholder="01234 567890"
-                        style={{
-                          width: '100%',
-                          padding: '12px',
-                          borderRadius: '8px',
-                          border: '2px solid #e1e5e9',
-                          fontSize: '16px',
-                          boxSizing: 'border-box'
-                        }}
-                      />
-                    </div>
-                  </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                    <div>
-                      <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
-                        Pharmacy Name
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.pharmacyName}
-                        onChange={(e) => setFormData({...formData, pharmacyName: e.target.value})}
-                        placeholder="Central Pharmacy"
-                        style={{
-                          width: '100%',
-                          padding: '12px',
-                          borderRadius: '8px',
-                          border: '2px solid #e1e5e9',
-                          fontSize: '16px',
-                          boxSizing: 'border-box'
-                        }}
-                      />
-                    </div>
-                    
-                    <div>
-                      <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
-                        Pharmacy Phone
-                      </label>
-                      <input
-                        type="tel"
-                        value={formData.pharmacyPhone}
-                        onChange={(e) => setFormData({...formData, pharmacyPhone: e.target.value})}
-                        placeholder="01234 987654"
-                        style={{
-                          width: '100%',
-                          padding: '12px',
-                          borderRadius: '8px',
-                          border: '2px solid #e1e5e9',
-                          fontSize: '16px',
-                          boxSizing: 'border-box'
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
-                    <div>
-                      <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
-                        Effectiveness (1-5): {formData.effectiveness}
-                      </label>
-                      <input
-                        type="range"
-                        min="1"
-                        max="5"
-                        value={formData.effectiveness}
-                        onChange={(e) => setFormData({...formData, effectiveness: parseInt(e.target.value)})}
-                        style={{ width: '100%' }}
-                      />
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#666' }}>
-                        <span>Poor</span>
-                        <span>Excellent</span>
-                      </div>
-                    </div>
-                    
                     <div>
                       <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
                         Days Supply
@@ -1556,71 +1138,11 @@ export default function Medication() {
                         }}
                       />
                     </div>
-                    
-                    <div>
-                      <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
-                        Next Refill Date
-                      </label>
-                      <input
-                        type="date"
-                        value={formData.nextRefillDate}
-                        onChange={(e) => setFormData({...formData, nextRefillDate: e.target.value})}
-                        style={{
-                          width: '100%',
-                          padding: '12px',
-                          borderRadius: '8px',
-                          border: '2px solid #e1e5e9',
-                          fontSize: '16px',
-                          boxSizing: 'border-box'
-                        }}
-                      />
-                    </div>
                   </div>
 
                   <div>
                     <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
-                      Side Effects (comma separated)
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.sideEffects}
-                      onChange={(e) => setFormData({...formData, sideEffects: e.target.value})}
-                      placeholder="e.g., drowsiness, dizziness, nausea"
-                      style={{
-                        width: '100%',
-                        padding: '12px',
-                        borderRadius: '8px',
-                        border: '2px solid #e1e5e9',
-                        fontSize: '16px',
-                        boxSizing: 'border-box'
-                      }}
-                    />
-                  </div>
-
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
-                      Special Instructions
-                    </label>
-                    <textarea
-                      value={formData.specialInstructions}
-                      onChange={(e) => setFormData({...formData, specialInstructions: e.target.value})}
-                      placeholder="e.g., take with food, avoid alcohol"
-                      style={{
-                        width: '100%',
-                        padding: '12px',
-                        borderRadius: '8px',
-                        border: '2px solid #e1e5e9',
-                        fontSize: '16px',
-                        minHeight: '80px',
-                        resize: 'vertical',
-                        boxSizing: 'border-box'
-                      }}
-                    />
-                  </div>
-
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
-                      Notes (effectiveness, seizure impact, etc.)
+                      Notes
                     </label>
                     <textarea
                       value={formData.notes}
@@ -1644,7 +1166,6 @@ export default function Medication() {
                   <button
                     type="button"
                     onClick={() => {
-                      setShowAddForm(false)
                       setEditingMedication(null)
                       setActiveTab('overview')
                     }}
@@ -1683,106 +1204,8 @@ export default function Medication() {
               </form>
             </div>
           )}
-
-          {activeTab === 'history' && (
-            <div style={{
-              background: 'white',
-              borderRadius: '16px',
-              padding: '24px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-              border: '1px solid #e1e5e9'
-            }}>
-              <h2 style={{ margin: '0 0 24px 0', color: '#003087' }}>Medication History</h2>
-              
-              {medications.length === 0 ? (
-                <div style={{ textAlign: 'center', color: '#666', padding: '40px 0' }}>
-                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>📋</div>
-                  <div>No medication history yet.</div>
-                </div>
-              ) : (
-                <div style={{ position: 'relative' }}>
-                  {/* Timeline line */}
-                  <div style={{
-                    position: 'absolute',
-                    left: '20px',
-                    top: '0',
-                    bottom: '0',
-                    width: '2px',
-                    backgroundColor: '#e1e5e9'
-                  }} />
-                  
-                  <div style={{ display: 'grid', gap: '24px' }}>
-                    {medications
-                      .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
-                      .map((medication, index) => (
-                        <div key={medication.id} style={{ position: 'relative', paddingLeft: '60px' }}>
-                          {/* Timeline dot */}
-                          <div style={{
-                            position: 'absolute',
-                            left: '10px',
-                            top: '20px',
-                            width: '20px',
-                            height: '20px',
-                            borderRadius: '50%',
-                            backgroundColor: medication.status === 'active' ? '#4caf50' : 
-                                            medication.status === 'paused' ? '#ff9800' : '#666',
-                            border: '3px solid white',
-                            boxShadow: '0 0 0 2px #e1e5e9'
-                          }} />
-                          
-                          <div style={{
-                            border: '1px solid #e1e5e9',
-                            borderRadius: '12px',
-                            padding: '20px',
-                            background: '#f8f9fa'
-                          }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '12px' }}>
-                              <div>
-                                <h3 style={{ margin: '0 0 4px 0', color: '#003087' }}>
-                                  {medication.name}
-                                </h3>
-                                <div style={{ color: '#666', fontSize: '14px' }}>
-                                  Started: {new Date(medication.startDate).toLocaleDateString()}
-                                </div>
-                              </div>
-                              <div style={{
-                                padding: '4px 12px',
-                                borderRadius: '12px',
-                                backgroundColor: medication.status === 'active' ? '#e8f5e8' : 
-                                                medication.status === 'paused' ? '#fff3cd' : '#f0f0f0',
-                                color: medication.status === 'active' ? '#2e7d32' : 
-                                      medication.status === 'paused' ? '#856404' : '#666',
-                                fontSize: '12px',
-                                fontWeight: '500',
-                                textTransform: 'capitalize'
-                              }}>
-                                {medication.status}
-                              </div>
-                            </div>
-                            
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px', fontSize: '14px' }}>
-                              <div><strong>Dose:</strong> {medication.dose}{medication.unit}</div>
-                              <div><strong>Frequency:</strong> {medication.frequency.replace('_', ' ')}</div>
-                              <div><strong>Effectiveness:</strong> {medication.effectiveness}/5</div>
-                              <div><strong>Doctor:</strong> {medication.prescribingDoctor || 'Not specified'}</div>
-                            </div>
-                            
-                            {medication.notes && (
-                              <div style={{ marginTop: '12px', fontStyle: 'italic', color: '#666', fontSize: '14px' }}>
-                                "{medication.notes}"
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
         </div>
       </div>
     </>
-      )
-          }
-          }
+  )
+}
