@@ -799,7 +799,7 @@ export default function Medication() {
                           color: isToday ? '#005EB8' : '#003087',
                           marginBottom: '4px'
                         }}>
-                          {day.slice(0, 3)}
+                          {day}
                         </div>
                         <div style={{
                           fontSize: '20px',
