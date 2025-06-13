@@ -1,0 +1,116 @@
+# 🏥 NeuroLog Doctor Portal - Complete Replit Prompt
+
+**PASTE THIS PROMPT INTO REPLIT AI ASSISTANT:**
+
+---
+
+Please create a comprehensive doctor portal for my NeuroLog seizure tracking app. I need a new file called `doctor-portal.tsx` in the `pages` folder.
+
+## Requirements:
+
+### Core Features:
+- **Multi-Patient Dashboard** showing all patients using NeuroLog who have granted access
+- **Real-Time Seizure Alerts** with patient notifications and emergency status
+- **Patient Overview Cards** with key medical info, recent seizures, medication compliance
+- **Detailed Patient Profiles** with complete seizure history, medications, triggers
+- **Clinical Notes System** for doctors to add medical observations and treatment notes
+- **Medication Monitoring** showing compliance rates, missed doses, side effects
+- **Trend Analysis Charts** showing seizure frequency, patterns, and medication effectiveness
+- **Alert Management** for critical events (frequent seizures, missed medications)
+- **Secure Messaging** with patients (GDPR compliant)
+- **Export/Print Tools** for medical records and reports
+
+### Professional Dashboard Features:
+- **Practice Statistics** (total patients, seizure trends across practice)
+- **Risk Assessment Tools** (identify high-risk patients needing urgent attention)
+- **Appointment Integration** (link to practice management systems)
+- **Clinical Decision Support** (medication adjustment suggestions based on seizure patterns)
+- **Outcome Tracking** (treatment effectiveness, quality of life improvements)
+- **Research Data** (anonymized population health insights)
+
+### Design Requirements:
+- Match existing NeuroLog design (NHS blue #005EB8) but with professional medical interface
+- Clean, clinical dashboard layout suitable for busy doctors
+- Mobile responsive for doctors using tablets/phones
+- Quick access to emergency patient information
+- Professional typography and medical iconography
+- Fast loading and efficient data display
+
+### Data Structure for Doctor Portal:
+Each doctor should see:
+- **Patient List** with consent status and last activity
+- **Patient Summary Cards** showing: name, age, recent seizure count, medication compliance %, risk level
+- **Detailed Patient View** with: complete seizure history, medications, triggers, notes, trends
+- **Alert Dashboard** with: overdue medications, frequent seizures, concerning patterns
+- **Clinical Notes** with: date, observation, treatment plan, follow-up required
+- **Analytics** with: seizure frequency trends, medication effectiveness, quality of life scores
+
+### Page Sections:
+1. **Header** - "NeuroLog Doctor Portal" with practice name and doctor info
+2. **Quick Stats** - Total patients, active cases, alerts requiring attention
+3. **Patient Overview** - Cards showing each patient with key metrics and status
+4. **Alert Center** - Priority notifications for patient safety
+5. **Clinical Dashboard** - Charts and analytics for population health
+6. **Patient Detail Modal** - Deep dive into individual patient records
+7. **Notes System** - Add/edit clinical observations and treatment plans
+8. **Settings** - Portal preferences, notification settings, patient access management
+
+### Technical Requirements:
+- Use React hooks (useState, useEffect)
+- Integrate with existing NeuroLog Supabase database
+- Implement Row Level Security for patient data access
+- Professional data visualization (charts for trends)
+- Search and filter functionality for patient lists
+- Export functionality for clinical reports
+- Responsive design for medical tablets/devices
+
+### Security Features:
+- **Patient Consent Verification** (only show patients who granted doctor access)
+- **Role-Based Access Control** (different permissions for GPs vs specialists)
+- **Audit Logging** (track all doctor actions for compliance)
+- **Session Management** (automatic logout for security)
+- **Data Encryption** (protect patient information)
+
+### UI Components Needed:
+- Patient cards with traffic light system (green/amber/red for risk levels)
+- Interactive charts showing seizure trends over time
+- Alert notifications with priority levels
+- Clinical notes interface with rich text editing
+- Patient search and filtering tools
+- Quick action buttons (call patient, send message, add note)
+- Professional medical icons and status indicators
+
+### Sample Data to Include:
+Pre-populate with 5-8 example patients showing:
+- Various seizure types and frequencies
+- Different medication regimens
+- Range of compliance levels (good, moderate, poor)
+- Different risk levels and alert statuses
+- Sample clinical notes and observations
+
+### Revenue Integration:
+- **Subscription Status** display (active/trial/expired)
+- **Usage Metrics** (number of patients, data exports used)
+- **Upgrade Prompts** for premium features
+- **Billing Integration** hooks for payment processing
+
+### Professional Features:
+- **CQC Compliance Tools** (audit trails, documentation standards)
+- **NHS Integration** ready (patient identifiers, referral systems)
+- **Multi-Practice Support** (for doctors working across multiple locations)
+- **Colleague Sharing** (securely share patient insights with other doctors)
+
+### Accessibility:
+- Screen reader compatible
+- High contrast mode for medical environments
+- Keyboard navigation
+- Large touch targets for tablet use
+- Fast data loading for busy clinical environments
+
+Please make this a complete, professional medical portal that matches the existing NeuroLog design system but with enhanced clinical functionality. The portal should be ready for real doctors to use in clinical practice and include all necessary features for professional healthcare management.
+
+Include proper TypeScript interfaces for all medical data structures and ensure the portal integrates seamlessly with the existing NeuroLog patient app database.
+
+---
+
+**END OF PROMPT - PASTE THE ABOVE INTO REPLIT AI ASSISTANT**
