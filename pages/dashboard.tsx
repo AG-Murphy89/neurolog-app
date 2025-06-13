@@ -32,7 +32,9 @@ export default function Dashboard() {
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
     time: '',
-    duration: '',
+    timeAmPm: 'AM',
+    durationMinutes: '',
+    durationSeconds: '',
     type: '',
     triggers: '',
     severity: 3,
@@ -70,7 +72,15 @@ export default function Dashboard() {
     
     const newSeizure: SeizureEntry = {
       id: Date.now().toString(),
-      ...formData,
+      date: formData.date,
+      time: `${formData.time} ${formData.timeAmPm}`,
+      duration: `${formData.durationMinutes ? formData.durationMinutes + ' min' : ''}${formData.durationMinutes && formData.durationSeconds ? ' ' : ''}${formData.durationSeconds ? formData.durationSeconds + ' sec' : ''}`,
+      type: formData.type,
+      triggers: formData.triggers,
+      severity: formData.severity,
+      symptoms: formData.symptoms,
+      medication: formData.medication,
+      notes: formData.notes,
       createdAt: new Date().toISOString()
     }
     
@@ -82,7 +92,9 @@ export default function Dashboard() {
     setFormData({
       date: new Date().toISOString().split('T')[0],
       time: '',
-      duration: '',
+      timeAmPm: 'AM',
+      durationMinutes: '',
+      durationSeconds: '',
       type: '',
       triggers: '',
       severity: 3,
@@ -389,41 +401,81 @@ export default function Dashboard() {
                     
                     <div>
                       <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>Time</label>
-                      <input
-                        type="time"
-                        value={formData.time}
-                        onChange={(e) => setFormData({...formData, time: e.target.value})}
-                        style={{
-                          width: '100%',
-                          padding: '12px',
-                          borderRadius: '8px',
-                          border: '2px solid #e1e5e9',
-                          fontSize: '16px',
-                          boxSizing: 'border-box'
-                        }}
-                        required
-                      />
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <input
+                          type="time"
+                          value={formData.time}
+                          onChange={(e) => setFormData({...formData, time: e.target.value})}
+                          style={{
+                            flex: 1,
+                            padding: '12px',
+                            borderRadius: '8px',
+                            border: '2px solid #e1e5e9',
+                            fontSize: '16px',
+                            boxSizing: 'border-box'
+                          }}
+                          required
+                        />
+                        <select
+                          value={formData.timeAmPm}
+                          onChange={(e) => setFormData({...formData, timeAmPm: e.target.value})}
+                          style={{
+                            padding: '12px',
+                            borderRadius: '8px',
+                            border: '2px solid #e1e5e9',
+                            fontSize: '16px',
+                            backgroundColor: 'white',
+                            boxSizing: 'border-box'
+                          }}
+                        >
+                          <option value="AM">AM</option>
+                          <option value="PM">PM</option>
+                        </select>
+                      </div>
                     </div>
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                     <div>
                       <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>Duration</label>
-                      <input
-                        type="text"
-                        placeholder="e.g., 2 minutes"
-                        value={formData.duration}
-                        onChange={(e) => setFormData({...formData, duration: e.target.value})}
-                        style={{
-                          width: '100%',
-                          padding: '12px',
-                          borderRadius: '8px',
-                          border: '2px solid #e1e5e9',
-                          fontSize: '16px',
-                          boxSizing: 'border-box'
-                        }}
-                        required
-                      />
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <select
+                          value={formData.durationMinutes}
+                          onChange={(e) => setFormData({...formData, durationMinutes: e.target.value})}
+                          style={{
+                            flex: 1,
+                            padding: '12px',
+                            borderRadius: '8px',
+                            border: '2px solid #e1e5e9',
+                            fontSize: '16px',
+                            backgroundColor: 'white',
+                            boxSizing: 'border-box'
+                          }}
+                        >
+                          <option value="">Minutes</option>
+                          {Array.from({length: 60}, (_, i) => (
+                            <option key={i} value={i}>{i}</option>
+                          ))}
+                        </select>
+                        <select
+                          value={formData.durationSeconds}
+                          onChange={(e) => setFormData({...formData, durationSeconds: e.target.value})}
+                          style={{
+                            flex: 1,
+                            padding: '12px',
+                            borderRadius: '8px',
+                            border: '2px solid #e1e5e9',
+                            fontSize: '16px',
+                            backgroundColor: 'white',
+                            boxSizing: 'border-box'
+                          }}
+                        >
+                          <option value="">Seconds</option>
+                          {Array.from({length: 60}, (_, i) => (
+                            <option key={i} value={i}>{i}</option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
                     
                     <div>
@@ -448,6 +500,7 @@ export default function Dashboard() {
                         <option value="Absence">Absence (Petit mal)</option>
                         <option value="Myoclonic">Myoclonic</option>
                         <option value="Atonic">Atonic (Drop)</option>
+                        <option value="Status Epilepticus">Status Epilepticus</option>
                         <option value="Other">Other</option>
                       </select>
                     </div>
