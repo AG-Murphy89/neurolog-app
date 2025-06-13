@@ -22,6 +22,10 @@ interface User {
   name: string
   email: string
   type: string
+  doctorName?: string
+  doctorAddress?: string
+  doctorPhone?: string
+  nhsNumber?: string
 }
 
 export default function Dashboard() {
@@ -294,10 +298,14 @@ export default function Dashboard() {
         <h2 style="margin-top: 0; color: #003087;">Patient Information</h2>
         <table>
             <tr><td><strong>Patient Name:</strong></td><td>${user.name}</td></tr>
+            ${user.nhsNumber ? `<tr><td><strong>NHS Number:</strong></td><td>${user.nhsNumber}</td></tr>` : ''}
             <tr><td><strong>Account Type:</strong></td><td>${user.type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</td></tr>
             <tr><td><strong>Report Period:</strong></td><td>12 Months (${twelveMonthsAgo.toLocaleDateString()} - ${new Date().toLocaleDateString()})</td></tr>
             <tr><td><strong>Data Source:</strong></td><td>NeuroLog Digital Seizure Diary</td></tr>
             ${user.organizationName ? `<tr><td><strong>Care Provider:</strong></td><td>${user.organizationName}</td></tr>` : ''}
+            ${user.doctorName ? `<tr><td><strong>GP/Consultant:</strong></td><td>${user.doctorName}</td></tr>` : ''}
+            ${user.doctorAddress ? `<tr><td><strong>Surgery Address:</strong></td><td>${user.doctorAddress}</td></tr>` : ''}
+            ${user.doctorPhone ? `<tr><td><strong>Surgery Phone:</strong></td><td>${user.doctorPhone}</td></tr>` : ''}
         </table>
     </div>
 
@@ -654,7 +662,7 @@ export default function Dashboard() {
             display: 'flex',
             gap: '32px'
           }}>
-            {['overview', 'add', 'history', 'insights', ...(user.type === 'care_home' || user.type === 'professional' ? ['audit'] : [])].map(tab => (
+            {['overview', 'add', 'history', 'insights', 'profile', ...(user.type === 'care_home' || user.type === 'professional' ? ['audit'] : [])].map(tab => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -762,6 +770,52 @@ export default function Dashboard() {
                 >
                   + Record New Seizure
                 </button>
+              </div>
+
+              {/* Doctor Information */}
+              <div style={{
+                background: 'white',
+                borderRadius: '16px',
+                padding: '24px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                border: '1px solid #e1e5e9',
+                marginBottom: '32px'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                  <h3 style={{ margin: '0', color: '#003087', fontSize: '20px' }}>Medical Information</h3>
+                  <button
+                    onClick={() => setActiveTab('profile')}
+                    style={{
+                      background: 'transparent',
+                      color: '#005EB8',
+                      border: '1px solid #005EB8',
+                      padding: '8px 16px',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Edit Details
+                  </button>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
+                  <div>
+                    <strong style={{ color: '#003087' }}>GP/Consultant:</strong><br/>
+                    <span style={{ color: '#666' }}>{user.doctorName || 'Not specified'}</span>
+                  </div>
+                  <div>
+                    <strong style={{ color: '#003087' }}>Surgery Address:</strong><br/>
+                    <span style={{ color: '#666' }}>{user.doctorAddress || 'Not specified'}</span>
+                  </div>
+                  <div>
+                    <strong style={{ color: '#003087' }}>Surgery Phone:</strong><br/>
+                    <span style={{ color: '#666' }}>{user.doctorPhone || 'Not specified'}</span>
+                  </div>
+                  <div>
+                    <strong style={{ color: '#003087' }}>NHS Number:</strong><br/>
+                    <span style={{ color: '#666' }}>{user.nhsNumber || 'Not specified'}</span>
+                  </div>
+                </div>
               </div>
 
               {/* Recent Seizures */}
@@ -1189,6 +1243,192 @@ export default function Dashboard() {
                   ))}
                 </div>
               )}
+            </div>
+          )}
+
+          {activeTab === 'profile' && (
+            <div style={{
+              background: 'white',
+              borderRadius: '16px',
+              padding: '32px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              border: '1px solid #e1e5e9',
+              maxWidth: '800px',
+              margin: '0 auto'
+            }}>
+              <h2 style={{ margin: '0 0 24px 0', color: '#003087', textAlign: 'center' }}>Profile & Medical Information</h2>
+              
+              <form onSubmit={(e) => {
+                e.preventDefault()
+                const formData = new FormData(e.target as HTMLFormElement)
+                const updatedUser = {
+                  ...user,
+                  doctorName: formData.get('doctorName') as string,
+                  doctorAddress: formData.get('doctorAddress') as string,
+                  doctorPhone: formData.get('doctorPhone') as string,
+                  nhsNumber: formData.get('nhsNumber') as string
+                }
+                setUser(updatedUser)
+                localStorage.setItem('neurolog_user', JSON.stringify(updatedUser))
+                alert('Profile updated successfully!')
+              }}>
+                <div style={{ display: 'grid', gap: '24px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>Name</label>
+                      <input
+                        type="text"
+                        value={user.name}
+                        disabled
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          borderRadius: '8px',
+                          border: '2px solid #e1e5e9',
+                          fontSize: '16px',
+                          backgroundColor: '#f8f9fa',
+                          color: '#666',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>Email</label>
+                      <input
+                        type="email"
+                        value={user.email}
+                        disabled
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          borderRadius: '8px',
+                          border: '2px solid #e1e5e9',
+                          fontSize: '16px',
+                          backgroundColor: '#f8f9fa',
+                          color: '#666',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ borderTop: '1px solid #e1e5e9', paddingTop: '24px' }}>
+                    <h3 style={{ margin: '0 0 16px 0', color: '#003087' }}>Medical Information</h3>
+                    
+                    <div style={{ display: 'grid', gap: '16px' }}>
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>NHS Number</label>
+                        <input
+                          type="text"
+                          name="nhsNumber"
+                          defaultValue={user.nhsNumber || ''}
+                          placeholder="e.g., 123 456 7890"
+                          style={{
+                            width: '100%',
+                            padding: '12px',
+                            borderRadius: '8px',
+                            border: '2px solid #e1e5e9',
+                            fontSize: '16px',
+                            boxSizing: 'border-box'
+                          }}
+                        />
+                      </div>
+                      
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>GP/Consultant Name</label>
+                        <input
+                          type="text"
+                          name="doctorName"
+                          defaultValue={user.doctorName || ''}
+                          placeholder="e.g., Dr. John Smith"
+                          style={{
+                            width: '100%',
+                            padding: '12px',
+                            borderRadius: '8px',
+                            border: '2px solid #e1e5e9',
+                            fontSize: '16px',
+                            boxSizing: 'border-box'
+                          }}
+                        />
+                      </div>
+                      
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>Surgery/Clinic Address</label>
+                        <textarea
+                          name="doctorAddress"
+                          defaultValue={user.doctorAddress || ''}
+                          placeholder="Full address including postcode"
+                          style={{
+                            width: '100%',
+                            padding: '12px',
+                            borderRadius: '8px',
+                            border: '2px solid #e1e5e9',
+                            fontSize: '16px',
+                            minHeight: '80px',
+                            resize: 'vertical',
+                            boxSizing: 'border-box'
+                          }}
+                        />
+                      </div>
+                      
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>Surgery/Clinic Phone</label>
+                        <input
+                          type="tel"
+                          name="doctorPhone"
+                          defaultValue={user.doctorPhone || ''}
+                          placeholder="e.g., 01234 567890"
+                          style={{
+                            width: '100%',
+                            padding: '12px',
+                            borderRadius: '8px',
+                            border: '2px solid #e1e5e9',
+                            fontSize: '16px',
+                            boxSizing: 'border-box'
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ marginTop: '32px', display: 'flex', gap: '16px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('overview')}
+                    style={{
+                      flex: 1,
+                      padding: '16px',
+                      background: 'transparent',
+                      color: '#666',
+                      border: '2px solid #e1e5e9',
+                      borderRadius: '12px',
+                      fontSize: '16px',
+                      fontWeight: '600',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    style={{
+                      flex: 2,
+                      padding: '16px',
+                      background: 'linear-gradient(135deg, #005EB8 0%, #003087 100%)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '12px',
+                      fontSize: '16px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      boxShadow: '0 6px 20px rgba(0, 94, 184, 0.4)'
+                    }}
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              </form>
             </div>
           )}
 
