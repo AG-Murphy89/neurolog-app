@@ -766,159 +766,218 @@ export default function Medication() {
                 </button>
               </div>
 
-              {/* Weekly Calendar Grid */}
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(7, 1fr)',
-                gap: '12px',
-                marginBottom: '24px'
-              }}>
-                {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day, dayIndex) => {
-                  const today = new Date()
-                  const currentDay = new Date(currentWeekStart)
-                  currentDay.setDate(currentWeekStart.getDate() + dayIndex)
-                  const isToday = currentDay.toDateString() === today.toDateString()
-                  
-                  return (
-                    <div key={day} style={{
-                      border: isToday ? '2px solid #005EB8' : '1px solid #e1e5e9',
-                      borderRadius: '12px',
-                      padding: '16px',
-                      background: isToday ? '#f0f8ff' : '#f8f9fa',
-                      minHeight: '300px'
-                    }}>
-                      <div style={{
-                        textAlign: 'center',
-                        marginBottom: '16px',
-                        borderBottom: '1px solid #e1e5e9',
-                        paddingBottom: '8px'
+              {/* Weekly Schedule - Responsive Design */}
+              <div style={{ marginBottom: '24px' }}>
+                {/* Desktop View */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+                  gap: '8px',
+                  '@media (min-width: 1024px)': {
+                    gridTemplateColumns: 'repeat(7, 1fr)'
+                  }
+                }}>
+                  {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day, dayIndex) => {
+                    const today = new Date()
+                    const currentDay = new Date(currentWeekStart)
+                    currentDay.setDate(currentWeekStart.getDate() + dayIndex)
+                    const isToday = currentDay.toDateString() === today.toDateString()
+                    
+                    return (
+                      <div key={day} style={{
+                        border: isToday ? '2px solid #005EB8' : '1px solid #e1e5e9',
+                        borderRadius: '8px',
+                        padding: '12px',
+                        background: isToday ? '#f0f8ff' : '#f8f9fa',
+                        minHeight: '200px'
                       }}>
                         <div style={{
-                          fontSize: '14px',
-                          fontWeight: '600',
-                          color: isToday ? '#005EB8' : '#003087',
-                          marginBottom: '4px'
+                          textAlign: 'center',
+                          marginBottom: '12px',
+                          borderBottom: '1px solid #e1e5e9',
+                          paddingBottom: '6px'
                         }}>
-                          {day}
+                          <div style={{
+                            fontSize: '12px',
+                            fontWeight: '600',
+                            color: isToday ? '#005EB8' : '#003087',
+                            marginBottom: '2px'
+                          }}>
+                            {day.slice(0, 3)}
+                          </div>
+                          <div style={{
+                            fontSize: '16px',
+                            fontWeight: 'bold',
+                            color: isToday ? '#005EB8' : '#666'
+                          }}>
+                            {currentDay.getDate()}
+                          </div>
                         </div>
-                        <div style={{
-                          fontSize: '20px',
-                          fontWeight: 'bold',
-                          color: isToday ? '#005EB8' : '#666'
-                        }}>
-                          {currentDay.getDate()}
-                        </div>
-                      </div>
 
-                      {/* Time slots for the day */}
-                      <div style={{ display: 'grid', gap: '8px' }}>
-                        {['08:00', '12:00', '20:00'].map(time => {
-                          // For today, show actual schedule, for other days show sample
-                          const hasMedication = isToday && todaySchedule.some(dose => dose.time === time)
-                          const medication = isToday ? todaySchedule.find(dose => dose.time === time) : null
-                          
-                          return (
-                            <div key={time} style={{
-                              padding: '8px',
-                              borderRadius: '6px',
-                              border: hasMedication ? '1px solid #4caf50' : '1px dashed #ddd',
-                              background: hasMedication ? (medication?.taken ? '#e8f5e8' : '#fff9c4') : 'transparent',
-                              minHeight: '40px',
-                              fontSize: '12px'
-                            }}>
-                              <div style={{
-                                fontWeight: '500',
-                                color: '#666',
-                                marginBottom: '2px'
+                        {/* Time slots for the day */}
+                        <div style={{ display: 'grid', gap: '6px' }}>
+                          {['08:00', '12:00', '20:00'].map(time => {
+                            // For today, show actual schedule, for other days show sample
+                            const hasMedication = isToday && todaySchedule.some(dose => dose.time === time)
+                            const medication = isToday ? todaySchedule.find(dose => dose.time === time) : null
+                            
+                            return (
+                              <div key={time} style={{
+                                padding: '6px',
+                                borderRadius: '4px',
+                                border: hasMedication ? '1px solid #4caf50' : '1px dashed #ddd',
+                                background: hasMedication ? (medication?.taken ? '#e8f5e8' : '#fff9c4') : 'transparent',
+                                minHeight: '32px',
+                                fontSize: '10px'
                               }}>
-                                {time}
-                              </div>
-                              {hasMedication && medication && (
-                                <div>
-                                  <div style={{
-                                    fontSize: '11px',
-                                    fontWeight: '600',
-                                    color: '#003087',
-                                    marginBottom: '2px'
-                                  }}>
-                                    {medication.medicationName}
-                                  </div>
-                                  <div style={{
-                                    fontSize: '10px',
-                                    color: '#666'
-                                  }}>
-                                    {medication.dose}
-                                  </div>
-                                  {isToday && (
-                                    <button
-                                      onClick={() => toggleDoseTaken(todaySchedule.indexOf(medication))}
-                                      style={{
-                                        width: '16px',
-                                        height: '16px',
-                                        borderRadius: '50%',
-                                        border: medication.taken ? '1px solid #4caf50' : '1px solid #ddd',
-                                        backgroundColor: medication.taken ? '#4caf50' : 'white',
-                                        color: medication.taken ? 'white' : '#666',
-                                        cursor: 'pointer',
-                                        fontSize: '10px',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        marginTop: '4px'
-                                      }}
-                                    >
-                                      {medication.taken ? '✓' : ''}
-                                    </button>
-                                  )}
-                                </div>
-                              )}
-                              {!hasMedication && isToday && (
                                 <div style={{
-                                  color: '#ccc',
-                                  fontSize: '10px',
-                                  fontStyle: 'italic'
+                                  fontWeight: '500',
+                                  color: '#666',
+                                  marginBottom: '2px'
                                 }}>
-                                  No medication
+                                  {time}
                                 </div>
-                              )}
-                            </div>
-                          )
-                        })}
+                                {hasMedication && medication && (
+                                  <div>
+                                    <div style={{
+                                      fontSize: '9px',
+                                      fontWeight: '600',
+                                      color: '#003087',
+                                      marginBottom: '1px',
+                                      wordBreak: 'break-word'
+                                    }}>
+                                      {medication.medicationName}
+                                    </div>
+                                    <div style={{
+                                      fontSize: '8px',
+                                      color: '#666'
+                                    }}>
+                                      {medication.dose}
+                                    </div>
+                                    {isToday && (
+                                      <button
+                                        onClick={() => toggleDoseTaken(todaySchedule.indexOf(medication))}
+                                        style={{
+                                          width: '14px',
+                                          height: '14px',
+                                          borderRadius: '50%',
+                                          border: medication.taken ? '1px solid #4caf50' : '1px solid #ddd',
+                                          backgroundColor: medication.taken ? '#4caf50' : 'white',
+                                          color: medication.taken ? 'white' : '#666',
+                                          cursor: 'pointer',
+                                          fontSize: '8px',
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                          marginTop: '2px'
+                                        }}
+                                      >
+                                        {medication.taken ? '✓' : ''}
+                                      </button>
+                                    )}
+                                  </div>
+                                )}
+                                {!hasMedication && isToday && (
+                                  <div style={{
+                                    color: '#ccc',
+                                    fontSize: '8px',
+                                    fontStyle: 'italic'
+                                  }}>
+                                    No med
+                                  </div>
+                                )}
+                              </div>
+                            )
+                          })}
+                        </div>
                       </div>
-                    </div>
-                  )
-                })}
+                    )
+                  })}
               </div>
 
-              {/* Today's Progress Summary */}
+              {/* Today's Detailed Schedule */}
               {todaySchedule.length > 0 && (
                 <div style={{
                   background: '#f8f9fa',
                   borderRadius: '12px',
                   padding: '20px',
-                  border: '1px solid #e1e5e9'
+                  border: '1px solid #e1e5e9',
+                  marginBottom: '20px'
                 }}>
-                  <h3 style={{ margin: '0 0 16px 0', color: '#003087' }}>Today's Progress</h3>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                    <span style={{ fontWeight: '500' }}>Completed</span>
-                    <span>{getTakenDosesCount()}/{getTodayDosesCount()} doses</span>
+                  <h3 style={{ margin: '0 0 16px 0', color: '#003087' }}>Today's Medication Schedule</h3>
+                  <div style={{ display: 'grid', gap: '12px', marginBottom: '20px' }}>
+                    {todaySchedule.map((dose, index) => (
+                      <div key={index} style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '16px',
+                        background: dose.taken ? '#e8f5e8' : 'white',
+                        borderRadius: '8px',
+                        border: dose.taken ? '2px solid #4caf50' : '1px solid #e1e5e9',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                      }}>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ 
+                            fontWeight: '600', 
+                            color: '#003087', 
+                            marginBottom: '4px',
+                            fontSize: '16px'
+                          }}>
+                            {dose.time} - {dose.medicationName}
+                          </div>
+                          <div style={{ color: '#666', fontSize: '14px' }}>
+                            Dose: {dose.dose}
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => toggleDoseTaken(index)}
+                          style={{
+                            width: '40px',
+                            height: '40px',
+                            borderRadius: '50%',
+                            border: dose.taken ? '2px solid #4caf50' : '2px solid #ddd',
+                            backgroundColor: dose.taken ? '#4caf50' : 'white',
+                            color: dose.taken ? 'white' : '#666',
+                            cursor: 'pointer',
+                            fontSize: '16px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'all 0.2s ease'
+                          }}
+                        >
+                          {dose.taken ? '✓' : '○'}
+                        </button>
+                      </div>
+                    ))}
                   </div>
-                  <div style={{
-                    width: '100%',
-                    height: '8px',
-                    backgroundColor: '#e1e5e9',
-                    borderRadius: '4px',
-                    overflow: 'hidden'
-                  }}>
+                  
+                  {/* Progress Summary */}
+                  <div style={{ borderTop: '1px solid #e1e5e9', paddingTop: '16px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                      <span style={{ fontWeight: '500' }}>Progress Today</span>
+                      <span style={{ fontWeight: '600', color: '#005EB8' }}>
+                        {getTakenDosesCount()}/{getTodayDosesCount()} doses ({Math.round((getTakenDosesCount() / Math.max(1, getTodayDosesCount())) * 100)}%)
+                      </span>
+                    </div>
                     <div style={{
-                      width: `${(getTakenDosesCount() / Math.max(1, getTodayDosesCount())) * 100}%`,
-                      height: '100%',
-                      backgroundColor: '#4caf50',
-                      transition: 'width 0.3s ease'
-                    }} />
-                  </div>
-                  <div style={{ marginTop: '12px', fontSize: '14px', color: '#666' }}>
-                    Next dose: {getNextDoseTime()}
+                      width: '100%',
+                      height: '10px',
+                      backgroundColor: '#e1e5e9',
+                      borderRadius: '5px',
+                      overflow: 'hidden'
+                    }}>
+                      <div style={{
+                        width: `${(getTakenDosesCount() / Math.max(1, getTodayDosesCount())) * 100}%`,
+                        height: '100%',
+                        backgroundColor: '#4caf50',
+                        transition: 'width 0.3s ease'
+                      }} />
+                    </div>
+                    <div style={{ marginTop: '12px', fontSize: '14px', color: '#666' }}>
+                      <strong>Next dose:</strong> {getNextDoseTime()}
+                    </div>
                   </div>
                 </div>
               )}
