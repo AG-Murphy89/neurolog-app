@@ -20,19 +20,9 @@ export default function NeuroLog() {
           "Professional Seizure Management System"
         </p>
 
-        <div style={{ marginBottom: '2rem' }}>
+        <div style={{ marginBottom: '2rem', display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
           <button
-            onClick={() => {
-              // Mock user login
-              const mockUser = {
-                id: 'user123',
-                name: 'Demo User',
-                email: 'demo@example.com',
-                type: 'patient'
-              };
-              localStorage.setItem('neurolog_user', JSON.stringify(mockUser));
-              window.location.href = '/dashboard';
-            }}
+            onClick={() => window.location.href = '/auth/login'}
             style={{
               background: 'linear-gradient(135deg, #005EB8 0%, #003087 100%)',
               color: 'white',
@@ -45,7 +35,22 @@ export default function NeuroLog() {
               boxShadow: '0 6px 20px rgba(0, 94, 184, 0.4)'
             }}
           >
-            Access Dashboard
+            Sign In
+          </button>
+          <button
+            onClick={() => window.location.href = '/auth/signup'}
+            style={{
+              background: 'transparent',
+              color: '#005EB8',
+              border: '2px solid #005EB8',
+              padding: '16px 32px',
+              borderRadius: '12px',
+              fontSize: '18px',
+              fontWeight: '600',
+              cursor: 'pointer'
+            }}
+          >
+            Sign Up
           </button>
         </div>
 

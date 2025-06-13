@@ -48,7 +48,7 @@ export default function Dashboard() {
     // Check authentication
     const savedUser = localStorage.getItem('neurolog_user')
     if (!savedUser) {
-      router.push('/')
+      router.push('/auth/login')
       return
     }
     
@@ -64,7 +64,7 @@ export default function Dashboard() {
 
   const handleLogout = () => {
     localStorage.removeItem('neurolog_user')
-    router.push('/')
+    router.push('/auth/login')
   }
 
   const handleAddSeizure = (e: React.FormEvent) => {
@@ -181,7 +181,11 @@ export default function Dashboard() {
               </div>
               <div>
                 <h1 style={{ margin: '0', fontSize: '24px', fontWeight: 'bold' }}>NeuroLog</h1>
-                <p style={{ margin: '0', opacity: 0.9, fontSize: '14px' }}>Welcome back, {user.name}</p>
+                <p style={{ margin: '0', opacity: 0.9, fontSize: '14px' }}>
+                  Welcome back, {user.name}
+                  {user.organizationName && ` • ${user.organizationName}`}
+                  {user.type && ` • ${user.type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}`}
+                </p>
               </div>
             </div>
             <button
