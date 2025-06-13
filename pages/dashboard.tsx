@@ -662,7 +662,7 @@ export default function Dashboard() {
             display: 'flex',
             gap: '32px'
           }}>
-            {['overview', 'add', 'history', 'insights', 'profile', ...(user.type === 'care_home' || user.type === 'professional' ? ['audit'] : [])].map(tab => (
+            {['overview', 'add', 'history', 'insights', 'medications', 'profile', ...(user.type === 'care_home' || user.type === 'professional' ? ['audit'] : [])].map(tab => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -1429,6 +1429,39 @@ export default function Dashboard() {
                   </button>
                 </div>
               </form>
+            </div>
+          )}
+
+          {activeTab === 'medications' && (
+            <div style={{
+              background: 'white',
+              borderRadius: '16px',
+              padding: '24px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              border: '1px solid #e1e5e9',
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: '48px', marginBottom: '16px' }}>💊</div>
+              <h2 style={{ margin: '0 0 16px 0', color: '#003087' }}>Medication Management</h2>
+              <p style={{ color: '#666', marginBottom: '24px' }}>
+                Manage your medications, track dosing schedules, and monitor effectiveness.
+              </p>
+              <button
+                onClick={() => router.push('/medication')}
+                style={{
+                  background: 'linear-gradient(135deg, #005EB8 0%, #003087 100%)',
+                  color: 'white',
+                  border: 'none',
+                  padding: '16px 32px',
+                  borderRadius: '12px',
+                  fontSize: '18px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  boxShadow: '0 6px 20px rgba(0, 94, 184, 0.4)'
+                }}
+              >
+                Go to Medications
+              </button>
             </div>
           )}
 
