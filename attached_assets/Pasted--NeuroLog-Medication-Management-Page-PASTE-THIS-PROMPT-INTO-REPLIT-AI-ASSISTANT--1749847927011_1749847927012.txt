@@ -1,0 +1,82 @@
+# 💊 NeuroLog Medication Management Page
+
+**PASTE THIS PROMPT INTO REPLIT AI ASSISTANT:**
+
+---
+
+Please create a comprehensive medication management page for my NeuroLog seizure tracking app. I need a new file called `medication.tsx` in the `pages` folder.
+
+## Requirements:
+
+### Core Features:
+- **Current Medications List** with medication name, dose, frequency
+- **Daily Schedule** with AM/Midday/PM dosing times
+- **Medication History** (start date, prescribing doctor)
+- **Side Effects Tracking** for each medication
+- **Medication Adherence** (missed doses tracking)
+- **Emergency Contact** for prescribing physician
+- **Pharmacy Information** 
+- **Medication Interactions** warnings
+- **Refill Reminders** (days left, next refill date)
+- **Medication Notes** (how it affects seizures, effectiveness)
+
+### Design Requirements:
+- Match the existing NeuroLog design (NHS blue #005EB8, white cards, rounded corners)
+- Mobile responsive layout
+- Same header/navigation as dashboard
+- Smooth animations and modern UI
+- Form validation and error handling
+
+### Data Structure:
+Each medication should include:
+- Medication name
+- Generic name
+- Dose amount and unit (mg, ml, etc)
+- Frequency (once daily, twice daily, etc)
+- Specific times (AM: 8:00, Midday: 12:00, PM: 8:00)
+- Start date
+- Prescribing doctor name and contact
+- Pharmacy name and phone
+- Side effects experienced
+- Effectiveness rating (1-5)
+- Days supply remaining
+- Next refill date
+- Special instructions
+- Notes
+
+### Page Sections:
+1. **Header** - "My Medications" with add new medication button
+2. **Quick Stats** - Total medications, doses today, next dose time
+3. **Today's Schedule** - AM/Midday/PM medication times with checkboxes
+4. **Current Medications** - Cards showing each medication with key details
+5. **Add/Edit Medication Form** - Comprehensive form for medication details
+6. **Medication History** - Timeline of medication changes
+7. **Interactions Checker** - Simple warnings about potential interactions
+
+### Technical Requirements:
+- Use React hooks (useState, useEffect)
+- Store data in localStorage for now (will integrate with Supabase later)
+- Form validation
+- Responsive design with CSS-in-JS styling
+- Export as default function
+- Include proper TypeScript types
+
+### UI Elements:
+- Medication cards with color-coded status (active, paused, discontinued)
+- Time-based scheduling grid
+- Progress bars for medication adherence
+- Icons for different medication types
+- Modal forms for adding/editing
+- Confirmation dialogs for deleting medications
+
+### Sample Medications to Pre-populate:
+Include 2-3 example medications like:
+- Levetiracetam 500mg twice daily
+- Lamotrigine 100mg twice daily  
+- Lorazepam 1mg as needed
+
+Please make this a complete, functional page that matches the existing NeuroLog design system and includes all the features listed above. The page should be ready to use immediately and integrate with the existing navigation system.
+
+---
+
+**END OF PROMPT - PASTE THE ABOVE INTO REPLIT AI ASSISTANT**
