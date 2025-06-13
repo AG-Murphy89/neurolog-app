@@ -74,7 +74,28 @@ export default function Medication() {
     notes: '',
     status: 'active' as const
   })
+  const [currentWeekStart, setCurrentWeekStart] = useState(new Date())
   const router = useRouter()
+
+  // Update dates every minute to keep them current
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = new Date()
+      const mondayOffset = now.getDay() === 0 ? -6 : 1 - now.getDay()
+      const monday = new Date(now)
+      monday.setDate(now.getDate() + mondayOffset)
+      setCurrentWeekStart(monday)
+    }, 60000) // Update every minute
+
+    // Set initial week start
+    const now = new Date()
+    const mondayOffset = now.getDay() === 0 ? -6 : 1 - now.getDay()
+    const monday = new Date(now)
+    monday.setDate(now.getDate() + mondayOffset)
+    setCurrentWeekStart(monday)
+
+    return () => clearInterval(interval)
+  }, [])
 
   useEffect(() => {
     // Check authentication
@@ -724,11 +745,14 @@ export default function Medication() {
                   color: '#003087',
                   margin: '0 24px'
                 }}>
-                  {new Date().toLocaleDateString('en-GB', { 
-                    year: 'numeric', 
-                    month: 'long',
-                    day: 'numeric'
-                  })} - Week
+                  {currentWeekStart.toLocaleDateString('en-GB', { 
+                    day: 'numeric',
+                    month: 'short'
+                  })} - {new Date(currentWeekStart.getTime() + 6 * 24 * 60 * 60 * 1000).toLocaleDateString('en-GB', { 
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                  })}
                 </span>
                 <button style={{
                   background: 'none',
@@ -749,10 +773,10 @@ export default function Medication() {
                 gap: '12px',
                 marginBottom: '24px'
               }}>
-                {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, dayIndex) => {
+                {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day, dayIndex) => {
                   const today = new Date()
-                  const currentDay = new Date()
-                  currentDay.setDate(today.getDate() - today.getDay() + 1 + dayIndex) // Start from Monday
+                  const currentDay = new Date(currentWeekStart)
+                  currentDay.setDate(currentWeekStart.getDate() + dayIndex)
                   const isToday = currentDay.toDateString() === today.toDateString()
                   
                   return (
@@ -775,7 +799,7 @@ export default function Medication() {
                           color: isToday ? '#005EB8' : '#003087',
                           marginBottom: '4px'
                         }}>
-                          {day}
+                          {day.slice(0, 3)}
                         </div>
                         <div style={{
                           fontSize: '20px',
