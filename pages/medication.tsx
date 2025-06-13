@@ -366,9 +366,9 @@ export default function Medication() {
   if (!user) {
     return <div>Loading...</div>
   }
-
   return (
-    <>
+  <>
+
       <Head>
         <title>Medications - NeuroLog</title>
       </Head>
@@ -1783,5 +1783,6 @@ export default function Medication() {
         </div>
       </div>
     </>
-  )
-}
+      )
+          }
+          }
