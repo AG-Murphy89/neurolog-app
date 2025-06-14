@@ -1,0 +1,88 @@
+CREATE DOCTOR PORTAL FOR NEUROLOG - REVENUE FEATURE
+Please create a comprehensive doctor portal for my NeuroLog app. This is a subscription-based feature for healthcare professionals.
+REQUIREMENTS:
+CORE FUNCTIONALITY:
+
+Multi-patient dashboard for doctors
+Real-time seizure alerts and notifications
+Patient overview cards with key metrics
+Detailed patient profiles with complete history
+Clinical notes system for medical observations
+Medication monitoring and compliance tracking
+Analytics and trend analysis across patients
+Secure messaging with patients
+
+DOCTOR DASHBOARD FEATURES:
+
+Patient list with consent status and activity
+Risk assessment indicators (traffic light system)
+Recent seizures across all patients
+Medication compliance alerts
+Patients requiring attention
+Practice statistics and insights
+Quick access to emergency patient info
+
+PATIENT MANAGEMENT:
+
+View patient seizure history and patterns
+Add clinical notes and observations
+Track medication effectiveness
+Monitor trigger patterns
+Generate medical reports
+Export data for medical records
+Share insights with other healthcare providers
+
+SUBSCRIPTION FEATURES:
+
+Free trial (7 days)
+Pro plan (£35/month per doctor)
+Usage tracking and billing integration
+Premium features (advanced analytics, AI insights)
+Multi-practice support for larger organizations
+
+DESIGN REQUIREMENTS:
+
+Professional medical interface
+Clean, clinical dashboard layout
+NHS blue theme (#005EB8) but more professional
+Mobile responsive for doctors using tablets
+Fast loading for busy clinical environments
+Accessibility compliant for healthcare settings
+
+TECHNICAL SPECIFICATIONS:
+
+New file: pages/doctor-portal.tsx
+Connect to existing Supabase tables
+Implement doctor authentication
+Patient consent verification system
+GDPR compliance (doctors can only see consented patients)
+Audit logging for all doctor actions
+Real-time updates using Supabase subscriptions
+
+SECURITY & COMPLIANCE:
+
+Row Level Security for patient data
+Doctor verification system
+Session management
+GDPR data protection
+Audit trails for all access
+Role-based permissions
+
+REVENUE INTEGRATION:
+
+Subscription status display
+Usage metrics tracking
+Upgrade prompts for premium features
+Billing integration hooks
+Trial expiration notifications
+
+PAGE STRUCTURE:
+
+Doctor login/verification
+Main dashboard with patient overview
+Individual patient detail views
+Clinical notes interface
+Analytics and reporting
+Settings and subscription management
+
+Please create a professional, production-ready doctor portal that healthcare providers will pay to use. Focus on clinical utility and professional design standards.
