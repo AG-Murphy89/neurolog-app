@@ -887,8 +887,83 @@ export default function Dashboard() {
                 padding: '24px',
                 boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                 border: '1px solid #e1e5e9'
-              }}>
-                <h2 style={{ margin: '0 0 20px 0', color: '#003087' }}>Seizure Insights & Analytics</h2>
+              }} id="insights-content">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                  <h2 style={{ margin: '0', color: '#003087' }}>Seizure Insights & Analytics</h2>
+                  <div style={{ display: 'flex', gap: '12px' }}>
+                    <button
+                      onClick={() => window.print()}
+                      style={{
+                        background: '#28a745',
+                        color: 'white',
+                        border: 'none',
+                        padding: '8px 16px',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}
+                    >
+                      🖨️ Print
+                    </button>
+                    <button
+                      onClick={async () => {
+                        const element = document.getElementById('insights-content')
+                        if (!element) return
+                        
+                        try {
+                          const html2canvas = (await import('html2canvas')).default
+                          const jsPDF = (await import('jspdf')).jsPDF
+                          
+                          const canvas = await html2canvas(element, {
+                            scale: 2,
+                            useCORS: true,
+                            backgroundColor: '#ffffff'
+                          })
+                          
+                          const imgData = canvas.toDataURL('image/png')
+                          const pdf = new jsPDF('p', 'mm', 'a4')
+                          const pdfWidth = pdf.internal.pageSize.getWidth()
+                          const pdfHeight = pdf.internal.pageSize.getHeight()
+                          const imgWidth = canvas.width
+                          const imgHeight = canvas.height
+                          const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight)
+                          const imgX = (pdfWidth - imgWidth * ratio) / 2
+                          const imgY = 30
+                          
+                          pdf.setFontSize(16)
+                          pdf.text('NeuroLog - Seizure Insights Report', pdfWidth / 2, 20, { align: 'center' })
+                          pdf.setFontSize(10)
+                          pdf.text(`Generated on: ${new Date().toLocaleDateString()}`, pdfWidth / 2, 25, { align: 'center' })
+                          
+                          pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio)
+                          pdf.save(`neurolog-insights-${new Date().toISOString().split('T')[0]}.pdf`)
+                        } catch (error) {
+                          console.error('Error generating PDF:', error)
+                          alert('Error generating PDF. Please try again.')
+                        }
+                      }}
+                      style={{
+                        background: '#dc3545',
+                        color: 'white',
+                        border: 'none',
+                        padding: '8px 16px',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}
+                    >
+                      📄 Export PDF
+                    </button>
+                  </div>
+                </div>
                 
                 {seizures.length < 3 ? (
                   <div style={{ textAlign: 'center', color: '#666', padding: '40px 0' }}>

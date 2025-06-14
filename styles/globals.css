@@ -14,3 +14,53 @@ a {
 * {
   box-sizing: border-box;
 }
+
+
+
+/* Print styles for insights pages */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  
+  #insights-content,
+  #insights-content *,
+  #doctor-analytics-content,
+  #doctor-analytics-content * {
+    visibility: visible;
+  }
+  
+  #insights-content,
+  #doctor-analytics-content {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100% !important;
+    background: white !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+  
+  /* Hide navigation and header elements during print */
+  header,
+  nav,
+  .no-print {
+    display: none !important;
+  }
+  
+  /* Ensure proper page breaks */
+  .page-break {
+    page-break-before: always;
+  }
+  
+  /* Optimize colors for print */
+  * {
+    color: #000 !important;
+    background: white !important;
+  }
+  
+  /* Keep chart colors visible */
+  [style*="background-color"] {
+    background: #f0f0f0 !important;
+  }
+}
