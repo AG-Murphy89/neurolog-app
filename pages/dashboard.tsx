@@ -348,7 +348,7 @@ export default function Dashboard() {
             display: 'flex',
             gap: '32px'
           }}>
-            {['overview', 'add', 'history', 'insights', 'medications', 'profile'].map(tab => (
+            {['overview', 'add', 'history', 'insights', 'medications', 'profile'].filter(tab => !['emergency-contacts', 'next-of-kin'].includes(tab)).map(tab => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -1134,19 +1134,36 @@ export default function Dashboard() {
                   <div style={{ fontSize: '14px', color: '#666', marginBottom: '16px' }}>
                     Complete your emergency information for safety during seizures.
                   </div>
-                  <button
-                    style={{
-                      background: '#dc3545',
-                      color: 'white',
-                      border: 'none',
-                      padding: '8px 16px',
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      fontSize: '14px'
-                    }}
-                  >
-                    🚨 Add Emergency Contacts
-                  </button>
+                  <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                    <button
+                      onClick={() => setActiveTab('emergency-contacts')}
+                      style={{
+                        background: '#dc3545',
+                        color: 'white',
+                        border: 'none',
+                        padding: '8px 16px',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontSize: '14px'
+                      }}
+                    >
+                      🚨 Emergency Contacts
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('next-of-kin')}
+                      style={{
+                        background: '#fd7e14',
+                        color: 'white',
+                        border: 'none',
+                        padding: '8px 16px',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontSize: '14px'
+                      }}
+                    >
+                      👥 Next of Kin
+                    </button>
+                  </div>
                 </div>
 
                 <div style={{
@@ -1173,6 +1190,7 @@ export default function Dashboard() {
                       📄 Export All My Data (GDPR)
                     </button>
                     <button
+                      onClick={() => alert('Privacy settings coming soon! This will allow you to control data sharing preferences.')}
                       style={{
                         background: '#6c757d',
                         color: 'white',
@@ -1187,6 +1205,11 @@ export default function Dashboard() {
                       🔒 Privacy Settings
                     </button>
                     <button
+                      onClick={() => {
+                        if (confirm('Are you sure you want to delete your account? This action cannot be undone and will permanently remove all your seizure data.')) {
+                          alert('Account deletion feature coming soon. For immediate assistance, please contact support.')
+                        }
+                      }}
                       style={{
                         background: '#dc3545',
                         color: 'white',
@@ -1216,6 +1239,557 @@ export default function Dashboard() {
                   </div>
                 </div>
               </div>
+            </div>
+          )}
+
+          {activeTab === 'emergency-contacts' && (
+            <div style={{
+              background: 'white',
+              borderRadius: '16px',
+              padding: '32px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              border: '1px solid #e1e5e9',
+              maxWidth: '800px',
+              margin: '0 auto'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
+                <button
+                  onClick={() => setActiveTab('profile')}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    fontSize: '20px',
+                    cursor: 'pointer',
+                    marginRight: '16px',
+                    color: '#666'
+                  }}
+                >
+                  ←
+                </button>
+                <h2 style={{ margin: '0', color: '#003087' }}>Emergency Contacts</h2>
+              </div>
+
+              <div style={{ background: '#fff3cd', padding: '16px', borderRadius: '8px', marginBottom: '24px', border: '1px solid #ffeaa7' }}>
+                <strong style={{ color: '#856404' }}>Important:</strong> These contacts will be notified in case of emergency during seizures.
+              </div>
+
+              <form onSubmit={(e) => { e.preventDefault(); alert('Emergency contact saved! This feature will be fully implemented soon.'); }}>
+                <div style={{ display: 'grid', gap: '24px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
+                        Primary Contact Name *
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Full name"
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          borderRadius: '8px',
+                          border: '2px solid #e1e5e9',
+                          fontSize: '16px',
+                          boxSizing: 'border-box'
+                        }}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
+                        Relationship *
+                      </label>
+                      <select
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          borderRadius: '8px',
+                          border: '2px solid #e1e5e9',
+                          fontSize: '16px',
+                          backgroundColor: 'white',
+                          boxSizing: 'border-box'
+                        }}
+                        required
+                      >
+                        <option value="">Select relationship</option>
+                        <option value="spouse">Spouse/Partner</option>
+                        <option value="parent">Parent</option>
+                        <option value="child">Child</option>
+                        <option value="sibling">Sibling</option>
+                        <option value="friend">Friend</option>
+                        <option value="caregiver">Caregiver</option>
+                        <option value="other">Other</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
+                        Phone Number *
+                      </label>
+                      <input
+                        type="tel"
+                        placeholder="+44 7000 000000"
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          borderRadius: '8px',
+                          border: '2px solid #e1e5e9',
+                          fontSize: '16px',
+                          boxSizing: 'border-box'
+                        }}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
+                        Email Address
+                      </label>
+                      <input
+                        type="email"
+                        placeholder="email@example.com"
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          borderRadius: '8px',
+                          border: '2px solid #e1e5e9',
+                          fontSize: '16px',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
+                      Secondary Contact Name
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Full name (optional)"
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        borderRadius: '8px',
+                        border: '2px solid #e1e5e9',
+                        fontSize: '16px',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
+                        Secondary Contact Phone
+                      </label>
+                      <input
+                        type="tel"
+                        placeholder="+44 7000 000000"
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          borderRadius: '8px',
+                          border: '2px solid #e1e5e9',
+                          fontSize: '16px',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
+                        Relationship
+                      </label>
+                      <select
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          borderRadius: '8px',
+                          border: '2px solid #e1e5e9',
+                          fontSize: '16px',
+                          backgroundColor: 'white',
+                          boxSizing: 'border-box'
+                        }}
+                      >
+                        <option value="">Select relationship</option>
+                        <option value="spouse">Spouse/Partner</option>
+                        <option value="parent">Parent</option>
+                        <option value="child">Child</option>
+                        <option value="sibling">Sibling</option>
+                        <option value="friend">Friend</option>
+                        <option value="caregiver">Caregiver</option>
+                        <option value="other">Other</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
+                      Medical Information to Share
+                    </label>
+                    <textarea
+                      placeholder="Brief medical information that emergency contacts should know (allergies, current medications, seizure type, etc.)"
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        borderRadius: '8px',
+                        border: '2px solid #e1e5e9',
+                        fontSize: '16px',
+                        minHeight: '100px',
+                        resize: 'vertical',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
+                      Emergency Instructions
+                    </label>
+                    <textarea
+                      placeholder="What should your emergency contacts do during a seizure? (e.g., call 999 if seizure lasts more than 5 minutes, position on side, etc.)"
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        borderRadius: '8px',
+                        border: '2px solid #e1e5e9',
+                        fontSize: '16px',
+                        minHeight: '100px',
+                        resize: 'vertical',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ marginTop: '32px', display: 'flex', gap: '16px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('profile')}
+                    style={{
+                      flex: 1,
+                      padding: '16px',
+                      background: 'transparent',
+                      color: '#666',
+                      border: '2px solid #e1e5e9',
+                      borderRadius: '12px',
+                      fontSize: '16px',
+                      fontWeight: '600',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    style={{
+                      flex: 2,
+                      padding: '16px',
+                      background: 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '12px',
+                      fontSize: '16px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      boxShadow: '0 6px 20px rgba(220, 53, 69, 0.4)'
+                    }}
+                  >
+                    Save Emergency Contacts
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {activeTab === 'next-of-kin' && (
+            <div style={{
+              background: 'white',
+              borderRadius: '16px',
+              padding: '32px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              border: '1px solid #e1e5e9',
+              maxWidth: '800px',
+              margin: '0 auto'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
+                <button
+                  onClick={() => setActiveTab('profile')}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    fontSize: '20px',
+                    cursor: 'pointer',
+                    marginRight: '16px',
+                    color: '#666'
+                  }}
+                >
+                  ←
+                </button>
+                <h2 style={{ margin: '0', color: '#003087' }}>Next of Kin Information</h2>
+              </div>
+
+              <div style={{ background: '#d1ecf1', padding: '16px', borderRadius: '8px', marginBottom: '24px', border: '1px solid #bee5eb' }}>
+                <strong style={{ color: '#0c5460' }}>Legal Information:</strong> This person will be contacted for medical decisions if you're unable to make them yourself.
+              </div>
+
+              <form onSubmit={(e) => { e.preventDefault(); alert('Next of kin information saved! This feature will be fully implemented soon.'); }}>
+                <div style={{ display: 'grid', gap: '24px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
+                        Full Name *
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Full legal name"
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          borderRadius: '8px',
+                          border: '2px solid #e1e5e9',
+                          fontSize: '16px',
+                          boxSizing: 'border-box'
+                        }}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
+                        Relationship *
+                      </label>
+                      <select
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          borderRadius: '8px',
+                          border: '2px solid #e1e5e9',
+                          fontSize: '16px',
+                          backgroundColor: 'white',
+                          boxSizing: 'border-box'
+                        }}
+                        required
+                      >
+                        <option value="">Select relationship</option>
+                        <option value="spouse">Spouse</option>
+                        <option value="civil-partner">Civil Partner</option>
+                        <option value="parent">Parent</option>
+                        <option value="child">Adult Child</option>
+                        <option value="sibling">Sibling</option>
+                        <option value="guardian">Legal Guardian</option>
+                        <option value="other">Other</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
+                        Date of Birth
+                      </label>
+                      <input
+                        type="date"
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          borderRadius: '8px',
+                          border: '2px solid #e1e5e9',
+                          fontSize: '16px',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
+                        National Insurance Number
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="AB 12 34 56 C"
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          borderRadius: '8px',
+                          border: '2px solid #e1e5e9',
+                          fontSize: '16px',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
+                      Address *
+                    </label>
+                    <textarea
+                      placeholder="Full address including postcode"
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        borderRadius: '8px',
+                        border: '2px solid #e1e5e9',
+                        fontSize: '16px',
+                        minHeight: '80px',
+                        resize: 'vertical',
+                        boxSizing: 'border-box'
+                      }}
+                      required
+                    />
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
+                        Primary Phone *
+                      </label>
+                      <input
+                        type="tel"
+                        placeholder="+44 7000 000000"
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          borderRadius: '8px',
+                          border: '2px solid #e1e5e9',
+                          fontSize: '16px',
+                          boxSizing: 'border-box'
+                        }}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
+                        Alternative Phone
+                      </label>
+                      <input
+                        type="tel"
+                        placeholder="+44 20 0000 0000"
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          borderRadius: '8px',
+                          border: '2px solid #e1e5e9',
+                          fontSize: '16px',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
+                      Email Address *
+                    </label>
+                    <input
+                      type="email"
+                      placeholder="email@example.com"
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        borderRadius: '8px',
+                        border: '2px solid #e1e5e9',
+                        fontSize: '16px',
+                        boxSizing: 'border-box'
+                      }}
+                      required
+                    />
+                  </div>
+
+                  <div style={{
+                    background: '#f8f9fa',
+                    padding: '20px',
+                    borderRadius: '12px',
+                    border: '1px solid #e1e5e9'
+                  }}>
+                    <h3 style={{ margin: '0 0 16px 0', color: '#003087', fontSize: '18px' }}>Medical Decision Authority</h3>
+                    <div style={{ display: 'grid', gap: '16px' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          style={{ marginRight: '12px', transform: 'scale(1.2)' }}
+                        />
+                        <span style={{ fontSize: '15px', color: '#333' }}>
+                          This person has the authority to make medical decisions on my behalf if I'm unable to do so
+                        </span>
+                      </label>
+                      <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          style={{ marginRight: '12px', transform: 'scale(1.2)' }}
+                        />
+                        <span style={{ fontSize: '15px', color: '#333' }}>
+                          This person can access my seizure records and medical information
+                        </span>
+                      </label>
+                      <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          style={{ marginRight: '12px', transform: 'scale(1.2)' }}
+                        />
+                        <span style={{ fontSize: '15px', color: '#333' }}>
+                          This person should be contacted for all medical emergencies
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
+                      Additional Notes
+                    </label>
+                    <textarea
+                      placeholder="Any additional information about this person or special circumstances"
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        borderRadius: '8px',
+                        border: '2px solid #e1e5e9',
+                        fontSize: '16px',
+                        minHeight: '80px',
+                        resize: 'vertical',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ marginTop: '32px', display: 'flex', gap: '16px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('profile')}
+                    style={{
+                      flex: 1,
+                      padding: '16px',
+                      background: 'transparent',
+                      color: '#666',
+                      border: '2px solid #e1e5e9',
+                      borderRadius: '12px',
+                      fontSize: '16px',
+                      fontWeight: '600',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    style={{
+                      flex: 2,
+                      padding: '16px',
+                      background: 'linear-gradient(135deg, #fd7e14 0%, #e55a00 100%)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '12px',
+                      fontSize: '16px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      boxShadow: '0 6px 20px rgba(253, 126, 20, 0.4)'
+                    }}
+                  >
+                    Save Next of Kin Information
+                  </button>
+                </div>
+              </form>
             </div>
           )}
         </div>
