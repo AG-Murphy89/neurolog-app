@@ -2,337 +2,352 @@
 import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
+import { supabase } from '../lib/supabase'
 
 interface Patient {
   id: string
-  name: string
-  age: number
-  dateOfBirth: string
-  nhsNumber: string
+  full_name: string
   email: string
-  phone: string
-  emergencyContact: string
-  consentStatus: 'granted' | 'pending' | 'revoked'
-  lastActivity: string
-  riskLevel: 'low' | 'medium' | 'high'
-  totalSeizures: number
-  recentSeizures: number
-  medicationCompliance: number
-  lastSeizure: string
-  currentMedications: string[]
-  triggers: string[]
-  seizureTypes: string[]
-  notes: ClinicalNote[]
+  age: number
+  consent_status: 'pending' | 'approved' | 'revoked'
+  risk_level: 'low' | 'medium' | 'high'
+  last_seizure_date?: string
+  total_seizures: number
+  medication_compliance: number
+  assigned_doctor: string
+  emergency_contact: string
+  next_appointment?: string
+}
+
+interface SeizureRecord {
+  id: string
+  patient_id: string
+  patient_name: string
+  seizure_date: string
+  seizure_time: string
+  duration: string
+  seizure_type: string
+  severity: number
+  triggers: string
+  symptoms: string
+  medication_taken: string
+  notes: string
 }
 
 interface ClinicalNote {
   id: string
-  date: string
-  doctorId: string
-  doctorName: string
-  type: 'observation' | 'treatment' | 'follow-up' | 'emergency'
+  patient_id: string
+  doctor_id: string
+  note_type: 'observation' | 'diagnosis' | 'treatment' | 'followup'
+  title: string
   content: string
-  actionRequired: boolean
-  followUpDate?: string
-}
-
-interface Alert {
-  id: string
-  patientId: string
-  patientName: string
-  type: 'medication' | 'seizure' | 'appointment' | 'emergency'
-  priority: 'low' | 'medium' | 'high' | 'critical'
-  message: string
-  timestamp: string
-  resolved: boolean
+  created_at: string
+  is_confidential: boolean
 }
 
 interface Doctor {
   id: string
-  name: string
-  title: string
-  practiceName: string
-  gmcNumber: string
-  specialization: string
+  full_name: string
+  email: string
+  gmc_number: string
+  speciality: string
+  practice_name: string
+  subscription_status: 'trial' | 'active' | 'expired'
+  trial_ends_at?: string
+  created_at: string
 }
 
 export default function DoctorPortal() {
   const [doctor, setDoctor] = useState<Doctor | null>(null)
   const [patients, setPatients] = useState<Patient[]>([])
-  const [alerts, setAlerts] = useState<Alert[]>([])
-  const [activeTab, setActiveTab] = useState('dashboard')
+  const [recentSeizures, setRecentSeizures] = useState<SeizureRecord[]>([])
+  const [clinicalNotes, setClinicalNotes] = useState<ClinicalNote[]>([])
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [filterRisk, setFilterRisk] = useState<string>('all')
-  const [showPatientModal, setShowPatientModal] = useState(false)
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'patients' | 'analytics' | 'notes' | 'settings'>('dashboard')
+  const [isLoading, setIsLoading] = useState(true)
+  const [showAddNote, setShowAddNote] = useState(false)
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [newNote, setNewNote] = useState({
-    type: 'observation' as const,
+    patient_id: '',
+    note_type: 'observation' as 'observation' | 'diagnosis' | 'treatment' | 'followup',
+    title: '',
     content: '',
-    actionRequired: false,
-    followUpDate: ''
+    is_confidential: false
   })
+  const [notification, setNotification] = useState<{type: 'success' | 'error', message: string} | null>(null)
   const router = useRouter()
 
   useEffect(() => {
-    // Check authentication
-    const savedDoctor = localStorage.getItem('neurolog_doctor')
-    if (!savedDoctor) {
-      router.push('/auth/login')
-      return
-    }
+    checkDoctorAuth()
+  }, [])
 
-    const doctorData = JSON.parse(savedDoctor)
-    setDoctor(doctorData)
-
-    // Load sample data
-    loadSampleData(doctorData.id)
-  }, [router])
-
-  const loadSampleData = (doctorId: string) => {
-    const samplePatients: Patient[] = [
-      {
-        id: 'p1',
-        name: 'Sarah Johnson',
-        age: 28,
-        dateOfBirth: '1995-03-15',
-        nhsNumber: 'ABC 123 456C',
-        email: 'sarah.j@email.com',
-        phone: '07123 456789',
-        emergencyContact: 'Mike Johnson (husband) - 07987 654321',
-        consentStatus: 'granted',
-        lastActivity: '2024-01-15T10:30:00Z',
-        riskLevel: 'high',
-        totalSeizures: 45,
-        recentSeizures: 8,
-        medicationCompliance: 75,
-        lastSeizure: '2024-01-14T14:20:00Z',
-        currentMedications: ['Levetiracetam 500mg', 'Lamotrigine 200mg'],
-        triggers: ['Sleep deprivation', 'Stress', 'Flashing lights'],
-        seizureTypes: ['Tonic-clonic', 'Focal aware'],
-        notes: []
-      },
-      {
-        id: 'p2',
-        name: 'James Wilson',
-        age: 35,
-        dateOfBirth: '1988-07-22',
-        nhsNumber: 'DEF 789 123G',
-        email: 'j.wilson@email.com',
-        phone: '07234 567890',
-        emergencyContact: 'Emma Wilson (wife) - 07876 543210',
-        consentStatus: 'granted',
-        lastActivity: '2024-01-15T08:15:00Z',
-        riskLevel: 'medium',
-        totalSeizures: 23,
-        recentSeizures: 2,
-        medicationCompliance: 95,
-        lastSeizure: '2024-01-10T09:45:00Z',
-        currentMedications: ['Carbamazepine 400mg', 'Valproate 500mg'],
-        triggers: ['Alcohol', 'Missed medication'],
-        seizureTypes: ['Focal impaired awareness'],
-        notes: []
-      },
-      {
-        id: 'p3',
-        name: 'Emily Davis',
-        age: 42,
-        dateOfBirth: '1981-11-08',
-        nhsNumber: 'GHI 456 789J',
-        email: 'emily.davis@email.com',
-        phone: '07345 678901',
-        emergencyContact: 'David Davis (partner) - 07765 432109',
-        consentStatus: 'granted',
-        lastActivity: '2024-01-15T16:45:00Z',
-        riskLevel: 'low',
-        totalSeizures: 12,
-        recentSeizures: 1,
-        medicationCompliance: 98,
-        lastSeizure: '2024-01-05T11:30:00Z',
-        currentMedications: ['Topiramate 100mg'],
-        triggers: ['Hormonal changes', 'Fatigue'],
-        seizureTypes: ['Absence'],
-        notes: []
-      },
-      {
-        id: 'p4',
-        name: 'Michael Brown',
-        age: 19,
-        dateOfBirth: '2004-05-30',
-        nhsNumber: 'JKL 987 654M',
-        email: 'm.brown@email.com',
-        phone: '07456 789012',
-        emergencyContact: 'Susan Brown (mother) - 07654 321098',
-        consentStatus: 'granted',
-        lastActivity: '2024-01-14T20:30:00Z',
-        riskLevel: 'high',
-        totalSeizures: 67,
-        recentSeizures: 12,
-        medicationCompliance: 60,
-        lastSeizure: '2024-01-15T07:15:00Z',
-        currentMedications: ['Phenytoin 300mg', 'Clobazam 10mg'],
-        triggers: ['Gaming', 'Irregular sleep', 'Caffeine'],
-        seizureTypes: ['Tonic-clonic', 'Myoclonic'],
-        notes: []
-      },
-      {
-        id: 'p5',
-        name: 'Lisa Thompson',
-        age: 31,
-        dateOfBirth: '1992-09-12',
-        nhsNumber: 'MNO 234 567P',
-        email: 'lisa.t@email.com',
-        phone: '07567 890123',
-        emergencyContact: 'Robert Thompson (husband) - 07543 210987',
-        consentStatus: 'granted',
-        lastActivity: '2024-01-15T12:00:00Z',
-        riskLevel: 'medium',
-        totalSeizures: 31,
-        recentSeizures: 4,
-        medicationCompliance: 88,
-        lastSeizure: '2024-01-12T15:20:00Z',
-        currentMedications: ['Oxcarbazepine 600mg', 'Levetiracetam 750mg'],
-        triggers: ['Pregnancy concerns', 'Medication timing'],
-        seizureTypes: ['Focal aware', 'Secondary generalized'],
-        notes: []
+  const checkDoctorAuth = async () => {
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession()
+      
+      if (error || !session) {
+        router.push('/doctor-login')
+        return
       }
-    ]
 
-    const sampleAlerts: Alert[] = [
-      {
-        id: 'a1',
-        patientId: 'p1',
-        patientName: 'Sarah Johnson',
-        type: 'seizure',
-        priority: 'critical',
-        message: 'Multiple seizures reported in last 24 hours (3 episodes)',
-        timestamp: '2024-01-15T08:30:00Z',
-        resolved: false
-      },
-      {
-        id: 'a2',
-        patientId: 'p4',
-        patientName: 'Michael Brown',
-        type: 'medication',
-        priority: 'high',
-        message: 'Poor medication compliance (60%) - missed doses for 3 days',
-        timestamp: '2024-01-15T09:15:00Z',
-        resolved: false
-      },
-      {
-        id: 'a3',
-        patientId: 'p2',
-        patientName: 'James Wilson',
-        type: 'appointment',
-        priority: 'medium',
-        message: 'Follow-up appointment due - last seen 6 months ago',
-        timestamp: '2024-01-15T10:00:00Z',
-        resolved: false
-      },
-      {
-        id: 'a4',
-        patientId: 'p5',
-        patientName: 'Lisa Thompson',
-        type: 'medication',
-        priority: 'medium',
-        message: 'Reported side effects - drowsiness and dizziness',
-        timestamp: '2024-01-15T11:30:00Z',
-        resolved: false
+      // Check if user is a verified doctor
+      const { data: doctorData, error: doctorError } = await supabase
+        .from('doctors')
+        .select('*')
+        .eq('id', session.user.id)
+        .single()
+
+      if (doctorError || !doctorData) {
+        // Redirect to doctor verification page
+        router.push('/doctor-verification')
+        return
       }
-    ]
 
-    setPatients(samplePatients)
-    setAlerts(sampleAlerts)
-  }
-
-  const handleLogout = () => {
-    localStorage.removeItem('neurolog_doctor')
-    router.push('/auth/login')
-  }
-
-  const addClinicalNote = (patientId: string) => {
-    if (!newNote.content.trim() || !doctor) return
-
-    const note: ClinicalNote = {
-      id: Date.now().toString(),
-      date: new Date().toISOString(),
-      doctorId: doctor.id,
-      doctorName: doctor.name,
-      type: newNote.type,
-      content: newNote.content,
-      actionRequired: newNote.actionRequired,
-      followUpDate: newNote.followUpDate || undefined
-    }
-
-    setPatients(patients.map(patient => 
-      patient.id === patientId 
-        ? { ...patient, notes: [note, ...patient.notes] }
-        : patient
-    ))
-
-    setNewNote({
-      type: 'observation',
-      content: '',
-      actionRequired: false,
-      followUpDate: ''
-    })
-  }
-
-  const resolveAlert = (alertId: string) => {
-    setAlerts(alerts.map(alert =>
-      alert.id === alertId ? { ...alert, resolved: true } : alert
-    ))
-  }
-
-  const filteredPatients = patients.filter(patient => {
-    const matchesSearch = patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         patient.nhsNumber.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesRisk = filterRisk === 'all' || patient.riskLevel === filterRisk
-    return matchesSearch && matchesRisk
-  })
-
-  const getRiskColor = (level: string) => {
-    switch (level) {
-      case 'high': return '#ff4757'
-      case 'medium': return '#ffa726'
-      case 'low': return '#4caf50'
-      default: return '#666'
+      setDoctor(doctorData)
+      await Promise.all([
+        loadPatients(doctorData.id),
+        loadRecentSeizures(doctorData.id),
+        loadClinicalNotes(doctorData.id)
+      ])
+    } catch (error) {
+      console.error('Error checking doctor auth:', error)
+      router.push('/')
+    } finally {
+      setIsLoading(false)
     }
   }
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'critical': return '#d32f2f'
-      case 'high': return '#f57c00'
-      case 'medium': return '#fbc02d'
-      case 'low': return '#388e3c'
-      default: return '#666'
+  const loadPatients = async (doctorId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('patient_doctor_relationships')
+        .select(`
+          *,
+          patient:user_profiles!patient_id (
+            id,
+            full_name,
+            email,
+            consent_status,
+            emergency_contact
+          )
+        `)
+        .eq('doctor_id', doctorId)
+        .eq('status', 'active')
+
+      if (error) throw error
+
+      // Transform data and calculate metrics
+      const patientsWithMetrics = await Promise.all(
+        (data || []).map(async (relationship) => {
+          const patient = relationship.patient
+          
+          // Get seizure count
+          const { count: seizureCount } = await supabase
+            .from('seizure_records')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', patient.id)
+
+          // Get last seizure
+          const { data: lastSeizure } = await supabase
+            .from('seizure_records')
+            .select('seizure_date')
+            .eq('user_id', patient.id)
+            .order('seizure_date', { ascending: false })
+            .limit(1)
+
+          // Calculate risk level based on recent seizures
+          const { count: recentSeizures } = await supabase
+            .from('seizure_records')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', patient.id)
+            .gte('seizure_date', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
+
+          let riskLevel: 'low' | 'medium' | 'high' = 'low'
+          if (recentSeizures && recentSeizures > 10) riskLevel = 'high'
+          else if (recentSeizures && recentSeizures > 5) riskLevel = 'medium'
+
+          return {
+            id: patient.id,
+            full_name: patient.full_name,
+            email: patient.email,
+            age: 35, // This would come from patient profile
+            consent_status: patient.consent_status || 'pending',
+            risk_level: riskLevel,
+            last_seizure_date: lastSeizure?.[0]?.seizure_date,
+            total_seizures: seizureCount || 0,
+            medication_compliance: 85, // This would be calculated from medication tracking
+            assigned_doctor: relationship.doctor_id,
+            emergency_contact: patient.emergency_contact || '',
+            next_appointment: relationship.next_appointment
+          }
+        })
+      )
+
+      setPatients(patientsWithMetrics)
+    } catch (error) {
+      console.error('Error loading patients:', error)
     }
   }
 
-  const unresolvedAlerts = alerts.filter(alert => !alert.resolved)
-  const criticalAlerts = unresolvedAlerts.filter(alert => alert.priority === 'critical')
-  const highRiskPatients = patients.filter(patient => patient.riskLevel === 'high')
+  const loadRecentSeizures = async (doctorId: string) => {
+    try {
+      // Get all patients for this doctor first
+      const { data: relationships } = await supabase
+        .from('patient_doctor_relationships')
+        .select('patient_id')
+        .eq('doctor_id', doctorId)
+        .eq('status', 'active')
 
-  if (!doctor) {
-    return <div>Loading...</div>
+      if (!relationships || relationships.length === 0) return
+
+      const patientIds = relationships.map(r => r.patient_id)
+
+      const { data: seizures, error } = await supabase
+        .from('seizure_records')
+        .select(`
+          *,
+          patient:user_profiles!user_id (full_name)
+        `)
+        .in('user_id', patientIds)
+        .order('seizure_date', { ascending: false })
+        .order('seizure_time', { ascending: false })
+        .limit(20)
+
+      if (error) throw error
+
+      const formattedSeizures = (seizures || []).map(seizure => ({
+        id: seizure.id,
+        patient_id: seizure.user_id,
+        patient_name: seizure.patient?.full_name || 'Unknown',
+        seizure_date: seizure.seizure_date,
+        seizure_time: seizure.seizure_time,
+        duration: seizure.duration,
+        seizure_type: seizure.seizure_type,
+        severity: seizure.severity,
+        triggers: seizure.triggers,
+        symptoms: seizure.symptoms,
+        medication_taken: seizure.medication_taken,
+        notes: seizure.additional_notes
+      }))
+
+      setRecentSeizures(formattedSeizures)
+    } catch (error) {
+      console.error('Error loading recent seizures:', error)
+    }
+  }
+
+  const loadClinicalNotes = async (doctorId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('clinical_notes')
+        .select('*')
+        .eq('doctor_id', doctorId)
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+      setClinicalNotes(data || [])
+    } catch (error) {
+      console.error('Error loading clinical notes:', error)
+    }
+  }
+
+  const addClinicalNote = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!doctor) return
+
+    try {
+      const { error } = await supabase
+        .from('clinical_notes')
+        .insert([{
+          ...newNote,
+          doctor_id: doctor.id
+        }])
+
+      if (error) throw error
+
+      showNotification('success', 'Clinical note added successfully')
+      setNewNote({
+        patient_id: '',
+        note_type: 'observation',
+        title: '',
+        content: '',
+        is_confidential: false
+      })
+      setShowAddNote(false)
+      await loadClinicalNotes(doctor.id)
+    } catch (error: any) {
+      showNotification('error', `Failed to add note: ${error.message}`)
+    }
+  }
+
+  const showNotification = (type: 'success' | 'error', message: string) => {
+    setNotification({ type, message })
+    setTimeout(() => setNotification(null), 5000)
+  }
+
+  const getRiskColor = (risk: string) => {
+    switch (risk) {
+      case 'high': return '#dc3545'
+      case 'medium': return '#ffc107'
+      case 'low': return '#28a745'
+      default: return '#6c757d'
+    }
+  }
+
+  const getConsentColor = (status: string) => {
+    switch (status) {
+      case 'approved': return '#28a745'
+      case 'pending': return '#ffc107'
+      case 'revoked': return '#dc3545'
+      default: return '#6c757d'
+    }
+  }
+
+  const isTrialExpired = () => {
+    if (!doctor || doctor.subscription_status !== 'trial') return false
+    if (!doctor.trial_ends_at) return false
+    return new Date() > new Date(doctor.trial_ends_at)
+  }
+
+  const getDaysLeftInTrial = () => {
+    if (!doctor || !doctor.trial_ends_at) return 0
+    const daysLeft = Math.ceil((new Date(doctor.trial_ends_at).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+    return Math.max(0, daysLeft)
+  }
+
+  if (isLoading) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#f8f9fa'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚕️</div>
+          <div style={{ color: '#005EB8', fontSize: '18px' }}>Loading Doctor Portal...</div>
+        </div>
+      </div>
+    )
   }
 
   return (
     <>
       <Head>
-        <title>Doctor Portal - NeuroLog</title>
+        <title>Doctor Portal - NeuroLog Professional</title>
       </Head>
 
       <div style={{
         minHeight: '100vh',
-        backgroundColor: '#f5f7fa',
+        backgroundColor: '#f8f9fa',
         fontFamily: 'system-ui, -apple-system, sans-serif'
       }}>
         {/* Header */}
         <div style={{
           background: 'linear-gradient(135deg, #005EB8 0%, #003087 100%)',
           color: 'white',
-          padding: '20px 24px',
+          padding: '16px 24px',
           boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
         }}>
           <div style={{
@@ -344,49 +359,80 @@ export default function DoctorPortal() {
           }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <div style={{
-                width: '48px',
-                height: '48px',
+                width: '40px',
+                height: '40px',
                 background: 'rgba(255,255,255,0.2)',
-                borderRadius: '12px',
+                borderRadius: '8px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                marginRight: '16px',
-                fontSize: '20px'
+                marginRight: '12px',
+                fontSize: '16px'
               }}>
-                🏥
+                ⚕️
               </div>
               <div>
-                <h1 style={{ margin: '0', fontSize: '24px', fontWeight: 'bold' }}>NeuroLog Doctor Portal</h1>
-                <p style={{ margin: '0', opacity: 0.9, fontSize: '14px' }}>
-                  {doctor.title} {doctor.name} • {doctor.practiceName}
+                <h1 style={{ margin: '0', fontSize: '20px', fontWeight: 'bold' }}>NeuroLog Professional</h1>
+                <p style={{ margin: '0', opacity: 0.9, fontSize: '12px' }}>
+                  Dr. {doctor?.full_name} • {doctor?.practice_name}
                 </p>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-              {criticalAlerts.length > 0 && (
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              {/* Subscription Status */}
+              {doctor?.subscription_status === 'trial' && (
                 <div style={{
-                  background: '#ff4757',
-                  color: 'white',
-                  padding: '8px 12px',
-                  borderRadius: '20px',
+                  background: isTrialExpired() ? '#dc3545' : '#ffc107',
+                  color: isTrialExpired() ? 'white' : '#000',
+                  padding: '4px 12px',
+                  borderRadius: '12px',
                   fontSize: '12px',
-                  fontWeight: 'bold',
-                  animation: 'pulse 2s infinite'
+                  fontWeight: '600'
                 }}>
-                  {criticalAlerts.length} CRITICAL ALERT{criticalAlerts.length > 1 ? 'S' : ''}
+                  {isTrialExpired() ? 'Trial Expired' : `Trial: ${getDaysLeftInTrial()} days left`}
                 </div>
               )}
+              
+              {doctor?.subscription_status === 'active' && (
+                <div style={{
+                  background: '#28a745',
+                  color: 'white',
+                  padding: '4px 12px',
+                  borderRadius: '12px',
+                  fontSize: '12px',
+                  fontWeight: '600'
+                }}>
+                  Pro Plan Active
+                </div>
+              )}
+
               <button
-                onClick={handleLogout}
+                onClick={() => setShowUpgradeModal(true)}
                 style={{
                   background: 'rgba(255,255,255,0.2)',
                   border: 'none',
                   color: 'white',
-                  padding: '10px 20px',
-                  borderRadius: '8px',
+                  padding: '8px 16px',
+                  borderRadius: '6px',
                   cursor: 'pointer',
-                  fontSize: '14px',
+                  fontSize: '12px',
+                  fontWeight: '500'
+                }}
+              >
+                💳 Upgrade
+              </button>
+              
+              <button
+                onClick={() => supabase.auth.signOut()}
+                style={{
+                  background: 'rgba(255,255,255,0.2)',
+                  border: 'none',
+                  color: 'white',
+                  padding: '8px 16px',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '12px',
                   fontWeight: '500'
                 }}
               >
@@ -395,6 +441,19 @@ export default function DoctorPortal() {
             </div>
           </div>
         </div>
+
+        {/* Notification */}
+        {notification && (
+          <div style={{
+            background: notification.type === 'success' ? '#d4edda' : '#f8d7da',
+            color: notification.type === 'success' ? '#155724' : '#721c24',
+            padding: '12px 24px',
+            textAlign: 'center',
+            border: `1px solid ${notification.type === 'success' ? '#c3e6cb' : '#f5c6cb'}`
+          }}>
+            {notification.message}
+          </div>
+        )}
 
         {/* Navigation */}
         <div style={{
@@ -408,23 +467,27 @@ export default function DoctorPortal() {
             display: 'flex',
             gap: '32px'
           }}>
-            {['dashboard', 'patients', 'alerts', 'analytics'].map(tab => (
+            {['dashboard', 'patients', 'analytics', 'notes', 'settings'].map(tab => (
               <button
                 key={tab}
-                onClick={() => setActiveTab(tab)}
+                onClick={() => setActiveTab(tab as any)}
                 style={{
                   background: 'none',
                   border: 'none',
                   padding: '16px 0',
-                  fontSize: '16px',
+                  fontSize: '14px',
                   fontWeight: '500',
                   color: activeTab === tab ? '#005EB8' : '#666',
-                  borderBottom: activeTab === tab ? '3px solid #005EB8' : 'none',
+                  borderBottom: activeTab === tab ? '2px solid #005EB8' : 'none',
                   cursor: 'pointer',
                   textTransform: 'capitalize'
                 }}
               >
-                {tab}
+                {tab === 'dashboard' ? '📊 Dashboard' : 
+                 tab === 'patients' ? '👥 Patients' :
+                 tab === 'analytics' ? '📈 Analytics' :
+                 tab === 'notes' ? '📝 Notes' :
+                 '⚙️ Settings'}
               </button>
             ))}
           </div>
@@ -434,720 +497,542 @@ export default function DoctorPortal() {
         <div style={{
           maxWidth: '1400px',
           margin: '0 auto',
-          padding: '32px 24px'
+          padding: '24px'
         }}>
+          {/* Dashboard */}
           {activeTab === 'dashboard' && (
-            <div>
+            <div style={{ display: 'grid', gap: '24px' }}>
               {/* Quick Stats */}
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                gap: '24px',
-                marginBottom: '32px'
+                gap: '16px'
               }}>
                 <div style={{
                   background: 'white',
-                  padding: '24px',
-                  borderRadius: '16px',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                  padding: '20px',
+                  borderRadius: '12px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                   border: '1px solid #e1e5e9'
                 }}>
-                  <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#005EB8', marginBottom: '8px' }}>
+                  <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#005EB8', marginBottom: '4px' }}>
                     {patients.length}
                   </div>
-                  <div style={{ color: '#666', fontSize: '16px' }}>Total Patients</div>
+                  <div style={{ color: '#666', fontSize: '14px' }}>Total Patients</div>
                 </div>
 
                 <div style={{
                   background: 'white',
-                  padding: '24px',
-                  borderRadius: '16px',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                  padding: '20px',
+                  borderRadius: '12px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                   border: '1px solid #e1e5e9'
                 }}>
-                  <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#ff4757', marginBottom: '8px' }}>
-                    {highRiskPatients.length}
+                  <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#dc3545', marginBottom: '4px' }}>
+                    {patients.filter(p => p.risk_level === 'high').length}
                   </div>
-                  <div style={{ color: '#666', fontSize: '16px' }}>High Risk Patients</div>
+                  <div style={{ color: '#666', fontSize: '14px' }}>High Risk</div>
                 </div>
 
                 <div style={{
                   background: 'white',
-                  padding: '24px',
-                  borderRadius: '16px',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                  padding: '20px',
+                  borderRadius: '12px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                   border: '1px solid #e1e5e9'
                 }}>
-                  <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#ffa726', marginBottom: '8px' }}>
-                    {unresolvedAlerts.length}
+                  <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#28a745', marginBottom: '4px' }}>
+                    {patients.filter(p => p.consent_status === 'approved').length}
                   </div>
-                  <div style={{ color: '#666', fontSize: '16px' }}>Active Alerts</div>
+                  <div style={{ color: '#666', fontSize: '14px' }}>Consented</div>
                 </div>
 
                 <div style={{
                   background: 'white',
-                  padding: '24px',
-                  borderRadius: '16px',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                  padding: '20px',
+                  borderRadius: '12px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                   border: '1px solid #e1e5e9'
                 }}>
-                  <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#4caf50', marginBottom: '8px' }}>
-                    {Math.round(patients.reduce((sum, p) => sum + p.medicationCompliance, 0) / patients.length)}%
+                  <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#005EB8', marginBottom: '4px' }}>
+                    {recentSeizures.length}
                   </div>
-                  <div style={{ color: '#666', fontSize: '16px' }}>Avg Compliance</div>
+                  <div style={{ color: '#666', fontSize: '14px' }}>Recent Seizures</div>
                 </div>
               </div>
 
-              {/* Critical Alerts */}
-              {criticalAlerts.length > 0 && (
-                <div style={{
-                  background: '#fff5f5',
-                  border: '2px solid #ff4757',
-                  borderRadius: '16px',
-                  padding: '24px',
-                  marginBottom: '32px'
-                }}>
-                  <h3 style={{ margin: '0 0 16px 0', color: '#d32f2f', fontSize: '18px' }}>
-                    🚨 Critical Alerts Requiring Immediate Attention
-                  </h3>
-                  <div style={{ display: 'grid', gap: '12px' }}>
-                    {criticalAlerts.map(alert => (
-                      <div key={alert.id} style={{
-                        background: 'white',
-                        padding: '16px',
-                        borderRadius: '8px',
-                        border: '1px solid #ff4757',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center'
-                      }}>
-                        <div>
-                          <div style={{ fontWeight: 'bold', color: '#d32f2f' }}>
-                            {alert.patientName}
-                          </div>
-                          <div style={{ color: '#666', fontSize: '14px' }}>
-                            {alert.message}
-                          </div>
-                          <div style={{ fontSize: '12px', color: '#999', marginTop: '4px' }}>
-                            {new Date(alert.timestamp).toLocaleString()}
-                          </div>
-                        </div>
-                        <div style={{ display: 'flex', gap: '8px' }}>
-                          <button
-                            onClick={() => {
-                              const patient = patients.find(p => p.id === alert.patientId)
-                              if (patient) {
-                                setSelectedPatient(patient)
-                                setShowPatientModal(true)
-                              }
-                            }}
-                            style={{
-                              padding: '8px 16px',
-                              background: '#005EB8',
-                              color: 'white',
-                              border: 'none',
-                              borderRadius: '6px',
-                              fontSize: '14px',
-                              cursor: 'pointer'
-                            }}
-                          >
-                            View Patient
-                          </button>
-                          <button
-                            onClick={() => resolveAlert(alert.id)}
-                            style={{
-                              padding: '8px 16px',
-                              background: '#4caf50',
-                              color: 'white',
-                              border: 'none',
-                              borderRadius: '6px',
-                              fontSize: '14px',
-                              cursor: 'pointer'
-                            }}
-                          >
-                            Resolve
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Recent Patient Activity */}
+              {/* Patients Requiring Attention */}
               <div style={{
                 background: 'white',
-                borderRadius: '16px',
-                padding: '24px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                borderRadius: '12px',
+                padding: '20px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                 border: '1px solid #e1e5e9'
               }}>
-                <h3 style={{ margin: '0 0 20px 0', color: '#003087', fontSize: '20px' }}>Recent Patient Activity</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
-                  {patients.slice(0, 6).map(patient => (
-                    <div key={patient.id} style={{
-                      border: '1px solid #e1e5e9',
-                      borderRadius: '12px',
-                      padding: '20px',
-                      background: '#f8f9fa',
-                      borderLeft: `4px solid ${getRiskColor(patient.riskLevel)}`
-                    }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '12px' }}>
-                        <div>
-                          <div style={{ fontWeight: 'bold', color: '#003087', fontSize: '16px' }}>
-                            {patient.name}
+                <h3 style={{ margin: '0 0 16px 0', color: '#003087', fontSize: '18px' }}>
+                  🚨 Patients Requiring Attention
+                </h3>
+                
+                {patients.filter(p => p.risk_level === 'high' || p.consent_status === 'pending').length === 0 ? (
+                  <div style={{ color: '#666', textAlign: 'center', padding: '20px' }}>
+                    No patients require immediate attention
+                  </div>
+                ) : (
+                  <div style={{ display: 'grid', gap: '8px' }}>
+                    {patients
+                      .filter(p => p.risk_level === 'high' || p.consent_status === 'pending')
+                      .map(patient => (
+                        <div key={patient.id} style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          padding: '12px',
+                          backgroundColor: '#f8f9fa',
+                          borderRadius: '8px',
+                          border: '1px solid #e1e5e9'
+                        }}>
+                          <div>
+                            <div style={{ fontWeight: '600', color: '#003087' }}>
+                              {patient.full_name}
+                            </div>
+                            <div style={{ fontSize: '12px', color: '#666' }}>
+                              {patient.risk_level === 'high' && 'High seizure frequency • '}
+                              {patient.consent_status === 'pending' && 'Consent pending'}
+                            </div>
                           </div>
-                          <div style={{ color: '#666', fontSize: '12px' }}>
-                            {patient.nhsNumber} • Age {patient.age}
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <div style={{
+                              width: '12px',
+                              height: '12px',
+                              borderRadius: '50%',
+                              backgroundColor: getRiskColor(patient.risk_level)
+                            }} />
+                            <div style={{
+                              width: '12px',
+                              height: '12px',
+                              borderRadius: '50%',
+                              backgroundColor: getConsentColor(patient.consent_status)
+                            }} />
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Recent Seizures */}
+              <div style={{
+                background: 'white',
+                borderRadius: '12px',
+                padding: '20px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                border: '1px solid #e1e5e9'
+              }}>
+                <h3 style={{ margin: '0 0 16px 0', color: '#003087', fontSize: '18px' }}>
+                  📊 Recent Seizures Across All Patients
+                </h3>
+                
+                {recentSeizures.length === 0 ? (
+                  <div style={{ color: '#666', textAlign: 'center', padding: '20px' }}>
+                    No recent seizures recorded
+                  </div>
+                ) : (
+                  <div style={{ display: 'grid', gap: '8px' }}>
+                    {recentSeizures.slice(0, 10).map(seizure => (
+                      <div key={seizure.id} style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '12px',
+                        backgroundColor: '#f8f9fa',
+                        borderRadius: '8px',
+                        border: '1px solid #e1e5e9'
+                      }}>
+                        <div>
+                          <div style={{ fontWeight: '600', color: '#003087' }}>
+                            {seizure.patient_name}
+                          </div>
+                          <div style={{ fontSize: '12px', color: '#666' }}>
+                            {seizure.seizure_date} at {seizure.seizure_time} • {seizure.seizure_type} • {seizure.duration}
                           </div>
                         </div>
                         <div style={{
                           padding: '4px 8px',
                           borderRadius: '12px',
-                          backgroundColor: getRiskColor(patient.riskLevel) + '20',
-                          color: getRiskColor(patient.riskLevel),
-                          fontSize: '10px',
-                          fontWeight: '600',
-                          textTransform: 'uppercase'
-                        }}>
-                          {patient.riskLevel} RISK
-                        </div>
-                      </div>
-
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '12px', marginBottom: '12px' }}>
-                        <div>
-                          <strong>Recent seizures:</strong> {patient.recentSeizures}
-                        </div>
-                        <div>
-                          <strong>Compliance:</strong> {patient.medicationCompliance}%
-                        </div>
-                        <div>
-                          <strong>Last seizure:</strong> {new Date(patient.lastSeizure).toLocaleDateString()}
-                        </div>
-                        <div>
-                          <strong>Last active:</strong> {new Date(patient.lastActivity).toLocaleDateString()}
-                        </div>
-                      </div>
-
-                      <button
-                        onClick={() => {
-                          setSelectedPatient(patient)
-                          setShowPatientModal(true)
-                        }}
-                        style={{
-                          width: '100%',
-                          padding: '8px',
-                          background: '#005EB8',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '6px',
-                          fontSize: '14px',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        View Details
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'patients' && (
-            <div>
-              {/* Search and Filter */}
-              <div style={{
-                background: 'white',
-                borderRadius: '16px',
-                padding: '24px',
-                marginBottom: '24px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                border: '1px solid #e1e5e9'
-              }}>
-                <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
-                  <input
-                    type="text"
-                    placeholder="Search patients by name or NHS number..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    style={{
-                      flex: 1,
-                      minWidth: '300px',
-                      padding: '12px',
-                      borderRadius: '8px',
-                      border: '2px solid #e1e5e9',
-                      fontSize: '16px'
-                    }}
-                  />
-                  <select
-                    value={filterRisk}
-                    onChange={(e) => setFilterRisk(e.target.value)}
-                    style={{
-                      padding: '12px',
-                      borderRadius: '8px',
-                      border: '2px solid #e1e5e9',
-                      fontSize: '16px',
-                      backgroundColor: 'white'
-                    }}
-                  >
-                    <option value="all">All Risk Levels</option>
-                    <option value="high">High Risk</option>
-                    <option value="medium">Medium Risk</option>
-                    <option value="low">Low Risk</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Patient List */}
-              <div style={{
-                background: 'white',
-                borderRadius: '16px',
-                padding: '24px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                border: '1px solid #e1e5e9'
-              }}>
-                <h2 style={{ margin: '0 0 24px 0', color: '#003087' }}>
-                  Patient List ({filteredPatients.length} patients)
-                </h2>
-
-                <div style={{ display: 'grid', gap: '16px' }}>
-                  {filteredPatients.map(patient => (
-                    <div key={patient.id} style={{
-                      border: '1px solid #e1e5e9',
-                      borderRadius: '12px',
-                      padding: '24px',
-                      background: '#f8fffe',
-                      borderLeft: `6px solid ${getRiskColor(patient.riskLevel)}`
-                    }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
-                        <div>
-                          <h3 style={{ margin: '0 0 4px 0', color: '#003087', fontSize: '20px' }}>
-                            {patient.name}
-                          </h3>
-                          <div style={{ color: '#666', fontSize: '14px', marginBottom: '8px' }}>
-                            NHS: {patient.nhsNumber} • Age: {patient.age} • DOB: {new Date(patient.dateOfBirth).toLocaleDateString()}
-                          </div>
-                          <div style={{ color: '#666', fontSize: '14px' }}>
-                            📞 {patient.phone} • 📧 {patient.email}
-                          </div>
-                        </div>
-                        <div style={{
-                          padding: '8px 16px',
-                          borderRadius: '20px',
-                          backgroundColor: getRiskColor(patient.riskLevel) + '20',
-                          color: getRiskColor(patient.riskLevel),
                           fontSize: '12px',
                           fontWeight: '600',
-                          textTransform: 'uppercase'
+                          backgroundColor: seizure.severity > 3 ? '#fee' : seizure.severity > 2 ? '#fef0e0' : '#efe',
+                          color: seizure.severity > 3 ? '#c33' : seizure.severity > 2 ? '#d2691e' : '#363'
                         }}>
-                          {patient.riskLevel} RISK
+                          Severity {seizure.severity}/5
                         </div>
                       </div>
-
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '16px' }}>
-                        <div>
-                          <strong style={{ color: '#003087' }}>Total Seizures:</strong><br/>
-                          <span style={{ color: '#666' }}>{patient.totalSeizures}</span>
-                        </div>
-                        <div>
-                          <strong style={{ color: '#003087' }}>Recent (30 days):</strong><br/>
-                          <span style={{ color: patient.recentSeizures > 5 ? '#ff4757' : '#666' }}>
-                            {patient.recentSeizures}
-                          </span>
-                        </div>
-                        <div>
-                          <strong style={{ color: '#003087' }}>Medication Compliance:</strong><br/>
-                          <span style={{ color: patient.medicationCompliance < 80 ? '#ff4757' : '#4caf50' }}>
-                            {patient.medicationCompliance}%
-                          </span>
-                        </div>
-                        <div>
-                          <strong style={{ color: '#003087' }}>Last Seizure:</strong><br/>
-                          <span style={{ color: '#666' }}>
-                            {new Date(patient.lastSeizure).toLocaleDateString()}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div style={{ marginBottom: '16px' }}>
-                        <strong style={{ color: '#003087' }}>Current Medications:</strong><br/>
-                        <span style={{ color: '#666' }}>
-                          {patient.currentMedications.join(', ') || 'None recorded'}
-                        </span>
-                      </div>
-
-                      <div style={{ marginBottom: '16px' }}>
-                        <strong style={{ color: '#003087' }}>Emergency Contact:</strong><br/>
-                        <span style={{ color: '#666' }}>{patient.emergencyContact}</span>
-                      </div>
-
-                      <div style={{ display: 'flex', gap: '12px' }}>
-                        <button
-                          onClick={() => {
-                            setSelectedPatient(patient)
-                            setShowPatientModal(true)
-                          }}
-                          style={{
-                            padding: '8px 16px',
-                            background: '#005EB8',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '6px',
-                            fontSize: '14px',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          View Full Record
-                        </button>
-                        <button
-                          style={{
-                            padding: '8px 16px',
-                            background: '#4caf50',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '6px',
-                            fontSize: '14px',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          Add Note
-                        </button>
-                        <button
-                          style={{
-                            padding: '8px 16px',
-                            background: '#ffa726',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '6px',
-                            fontSize: '14px',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          Message Patient
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           )}
 
-          {activeTab === 'alerts' && (
+          {/* Patients Tab */}
+          {activeTab === 'patients' && (
             <div style={{
               background: 'white',
-              borderRadius: '16px',
-              padding: '24px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+              borderRadius: '12px',
+              padding: '20px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
               border: '1px solid #e1e5e9'
             }}>
-              <h2 style={{ margin: '0 0 24px 0', color: '#003087' }}>Alert Management</h2>
-
-              <div style={{ display: 'grid', gap: '16px' }}>
-                {alerts.map(alert => (
-                  <div key={alert.id} style={{
-                    border: `2px solid ${getPriorityColor(alert.priority)}`,
-                    borderRadius: '12px',
-                    padding: '20px',
-                    background: alert.resolved ? '#f0f0f0' : 'white',
-                    opacity: alert.resolved ? 0.6 : 1
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '12px' }}>
-                      <div>
-                        <div style={{
-                          display: 'inline-block',
-                          padding: '4px 12px',
-                          borderRadius: '12px',
-                          backgroundColor: getPriorityColor(alert.priority),
-                          color: 'white',
-                          fontSize: '12px',
-                          fontWeight: 'bold',
-                          textTransform: 'uppercase',
-                          marginBottom: '8px'
-                        }}>
-                          {alert.priority} • {alert.type}
-                        </div>
-                        <h3 style={{ margin: '0 0 4px 0', color: '#003087' }}>
-                          {alert.patientName}
-                        </h3>
-                        <p style={{ margin: '0', color: '#666' }}>
-                          {alert.message}
-                        </p>
-                        <div style={{ fontSize: '12px', color: '#999', marginTop: '8px' }}>
-                          {new Date(alert.timestamp).toLocaleString()}
-                        </div>
-                      </div>
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        {!alert.resolved && (
-                          <>
-                            <button
-                              onClick={() => {
-                                const patient = patients.find(p => p.id === alert.patientId)
-                                if (patient) {
-                                  setSelectedPatient(patient)
-                                  setShowPatientModal(true)
-                                }
-                              }}
-                              style={{
-                                padding: '8px 16px',
-                                background: '#005EB8',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '6px',
-                                fontSize: '14px',
-                                cursor: 'pointer'
-                              }}
-                            >
-                              View Patient
-                            </button>
-                            <button
-                              onClick={() => resolveAlert(alert.id)}
-                              style={{
-                                padding: '8px 16px',
-                                background: '#4caf50',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '6px',
-                                fontSize: '14px',
-                                cursor: 'pointer'
-                              }}
-                            >
-                              Resolve
-                            </button>
-                          </>
-                        )}
-                        {alert.resolved && (
-                          <div style={{
-                            padding: '8px 16px',
-                            background: '#4caf50',
-                            color: 'white',
-                            borderRadius: '6px',
-                            fontSize: '14px'
-                          }}>
-                            ✓ Resolved
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <h2 style={{ margin: '0', color: '#003087' }}>Patient Management</h2>
+                <button
+                  onClick={() => setShowAddNote(true)}
+                  style={{
+                    background: '#005EB8',
+                    color: 'white',
+                    border: 'none',
+                    padding: '8px 16px',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '14px'
+                  }}
+                >
+                  + Add Clinical Note
+                </button>
+              </div>
+              
+              {patients.length === 0 ? (
+                <div style={{ textAlign: 'center', color: '#666', padding: '40px 0' }}>
+                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>👥</div>
+                  <div>No patients have consented to share data with you yet.</div>
+                </div>
+              ) : (
+                <div style={{ display: 'grid', gap: '16px' }}>
+                  {patients.map(patient => (
+                    <div key={patient.id} style={{
+                      border: '1px solid #e1e5e9',
+                      borderRadius: '8px',
+                      padding: '16px',
+                      backgroundColor: patient.consent_status === 'approved' ? 'white' : '#f8f9fa'
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                            <h4 style={{ margin: '0', color: '#003087', fontSize: '16px' }}>
+                              {patient.full_name}
+                            </h4>
+                            <div style={{
+                              padding: '2px 8px',
+                              borderRadius: '12px',
+                              fontSize: '11px',
+                              fontWeight: '600',
+                              backgroundColor: getConsentColor(patient.consent_status),
+                              color: 'white'
+                            }}>
+                              {patient.consent_status}
+                            </div>
+                            <div style={{
+                              padding: '2px 8px',
+                              borderRadius: '12px',
+                              fontSize: '11px',
+                              fontWeight: '600',
+                              backgroundColor: getRiskColor(patient.risk_level),
+                              color: 'white'
+                            }}>
+                              {patient.risk_level} risk
+                            </div>
                           </div>
-                        )}
+                          
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '8px', fontSize: '14px', color: '#666' }}>
+                            <div><strong>Total Seizures:</strong> {patient.total_seizures}</div>
+                            <div><strong>Last Seizure:</strong> {patient.last_seizure_date ? new Date(patient.last_seizure_date).toLocaleDateString() : 'None'}</div>
+                            <div><strong>Compliance:</strong> {patient.medication_compliance}%</div>
+                            <div><strong>Emergency Contact:</strong> {patient.emergency_contact || 'Not provided'}</div>
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button
+                            onClick={() => setSelectedPatient(patient)}
+                            style={{
+                              background: '#007bff',
+                              color: 'white',
+                              border: 'none',
+                              padding: '6px 12px',
+                              borderRadius: '4px',
+                              cursor: 'pointer',
+                              fontSize: '12px'
+                            }}
+                          >
+                            View Details
+                          </button>
+                          <button
+                            onClick={() => {
+                              setNewNote({ ...newNote, patient_id: patient.id })
+                              setShowAddNote(true)
+                            }}
+                            style={{
+                              background: '#28a745',
+                              color: 'white',
+                              border: 'none',
+                              padding: '6px 12px',
+                              borderRadius: '4px',
+                              cursor: 'pointer',
+                              fontSize: '12px'
+                            }}
+                          >
+                            Add Note
+                          </button>
+                        </div>
                       </div>
                     </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Analytics Tab */}
+          {activeTab === 'analytics' && (
+            <div style={{
+              background: 'white',
+              borderRadius: '12px',
+              padding: '20px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              border: '1px solid #e1e5e9'
+            }}>
+              <h2 style={{ margin: '0 0 20px 0', color: '#003087' }}>Practice Analytics</h2>
+              
+              <div style={{ display: 'grid', gap: '24px' }}>
+                <div style={{
+                  background: '#f8f9fa',
+                  padding: '16px',
+                  borderRadius: '8px',
+                  border: '1px solid #e1e5e9'
+                }}>
+                  <h3 style={{ margin: '0 0 12px 0', color: '#003087', fontSize: '16px' }}>
+                    Patient Risk Distribution
+                  </h3>
+                  <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div style={{ width: '20px', height: '20px', backgroundColor: '#dc3545', borderRadius: '4px' }} />
+                      <span>High Risk: {patients.filter(p => p.risk_level === 'high').length}</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div style={{ width: '20px', height: '20px', backgroundColor: '#ffc107', borderRadius: '4px' }} />
+                      <span>Medium Risk: {patients.filter(p => p.risk_level === 'medium').length}</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div style={{ width: '20px', height: '20px', backgroundColor: '#28a745', borderRadius: '4px' }} />
+                      <span>Low Risk: {patients.filter(p => p.risk_level === 'low').length}</span>
+                    </div>
                   </div>
-                ))}
+                </div>
+
+                <div style={{
+                  background: '#f8f9fa',
+                  padding: '16px',
+                  borderRadius: '8px',
+                  border: '1px solid #e1e5e9'
+                }}>
+                  <h3 style={{ margin: '0 0 12px 0', color: '#003087', fontSize: '16px' }}>
+                    Seizure Trends (Last 30 Days)
+                  </h3>
+                  <div style={{ fontSize: '14px', color: '#666' }}>
+                    Total seizures: {recentSeizures.length}
+                    <br />
+                    Average severity: {recentSeizures.length > 0 ? (recentSeizures.reduce((sum, s) => sum + s.severity, 0) / recentSeizures.length).toFixed(1) : 'N/A'}
+                    <br />
+                    Most active patient: {recentSeizures.length > 0 ? recentSeizures.reduce((prev, current) => 
+                      recentSeizures.filter(s => s.patient_id === current.patient_id).length > 
+                      recentSeizures.filter(s => s.patient_id === prev.patient_id).length ? current : prev
+                    ).patient_name : 'N/A'}
+                  </div>
+                </div>
+
+                <div style={{
+                  background: '#f8f9fa',
+                  padding: '16px',
+                  borderRadius: '8px',
+                  border: '1px solid #e1e5e9'
+                }}>
+                  <h3 style={{ margin: '0 0 12px 0', color: '#003087', fontSize: '16px' }}>
+                    Common Seizure Types
+                  </h3>
+                  <div style={{ display: 'grid', gap: '8px' }}>
+                    {Array.from(new Set(recentSeizures.map(s => s.seizure_type))).map(type => {
+                      const count = recentSeizures.filter(s => s.seizure_type === type).length
+                      const percentage = recentSeizures.length > 0 ? ((count / recentSeizures.length) * 100).toFixed(1) : '0'
+                      return (
+                        <div key={type} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px' }}>
+                          <span>{type}</span>
+                          <span>{count} ({percentage}%)</span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
               </div>
             </div>
           )}
 
-          {activeTab === 'analytics' && (
-            <div>
-              <div style={{
-                background: 'white',
-                borderRadius: '16px',
-                padding: '24px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                border: '1px solid #e1e5e9'
-              }} id="doctor-analytics-content">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                  <h2 style={{ margin: '0', color: '#003087' }}>Practice Analytics</h2>
-                  <div style={{ display: 'flex', gap: '12px' }}>
-                    <button
-                      onClick={() => window.print()}
-                      style={{
-                        background: '#28a745',
-                        color: 'white',
-                        border: 'none',
-                        padding: '8px 16px',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        fontSize: '14px',
-                        fontWeight: '500',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px'
-                      }}
-                    >
-                      🖨️ Print
-                    </button>
-                    <button
-                      onClick={async () => {
-                        const element = document.getElementById('doctor-analytics-content')
-                        if (!element) return
-                        
-                        try {
-                          const html2canvas = (await import('html2canvas')).default
-                          const jsPDF = (await import('jspdf')).jsPDF
-                          
-                          const canvas = await html2canvas(element, {
-                            scale: 2,
-                            useCORS: true,
-                            backgroundColor: '#ffffff'
-                          })
-                          
-                          const imgData = canvas.toDataURL('image/png')
-                          const pdf = new jsPDF('p', 'mm', 'a4')
-                          const pdfWidth = pdf.internal.pageSize.getWidth()
-                          const pdfHeight = pdf.internal.pageSize.getHeight()
-                          const imgWidth = canvas.width
-                          const imgHeight = canvas.height
-                          const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight)
-                          const imgX = (pdfWidth - imgWidth * ratio) / 2
-                          const imgY = 30
-                          
-                          pdf.setFontSize(16)
-                          pdf.text('NeuroLog - Practice Analytics Report', pdfWidth / 2, 20, { align: 'center' })
-                          pdf.setFontSize(10)
-                          pdf.text(`Generated on: ${new Date().toLocaleDateString()}`, pdfWidth / 2, 25, { align: 'center' })
-                          
-                          pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio)
-                          pdf.save(`neurolog-practice-analytics-${new Date().toISOString().split('T')[0]}.pdf`)
-                        } catch (error) {
-                          console.error('Error generating PDF:', error)
-                          alert('Error generating PDF. Please try again.')
-                        }
-                      }}
-                      style={{
-                        background: '#dc3545',
-                        color: 'white',
-                        border: 'none',
-                        padding: '8px 16px',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        fontSize: '14px',
-                        fontWeight: '500',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px'
-                      }}
-                    >
-                      📄 Export PDF
-                    </button>
-                  </div>
+          {/* Clinical Notes Tab */}
+          {activeTab === 'notes' && (
+            <div style={{
+              background: 'white',
+              borderRadius: '12px',
+              padding: '20px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              border: '1px solid #e1e5e9'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <h2 style={{ margin: '0', color: '#003087' }}>Clinical Notes</h2>
+                <button
+                  onClick={() => setShowAddNote(true)}
+                  style={{
+                    background: '#005EB8',
+                    color: 'white',
+                    border: 'none',
+                    padding: '8px 16px',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '14px'
+                  }}
+                >
+                  + Add Note
+                </button>
+              </div>
+              
+              {clinicalNotes.length === 0 ? (
+                <div style={{ textAlign: 'center', color: '#666', padding: '40px 0' }}>
+                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>📝</div>
+                  <div>No clinical notes yet.</div>
                 </div>
-
-                {/* Analytics Overview */}
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-                  gap: '24px',
-                  marginBottom: '32px'
-                }}>
-                  <div style={{
-                    background: '#f8fffe',
-                    padding: '20px',
-                    borderRadius: '12px',
-                    border: '1px solid #e1e5e9'
-                  }}>
-                    <h4 style={{ margin: '0 0 12px 0', color: '#003087' }}>Average Medication Compliance</h4>
-                    <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#4caf50' }}>
-                      {Math.round(patients.reduce((sum, p) => sum + p.medicationCompliance, 0) / patients.length)}%
-                    </div>
-                    <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
-                      Target: 95% • Current: Above average
-                    </div>
-                  </div>
-
-                  <div style={{
-                    background: '#fff8f0',
-                    padding: '20px',
-                    borderRadius: '12px',
-                    border: '1px solid #e1e5e9'
-                  }}>
-                    <h4 style={{ margin: '0 0 12px 0', color: '#003087' }}>Average Seizures per Month</h4>
-                    <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#ffa726' }}>
-                      {Math.round(patients.reduce((sum, p) => sum + p.recentSeizures, 0) / patients.length)}
-                    </div>
-                    <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
-                      Trend: Stable • Previous month: 5.2
-                    </div>
-                  </div>
-
-                  <div style={{
-                    background: '#fff0f0',
-                    padding: '20px',
-                    borderRadius: '12px',
-                    border: '1px solid #e1e5e9'
-                  }}>
-                    <h4 style={{ margin: '0 0 12px 0', color: '#003087' }}>Patients Requiring Attention</h4>
-                    <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#ff4757' }}>
-                      {patients.filter(p => p.riskLevel === 'high' || p.medicationCompliance < 80).length}
-                    </div>
-                    <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
-                      High risk or poor compliance
-                    </div>
-                  </div>
-                </div>
-
-                {/* Risk Distribution */}
-                <div style={{ marginBottom: '32px' }}>
-                  <h3 style={{ margin: '0 0 16px 0', color: '#003087' }}>Risk Level Distribution</h3>
-                  <div style={{ display: 'flex', gap: '16px', alignItems: 'end', height: '200px', border: '1px solid #e1e5e9', borderRadius: '8px', padding: '20px' }}>
-                    {['low', 'medium', 'high'].map(risk => {
-                      const count = patients.filter(p => p.riskLevel === risk).length
-                      const height = (count / patients.length) * 140
-                      return (
-                        <div key={risk} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
-                          <div style={{
-                            width: '60px',
-                            height: `${height}px`,
-                            backgroundColor: getRiskColor(risk),
-                            borderRadius: '4px 4px 0 0',
-                            marginBottom: '8px',
-                            display: 'flex',
-                            alignItems: 'start',
-                            justifyContent: 'center',
-                            color: 'white',
-                            fontWeight: 'bold',
-                            paddingTop: '8px'
-                          }}>
-                            {count}
-                          </div>
-                          <div style={{ fontSize: '14px', color: '#666', textTransform: 'capitalize' }}>
-                            {risk} Risk
+              ) : (
+                <div style={{ display: 'grid', gap: '12px' }}>
+                  {clinicalNotes.map(note => (
+                    <div key={note.id} style={{
+                      border: '1px solid #e1e5e9',
+                      borderRadius: '8px',
+                      padding: '16px',
+                      backgroundColor: note.is_confidential ? '#fff3cd' : 'white'
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                        <div>
+                          <h4 style={{ margin: '0', color: '#003087', fontSize: '16px' }}>
+                            {note.title}
+                          </h4>
+                          <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+                            {note.note_type} • {new Date(note.created_at).toLocaleDateString()}
+                            {note.is_confidential && ' • Confidential'}
                           </div>
                         </div>
-                      )
-                    })}
-                  </div>
-                </div>
-
-                {/* Medication Effectiveness */}
-                <div>
-                  <h3 style={{ margin: '0 0 16px 0', color: '#003087' }}>Most Common Medications</h3>
-                  <div style={{ display: 'grid', gap: '12px' }}>
-                    {Array.from(new Set(patients.flatMap(p => p.currentMedications))).map(med => {
-                      const count = patients.filter(p => p.currentMedications.includes(med)).length
-                      const percentage = (count / patients.length) * 100
-                      return (
-                        <div key={med} style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          padding: '12px',
-                          background: '#f8f9fa',
-                          borderRadius: '8px',
-                          border: '1px solid #e1e5e9'
+                        <div style={{
+                          padding: '2px 8px',
+                          borderRadius: '12px',
+                          fontSize: '11px',
+                          fontWeight: '600',
+                          backgroundColor: '#005EB8',
+                          color: 'white'
                         }}>
-                          <span style={{ fontWeight: '500' }}>{med}</span>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <div style={{
-                              width: '100px',
-                              height: '8px',
-                              background: '#e1e5e9',
-                              borderRadius: '4px',
-                              overflow: 'hidden'
-                            }}>
-                              <div style={{
-                                width: `${percentage}%`,
-                                height: '100%',
-                                background: '#005EB8',
-                                borderRadius: '4px'
-                              }} />
-                            </div>
-                            <span style={{ fontSize: '14px', color: '#666', minWidth: '60px' }}>
-                              {count} ({percentage.toFixed(0)}%)
-                            </span>
-                          </div>
+                          {note.note_type}
                         </div>
-                      )
-                    })}
+                      </div>
+                      <div style={{ color: '#333', fontSize: '14px', lineHeight: '1.5' }}>
+                        {note.content}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Settings Tab */}
+          {activeTab === 'settings' && (
+            <div style={{
+              background: 'white',
+              borderRadius: '12px',
+              padding: '20px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              border: '1px solid #e1e5e9'
+            }}>
+              <h2 style={{ margin: '0 0 20px 0', color: '#003087' }}>Settings & Subscription</h2>
+              
+              <div style={{ display: 'grid', gap: '24px' }}>
+                <div style={{
+                  background: '#f8f9fa',
+                  padding: '16px',
+                  borderRadius: '8px',
+                  border: '1px solid #e1e5e9'
+                }}>
+                  <h3 style={{ margin: '0 0 12px 0', color: '#003087', fontSize: '16px' }}>
+                    Subscription Status
+                  </h3>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '12px' }}>
+                    <div style={{
+                      padding: '4px 12px',
+                      borderRadius: '12px',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      backgroundColor: doctor?.subscription_status === 'active' ? '#28a745' : 
+                                     doctor?.subscription_status === 'trial' ? '#ffc107' : '#dc3545',
+                      color: doctor?.subscription_status === 'trial' ? '#000' : 'white'
+                    }}>
+                      {doctor?.subscription_status === 'active' ? 'Pro Plan Active' :
+                       doctor?.subscription_status === 'trial' ? `Trial (${getDaysLeftInTrial()} days left)` :
+                       'Subscription Expired'}
+                    </div>
+                  </div>
+                  
+                  {doctor?.subscription_status !== 'active' && (
+                    <button
+                      onClick={() => setShowUpgradeModal(true)}
+                      style={{
+                        background: '#005EB8',
+                        color: 'white',
+                        border: 'none',
+                        padding: '8px 16px',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontSize: '14px'
+                      }}
+                    >
+                      Upgrade to Pro Plan - £35/month
+                    </button>
+                  )}
+                </div>
+
+                <div style={{
+                  background: '#f8f9fa',
+                  padding: '16px',
+                  borderRadius: '8px',
+                  border: '1px solid #e1e5e9'
+                }}>
+                  <h3 style={{ margin: '0 0 12px 0', color: '#003087', fontSize: '16px' }}>
+                    Practice Information
+                  </h3>
+                  <div style={{ display: 'grid', gap: '8px', fontSize: '14px' }}>
+                    <div><strong>GMC Number:</strong> {doctor?.gmc_number}</div>
+                    <div><strong>Speciality:</strong> {doctor?.speciality}</div>
+                    <div><strong>Practice:</strong> {doctor?.practice_name}</div>
+                    <div><strong>Email:</strong> {doctor?.email}</div>
+                  </div>
+                </div>
+
+                <div style={{
+                  background: '#f8f9fa',
+                  padding: '16px',
+                  borderRadius: '8px',
+                  border: '1px solid #e1e5e9'
+                }}>
+                  <h3 style={{ margin: '0 0 12px 0', color: '#003087', fontSize: '16px' }}>
+                    Usage Statistics
+                  </h3>
+                  <div style={{ display: 'grid', gap: '8px', fontSize: '14px' }}>
+                    <div><strong>Patients Managed:</strong> {patients.length}</div>
+                    <div><strong>Clinical Notes:</strong> {clinicalNotes.length}</div>
+                    <div><strong>Account Created:</strong> {doctor?.created_at ? new Date(doctor.created_at).toLocaleDateString() : 'N/A'}</div>
                   </div>
                 </div>
               </div>
@@ -1155,8 +1040,8 @@ export default function DoctorPortal() {
           )}
         </div>
 
-        {/* Patient Detail Modal */}
-        {showPatientModal && selectedPatient && (
+        {/* Add Clinical Note Modal */}
+        {showAddNote && (
           <div style={{
             position: 'fixed',
             top: 0,
@@ -1172,263 +1057,242 @@ export default function DoctorPortal() {
           }}>
             <div style={{
               background: 'white',
-              borderRadius: '16px',
-              padding: '32px',
-              maxWidth: '900px',
-              maxHeight: '90vh',
-              overflow: 'auto',
-              width: '100%'
+              borderRadius: '12px',
+              padding: '24px',
+              maxWidth: '600px',
+              width: '100%',
+              maxHeight: '80vh',
+              overflow: 'auto'
             }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                <h2 style={{ margin: 0, color: '#003087' }}>
-                  {selectedPatient.name} - Patient Record
-                </h2>
-                <button
-                  onClick={() => setShowPatientModal(false)}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    fontSize: '24px',
-                    cursor: 'pointer',
-                    color: '#666'
-                  }}
-                >
-                  ×
-                </button>
-              </div>
-
-              {/* Patient Details */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '32px' }}>
-                <div>
-                  <h3 style={{ margin: '0 0 12px 0', color: '#003087' }}>Patient Information</h3>
-                  <div style={{ fontSize: '14px', lineHeight: '1.6' }}>
-                    <div><strong>NHS Number:</strong> {selectedPatient.nhsNumber}</div>
-                    <div><strong>Date of Birth:</strong> {new Date(selectedPatient.dateOfBirth).toLocaleDateString()}</div>
-                    <div><strong>Age:</strong> {selectedPatient.age}</div>
-                    <div><strong>Phone:</strong> {selectedPatient.phone}</div>
-                    <div><strong>Email:</strong> {selectedPatient.email}</div>
-                    <div><strong>Emergency Contact:</strong> {selectedPatient.emergencyContact}</div>
-                  </div>
-                </div>
-
-                <div>
-                  <h3 style={{ margin: '0 0 12px 0', color: '#003087' }}>Medical Summary</h3>
-                  <div style={{ fontSize: '14px', lineHeight: '1.6' }}>
-                    <div><strong>Risk Level:</strong> <span style={{ color: getRiskColor(selectedPatient.riskLevel) }}>{selectedPatient.riskLevel.toUpperCase()}</span></div>
-                    <div><strong>Total Seizures:</strong> {selectedPatient.totalSeizures}</div>
-                    <div><strong>Recent Seizures (30d):</strong> {selectedPatient.recentSeizures}</div>
-                    <div><strong>Last Seizure:</strong> {new Date(selectedPatient.lastSeizure).toLocaleDateString()}</div>
-                    <div><strong>Medication Compliance:</strong> {selectedPatient.medicationCompliance}%</div>
-                    <div><strong>Seizure Types:</strong> {selectedPatient.seizureTypes.join(', ')}</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Current Medications */}
-              <div style={{ marginBottom: '32px' }}>
-                <h3 style={{ margin: '0 0 12px 0', color: '#003087' }}>Current Medications</h3>
-                <div style={{ display: 'grid', gap: '8px' }}>
-                  {selectedPatient.currentMedications.map((med, index) => (
-                    <div key={index} style={{
-                      padding: '8px 12px',
-                      background: '#f8f9fa',
-                      borderRadius: '6px',
-                      border: '1px solid #e1e5e9'
-                    }}>
-                      {med}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Triggers */}
-              <div style={{ marginBottom: '32px' }}>
-                <h3 style={{ margin: '0 0 12px 0', color: '#003087' }}>Known Triggers</h3>
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  {selectedPatient.triggers.map((trigger, index) => (
-                    <span key={index} style={{
-                      padding: '4px 12px',
-                      background: '#fff3cd',
-                      color: '#856404',
-                      borderRadius: '12px',
-                      fontSize: '12px',
-                      border: '1px solid #ffeaa7'
-                    }}>
-                      {trigger}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Clinical Notes */}
-              <div style={{ marginBottom: '32px' }}>
-                <h3 style={{ margin: '0 0 12px 0', color: '#003087' }}>Clinical Notes</h3>
-                
-                {/* Add New Note */}
-                <div style={{
-                  background: '#f8f9fa',
-                  padding: '16px',
-                  borderRadius: '8px',
-                  marginBottom: '16px',
-                  border: '1px solid #e1e5e9'
-                }}>
-                  <h4 style={{ margin: '0 0 12px 0', color: '#003087' }}>Add New Clinical Note</h4>
-                  <div style={{ display: 'grid', gap: '12px' }}>
+              <h3 style={{ margin: '0 0 20px 0', color: '#003087' }}>Add Clinical Note</h3>
+              
+              <form onSubmit={addClinicalNote}>
+                <div style={{ display: 'grid', gap: '16px' }}>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '4px', fontWeight: '500' }}>Patient</label>
                     <select
-                      value={newNote.type}
-                      onChange={(e) => setNewNote({...newNote, type: e.target.value as any})}
+                      value={newNote.patient_id}
+                      onChange={(e) => setNewNote({ ...newNote, patient_id: e.target.value })}
                       style={{
+                        width: '100%',
                         padding: '8px',
-                        borderRadius: '6px',
-                        border: '1px solid #e1e5e9',
+                        borderRadius: '4px',
+                        border: '1px solid #ccc',
+                        fontSize: '14px',
+                        backgroundColor: 'white'
+                      }}
+                      required
+                    >
+                      <option value="">Select patient</option>
+                      {patients.filter(p => p.consent_status === 'approved').map(patient => (
+                        <option key={patient.id} value={patient.id}>{patient.full_name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '4px', fontWeight: '500' }}>Note Type</label>
+                    <select
+                      value={newNote.note_type}
+                      onChange={(e) => setNewNote({ ...newNote, note_type: e.target.value as any })}
+                      style={{
+                        width: '100%',
+                        padding: '8px',
+                        borderRadius: '4px',
+                        border: '1px solid #ccc',
+                        fontSize: '14px',
                         backgroundColor: 'white'
                       }}
                     >
-                      <option value="observation">Clinical Observation</option>
-                      <option value="treatment">Treatment Plan</option>
-                      <option value="follow-up">Follow-up Required</option>
-                      <option value="emergency">Emergency Note</option>
+                      <option value="observation">Observation</option>
+                      <option value="diagnosis">Diagnosis</option>
+                      <option value="treatment">Treatment</option>
+                      <option value="followup">Follow-up</option>
                     </select>
-                    <textarea
-                      value={newNote.content}
-                      onChange={(e) => setNewNote({...newNote, content: e.target.value})}
-                      placeholder="Enter clinical note..."
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '4px', fontWeight: '500' }}>Title</label>
+                    <input
+                      type="text"
+                      value={newNote.title}
+                      onChange={(e) => setNewNote({ ...newNote, title: e.target.value })}
                       style={{
                         width: '100%',
-                        padding: '12px',
-                        borderRadius: '6px',
-                        border: '1px solid #e1e5e9',
-                        minHeight: '80px',
-                        resize: 'vertical',
-                        boxSizing: 'border-box'
+                        padding: '8px',
+                        borderRadius: '4px',
+                        border: '1px solid #ccc',
+                        fontSize: '14px'
                       }}
+                      required
                     />
-                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <input
-                          type="checkbox"
-                          checked={newNote.actionRequired}
-                          onChange={(e) => setNewNote({...newNote, actionRequired: e.target.checked})}
-                        />
-                        Action Required
-                      </label>
-                      {newNote.actionRequired && (
-                        <input
-                          type="date"
-                          value={newNote.followUpDate}
-                          onChange={(e) => setNewNote({...newNote, followUpDate: e.target.value})}
-                          style={{
-                            padding: '8px',
-                            borderRadius: '6px',
-                            border: '1px solid #e1e5e9'
-                          }}
-                        />
-                      )}
-                      <button
-                        onClick={() => addClinicalNote(selectedPatient.id)}
-                        style={{
-                          padding: '8px 16px',
-                          background: '#005EB8',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '6px',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        Add Note
-                      </button>
-                    </div>
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '4px', fontWeight: '500' }}>Content</label>
+                    <textarea
+                      value={newNote.content}
+                      onChange={(e) => setNewNote({ ...newNote, content: e.target.value })}
+                      style={{
+                        width: '100%',
+                        padding: '8px',
+                        borderRadius: '4px',
+                        border: '1px solid #ccc',
+                        fontSize: '14px',
+                        minHeight: '100px',
+                        resize: 'vertical'
+                      }}
+                      required
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <input
+                      type="checkbox"
+                      id="confidential"
+                      checked={newNote.is_confidential}
+                      onChange={(e) => setNewNote({ ...newNote, is_confidential: e.target.checked })}
+                    />
+                    <label htmlFor="confidential" style={{ fontSize: '14px' }}>
+                      Mark as confidential
+                    </label>
                   </div>
                 </div>
 
-                {/* Existing Notes */}
-                <div style={{ display: 'grid', gap: '12px' }}>
-                  {selectedPatient.notes.length === 0 ? (
-                    <div style={{ textAlign: 'center', color: '#666', padding: '20px' }}>
-                      No clinical notes yet. Add the first note above.
-                    </div>
-                  ) : (
-                    selectedPatient.notes.map(note => (
-                      <div key={note.id} style={{
-                        padding: '16px',
-                        background: 'white',
-                        borderRadius: '8px',
-                        border: '1px solid #e1e5e9',
-                        borderLeft: `4px solid ${note.type === 'emergency' ? '#ff4757' : '#005EB8'}`
-                      }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '8px' }}>
-                          <div>
-                            <span style={{
-                              background: note.type === 'emergency' ? '#ff4757' : '#005EB8',
-                              color: 'white',
-                              padding: '2px 8px',
-                              borderRadius: '12px',
-                              fontSize: '12px',
-                              textTransform: 'uppercase'
-                            }}>
-                              {note.type}
-                            </span>
-                            {note.actionRequired && (
-                              <span style={{
-                                background: '#ffa726',
-                                color: 'white',
-                                padding: '2px 8px',
-                                borderRadius: '12px',
-                                fontSize: '12px',
-                                marginLeft: '8px'
-                              }}>
-                                ACTION REQUIRED
-                              </span>
-                            )}
-                          </div>
-                          <div style={{ fontSize: '12px', color: '#666' }}>
-                            {new Date(note.date).toLocaleDateString()}
-                          </div>
-                        </div>
-                        <div style={{ color: '#333', marginBottom: '8px' }}>
-                          {note.content}
-                        </div>
-                        <div style={{ fontSize: '12px', color: '#666' }}>
-                          By: {note.doctorName}
-                          {note.followUpDate && (
-                            <span> • Follow-up: {new Date(note.followUpDate).toLocaleDateString()}</span>
-                          )}
-                        </div>
-                      </div>
-                    ))
-                  )}
+                <div style={{ marginTop: '20px', display: 'flex', gap: '12px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddNote(false)}
+                    style={{
+                      flex: 1,
+                      padding: '8px',
+                      background: '#f8f9fa',
+                      color: '#333',
+                      border: '1px solid #ccc',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '14px'
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    style={{
+                      flex: 1,
+                      padding: '8px',
+                      background: '#005EB8',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '14px'
+                    }}
+                  >
+                    Add Note
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Upgrade Modal */}
+        {showUpgradeModal && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '20px'
+          }}>
+            <div style={{
+              background: 'white',
+              borderRadius: '12px',
+              padding: '32px',
+              maxWidth: '500px',
+              width: '100%',
+              textAlign: 'center'
+            }}>
+              <h3 style={{ margin: '0 0 20px 0', color: '#003087', fontSize: '24px' }}>
+                Upgrade to NeuroLog Pro
+              </h3>
+              
+              <div style={{ marginBottom: '24px' }}>
+                <div style={{ fontSize: '36px', fontWeight: 'bold', color: '#005EB8', marginBottom: '8px' }}>
+                  £35/month
+                </div>
+                <div style={{ color: '#666', fontSize: '14px' }}>
+                  Per doctor • Cancel anytime
                 </div>
               </div>
 
-              {/* Close Button */}
-              <div style={{ textAlign: 'center' }}>
+              <div style={{ textAlign: 'left', marginBottom: '24px' }}>
+                <div style={{ marginBottom: '12px', fontSize: '16px', fontWeight: '600', color: '#003087' }}>
+                  Pro Features Include:
+                </div>
+                <ul style={{ margin: '0', paddingLeft: '20px', color: '#666' }}>
+                  <li>Unlimited patient management</li>
+                  <li>Advanced analytics and reporting</li>
+                  <li>Real-time seizure alerts</li>
+                  <li>Clinical notes system</li>
+                  <li>Medication compliance tracking</li>
+                  <li>Export capabilities</li>
+                  <li>Priority support</li>
+                  <li>GDPR-compliant data handling</li>
+                </ul>
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px' }}>
                 <button
-                  onClick={() => setShowPatientModal(false)}
+                  onClick={() => setShowUpgradeModal(false)}
                   style={{
-                    padding: '12px 32px',
-                    background: '#005EB8',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    fontSize: '16px',
-                    cursor: 'pointer'
+                    flex: 1,
+                    padding: '12px',
+                    background: '#f8f9fa',
+                    color: '#333',
+                    border: '1px solid #ccc',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '14px'
                   }}
                 >
-                  Close
+                  Cancel
                 </button>
+                <button
+                  onClick={() => {
+                    alert('Upgrade functionality would integrate with Stripe/payment processor')
+                    setShowUpgradeModal(false)
+                  }}
+                  style={{
+                    flex: 2,
+                    padding: '12px',
+                    background: 'linear-gradient(135deg, #005EB8 0%, #003087 100%)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '600'
+                  }}
+                >
+                  Start Pro Subscription
+                </button>
+              </div>
+
+              <div style={{ marginTop: '16px', fontSize: '12px', color: '#666' }}>
+                7-day free trial • No commitment • Cancel anytime
               </div>
             </div>
           </div>
         )}
       </div>
-
-      <style jsx>{`
-        @keyframes pulse {
-          0% { opacity: 1; }
-          50% { opacity: 0.7; }
-          100% { opacity: 1; }
-        }
-      `}</style>
     </>
   )
 }
