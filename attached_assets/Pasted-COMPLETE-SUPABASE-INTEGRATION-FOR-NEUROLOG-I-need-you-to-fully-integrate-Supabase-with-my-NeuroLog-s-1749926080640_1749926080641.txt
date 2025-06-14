@@ -1,0 +1,90 @@
+COMPLETE SUPABASE INTEGRATION FOR NEUROLOG
+I need you to fully integrate Supabase with my NeuroLog seizure tracking app. I have already:
+
+Created a Supabase project with EU hosting (GDPR compliant)
+Added my Supabase credentials to Replit Secrets
+Created the database tables using SQL
+Installed @supabase/supabase-js
+
+Please complete these tasks:
+1. UPDATE MEDICATION PAGE FOR SUPABASE
+My medication.tsx file currently uses localStorage. Update it to:
+
+Connect to the 'medications' table in Supabase
+Add/edit/delete medications with proper error handling
+Include medication reminders and scheduling
+Match the NHS blue design of the rest of the app
+
+2. UPDATE ANY OTHER PAGES USING LOCALSTORAGE
+Find and update any other files that use localStorage to use Supabase instead:
+
+Profile pages
+CQC audit tracking
+Any other data storage
+
+3. ADD AUTHENTICATION FEATURES
+Add these missing auth features:
+
+Password reset functionality
+Email verification handling
+Proper error messages for auth failures
+Session management improvements
+
+4. ADD GDPR DATA EXPORT/IMPORT
+Create functions for:
+
+Export all user data as JSON (GDPR compliance)
+Export medical reports as PDF
+Data import functionality
+Right to be forgotten implementation
+
+5. ADD EMAIL INTEGRATION
+Set up email functionality for:
+
+Welcome emails for new users
+Password reset emails
+Medication reminder emails
+Emergency notifications
+
+6. ADD MEDICATION REMINDERS SYSTEM
+Create a medication reminder system with:
+
+Browser notifications for medication times
+Daily/weekly schedules
+Missed dose tracking
+Visual medication calendar
+
+7. ENHANCE ERROR HANDLING
+Add comprehensive error handling throughout the app:
+
+Network connection issues
+Supabase errors
+User-friendly error messages
+Offline mode detection
+
+8. ADD DATA VALIDATION
+Implement data validation for:
+
+Form inputs
+Date ranges
+Required fields
+Data integrity checks
+
+TECHNICAL REQUIREMENTS:
+
+Use TypeScript throughout
+Maintain NHS blue design (#005EB8)
+Ensure GDPR compliance
+Add proper loading states
+Include success/error notifications
+Mobile responsive design
+Follow existing code patterns
+
+EXISTING STRUCTURE:
+
+lib/supabase.ts exists and works
+Dashboard.tsx is fully integrated with Supabase
+Landing page (index.tsx) has Supabase auth
+Database tables are created and RLS is enabled
+
+Please implement these changes systematically, ensuring each feature works properly before moving to the next. Focus on making NeuroLog a production-ready healthcare application.
