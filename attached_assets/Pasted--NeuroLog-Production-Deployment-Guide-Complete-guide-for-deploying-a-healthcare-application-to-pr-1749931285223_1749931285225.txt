@@ -1,0 +1,586 @@
+# NeuroLog Production Deployment Guide
+*Complete guide for deploying a healthcare application to production*
+
+## 🎯 Overview
+This guide covers the complete production deployment of NeuroLog, ensuring healthcare-grade security, compliance, and performance.
+
+## 📋 Pre-Deployment Checklist
+
+### ✅ Code Optimization
+- [ ] Remove all console.log statements
+- [ ] Implement error boundaries
+- [ ] Add loading states to all components
+- [ ] Optimize images and assets
+- [ ] Implement proper TypeScript builds
+- [ ] Add health check endpoints
+
+### ✅ Security Hardening
+- [ ] Configure security headers
+- [ ] Implement Content Security Policy
+- [ ] Set up HTTPS enforcement
+- [ ] Validate all user inputs
+- [ ] Implement rate limiting
+- [ ] Add CSRF protection
+
+### ✅ Environment Setup
+- [ ] Production environment variables
+- [ ] Supabase production database
+- [ ] Error logging configuration
+- [ ] Performance monitoring
+- [ ] Backup procedures
+
+## 🚀 Deployment Configuration
+
+### vercel.json
+```json
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=()"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=31536000; includeSubDomains"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/health",
+      "destination": "/api/health"
+    }
+  ]
+}
+```
+
+### Production Environment Variables Template (.env.production)
+```bash
+# Database
+NEXT_PUBLIC_SUPABASE_URL=your_production_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_production_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_production_service_role_key
+
+# Authentication
+NEXTAUTH_URL=https://neurolog.health
+NEXTAUTH_SECRET=your_super_secure_nextauth_secret
+
+# Email Service
+RESEND_API_KEY=your_resend_api_key
+FROM_EMAIL=noreply@neurolog.health
+
+# Monitoring
+SENTRY_DSN=your_sentry_dsn
+VERCEL_ENV=production
+
+# Security
+ENCRYPTION_KEY=your_32_character_encryption_key
+API_SECRET_KEY=your_api_secret_key
+
+# Feature Flags
+ENABLE_ANALYTICS=true
+ENABLE_ERROR_REPORTING=true
+MAINTENANCE_MODE=false
+```
+
+### next.config.js (Production Optimized)
+```javascript
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  experimental: {
+    appDir: true,
+  },
+  images: {
+    domains: ['your-supabase-project.supabase.co'],
+    formats: ['image/webp', 'image/avif'],
+  },
+  compress: true,
+  poweredByHeader: false,
+  reactStrictMode: true,
+  swcMinify: true,
+  env: {
+    CUSTOM_KEY: process.env.CUSTOM_KEY,
+  },
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on'
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block'
+          }
+        ],
+      },
+    ]
+  },
+  webpack: (config, { dev, isServer }) => {
+    if (!dev && !isServer) {
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        cacheGroups: {
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            chunks: 'all',
+          },
+        },
+      }
+    }
+    return config
+  },
+}
+
+module.exports = nextConfig
+```
+
+## 🏥 Healthcare-Specific Configurations
+
+### Error Boundary Component
+```typescript
+// components/ErrorBoundary.tsx
+'use client'
+
+import React from 'react'
+import * as Sentry from '@sentry/nextjs'
+
+interface ErrorBoundaryState {
+  hasError: boolean
+  error?: Error
+}
+
+export class ErrorBoundary extends React.Component<
+  React.PropsWithChildren<{}>,
+  ErrorBoundaryState
+> {
+  constructor(props: React.PropsWithChildren<{}>) {
+    super(props)
+    this.state = { hasError: false }
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error }
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    Sentry.captureException(error, {
+      contexts: {
+        react: {
+          componentStack: errorInfo.componentStack,
+        },
+      },
+    })
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+          <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-6">
+            <div className="flex items-center mb-4">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-gray-800">
+                  Application Error
+                </h3>
+                <div className="mt-2 text-sm text-gray-500">
+                  <p>Something went wrong. Our team has been notified.</p>
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={() => window.location.reload()}
+              className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
+            >
+              Reload Page
+            </button>
+          </div>
+        </div>
+      )
+    }
+
+    return this.props.children
+  }
+}
+```
+
+### Health Check API
+```typescript
+// app/api/health/route.ts
+import { NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
+
+export async function GET() {
+  try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+
+    // Check database connection
+    const { error } = await supabase
+      .from('profiles')
+      .select('count')
+      .limit(1)
+
+    if (error) {
+      throw new Error('Database connection failed')
+    }
+
+    return NextResponse.json({
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      services: {
+        database: 'operational',
+        api: 'operational'
+      }
+    })
+  } catch (error) {
+    return NextResponse.json(
+      {
+        status: 'unhealthy',
+        timestamp: new Date().toISOString(),
+        error: error instanceof Error ? error.message : 'Unknown error'
+      },
+      { status: 503 }
+    )
+  }
+}
+```
+
+## 📊 Monitoring & Analytics
+
+### Sentry Configuration
+```typescript
+// sentry.client.config.ts
+import * as Sentry from '@sentry/nextjs'
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  tracesSampleRate: 1.0,
+  environment: process.env.NODE_ENV,
+  beforeSend(event) {
+    // Filter out sensitive data
+    if (event.request?.data) {
+      delete event.request.data.password
+      delete event.request.data.token
+    }
+    return event
+  },
+  integrations: [
+    new Sentry.BrowserTracing({
+      tracingOrigins: ['localhost', /^https:\/\/neurolog\.health/],
+    }),
+  ],
+})
+```
+
+### Performance Monitoring
+```typescript
+// lib/monitoring.ts
+export const trackPageView = (url: string) => {
+  if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
+    // Privacy-compliant analytics
+    fetch('/api/analytics', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        event: 'page_view',
+        url: url,
+        timestamp: new Date().toISOString(),
+        // No personal data tracked
+      })
+    }).catch(() => {
+      // Fail silently for analytics
+    })
+  }
+}
+
+export const trackError = (error: Error, context?: Record<string, any>) => {
+  if (process.env.NODE_ENV === 'production') {
+    console.error('Application Error:', error)
+    // Send to monitoring service
+  }
+}
+```
+
+## 🔒 Security Implementation
+
+### Rate Limiting Middleware
+```typescript
+// middleware.ts
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+
+const RATE_LIMIT = 100 // requests per minute
+const rateLimitMap = new Map()
+
+export function middleware(request: NextRequest) {
+  const ip = request.ip ?? '127.0.0.1'
+  const now = Date.now()
+  const windowStart = now - 60 * 1000 // 1 minute window
+
+  // Clean old entries
+  for (const [key, timestamp] of rateLimitMap.entries()) {
+    if (timestamp < windowStart) {
+      rateLimitMap.delete(key)
+    }
+  }
+
+  // Count requests from this IP
+  const requestCount = Array.from(rateLimitMap.entries())
+    .filter(([key]) => key.startsWith(ip))
+    .length
+
+  if (requestCount >= RATE_LIMIT) {
+    return new NextResponse('Too Many Requests', { status: 429 })
+  }
+
+  // Add this request
+  rateLimitMap.set(`${ip}-${now}`, now)
+
+  return NextResponse.next()
+}
+
+export const config = {
+  matcher: '/api/:path*',
+}
+```
+
+## 📚 Database Migration & Backup
+
+### Production Database Setup
+```sql
+-- Enable RLS on all tables
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE medical_records ENABLE ROW LEVEL SECURITY;
+ALTER TABLE appointments ENABLE ROW LEVEL SECURITY;
+
+-- Create backup function
+CREATE OR REPLACE FUNCTION create_backup()
+RETURNS void AS $$
+BEGIN
+  -- Automated backup logic
+  PERFORM pg_dump('neurolog_production');
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Schedule daily backups
+SELECT cron.schedule('daily-backup', '0 2 * * *', 'SELECT create_backup();');
+```
+
+### Data Export Procedures
+```typescript
+// lib/backup.ts
+export async function exportUserData(userId: string) {
+  const supabase = createClient(/* production config */)
+  
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', userId)
+    .single()
+
+  const { data: records } = await supabase
+    .from('medical_records')
+    .select('*')
+    .eq('user_id', userId)
+
+  // Return sanitized data export
+  return {
+    profile: {
+      id: profile?.id,
+      email: profile?.email,
+      created_at: profile?.created_at,
+      // Exclude sensitive fields
+    },
+    records: records?.map(record => ({
+      id: record.id,
+      title: record.title,
+      content: record.content,
+      created_at: record.created_at,
+    }))
+  }
+}
+```
+
+## 🌐 Domain & DNS Configuration
+
+### Custom Domain Setup (neurolog.health)
+1. **Purchase Domain**: Register `neurolog.health` through a reputable registrar
+2. **Vercel Domain Configuration**:
+   ```bash
+   # Add domain in Vercel dashboard
+   vercel domains add neurolog.health
+   vercel domains add www.neurolog.health
+   ```
+3. **DNS Records**:
+   ```
+   A     @     76.76.19.61
+   CNAME www   neurolog.health
+   TXT   @     verification-token-from-vercel
+   ```
+
+### SSL Certificate (Automatic)
+- Vercel automatically provisions SSL certificates
+- Force HTTPS redirect configured in vercel.json
+- HSTS headers implemented for security
+
+## 📧 Email System Setup
+
+### Transactional Emails (Resend)
+```typescript
+// lib/email.ts
+import { Resend } from 'resend'
+
+const resend = new Resend(process.env.RESEND_API_KEY)
+
+export async function sendWelcomeEmail(userEmail: string, userName: string) {
+  try {
+    await resend.emails.send({
+      from: 'NeuroLog <welcome@neurolog.health>',
+      to: userEmail,
+      subject: 'Welcome to NeuroLog',
+      html: `
+        <h1>Welcome to NeuroLog, ${userName}!</h1>
+        <p>Your secure healthcare platform is ready.</p>
+        <a href="https://neurolog.health/dashboard">Access Your Dashboard</a>
+      `
+    })
+  } catch (error) {
+    console.error('Failed to send welcome email:', error)
+  }
+}
+```
+
+## 📋 Compliance & Legal
+
+### GDPR Compliance Checklist
+- [ ] Privacy Policy implemented
+- [ ] Cookie consent banner
+- [ ] Data export functionality
+- [ ] Data deletion procedures
+- [ ] User consent tracking
+- [ ] Data processing records
+
+### HIPAA Considerations
+- [ ] Business Associate Agreements with vendors
+- [ ] Encryption at rest and in transit
+- [ ] Access logging and monitoring
+- [ ] Employee training documentation
+- [ ] Incident response procedures
+
+## 🚀 Deployment Steps
+
+### 1. Pre-Deployment
+```bash
+# Install dependencies
+npm install
+
+# Run production build locally
+npm run build
+
+# Test production build
+npm run start
+
+# Run security audit
+npm audit --audit-level high
+```
+
+### 2. Vercel Deployment
+```bash
+# Install Vercel CLI
+npm i -g vercel
+
+# Login to Vercel
+vercel login
+
+# Deploy to production
+vercel --prod
+```
+
+### 3. Post-Deployment Verification
+- [ ] Health check endpoint responds
+- [ ] Database connections working
+- [ ] Authentication flow complete
+- [ ] SSL certificate active
+- [ ] Error monitoring operational
+- [ ] Backup procedures tested
+
+## 📞 Emergency Procedures
+
+### Incident Response Plan
+1. **Immediate Actions**:
+   - Enable maintenance mode
+   - Assess scope of incident
+   - Notify stakeholders
+
+2. **Investigation**:
+   - Check error logs
+   - Review monitoring dashboards
+   - Identify root cause
+
+3. **Recovery**:
+   - Implement fix
+   - Test thoroughly
+   - Gradual rollout
+
+4. **Post-Incident**:
+   - Document lessons learned
+   - Update procedures
+   - Communicate resolution
+
+### Emergency Contacts
+```
+Technical Lead: [Your Email]
+Database Admin: [DBA Email]
+Security Team: [Security Email]
+Compliance Officer: [Compliance Email]
+```
+
+## 🎯 Next Steps After Deployment
+
+1. **Domain Configuration**: Set up neurolog.health
+2. **Payment Integration**: Implement Stripe for subscriptions
+3. **Advanced Monitoring**: Set up comprehensive alerting
+4. **Performance Optimization**: Monitor and optimize based on real usage
+5. **Marketing Preparation**: SEO optimization and content strategy
+
+---
+
+*This guide ensures NeuroLog meets healthcare industry standards for security, compliance, and reliability.*
