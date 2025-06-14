@@ -276,7 +276,7 @@ export default function Home() {
                   Forgot your password?
                 </button>
               </div>
-            )}</div>
+            )}
             
             {!isLogin && (
               <>
