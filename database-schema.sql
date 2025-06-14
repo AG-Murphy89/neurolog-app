@@ -298,6 +298,252 @@ INSERT INTO doctors (
   'Neurology', 'St. Mary\'s Hospital', 'trial', true
 ) ON CONFLICT (email) DO NOTHING;
 
+-- Care homes table
+CREATE TABLE IF NOT EXISTS care_homes (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  name TEXT NOT NULL,
+  address TEXT NOT NULL,
+  phone_number TEXT,
+  email TEXT,
+  cqc_registration_number TEXT UNIQUE,
+  cqc_rating TEXT CHECK (cqc_rating IN ('outstanding', 'good', 'requires_improvement', 'inadequate')),
+  manager_name TEXT NOT NULL,
+  subscription_plan TEXT DEFAULT 'standard' CHECK (subscription_plan IN ('standard', 'premium', 'enterprise')),
+  resident_capacity INTEGER NOT NULL,
+  current_occupancy INTEGER DEFAULT 0,
+  subscription_status TEXT DEFAULT 'trial' CHECK (subscription_status IN ('trial', 'active', 'expired', 'cancelled')),
+  trial_ends_at TIMESTAMP WITH TIME ZONE DEFAULT (NOW() + INTERVAL '14 days'),
+  billing_contact TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Care home staff table
+CREATE TABLE IF NOT EXISTS care_home_staff (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  care_home_id UUID REFERENCES care_homes(id) ON DELETE CASCADE,
+  employee_id TEXT NOT NULL,
+  full_name TEXT NOT NULL,
+  email TEXT UNIQUE NOT NULL,
+  role TEXT NOT NULL CHECK (role IN ('manager', 'deputy_manager', 'senior_carer', 'carer', 'healthcare_assistant', 'nurse', 'admin')),
+  phone_number TEXT,
+  employment_start_date DATE NOT NULL,
+  is_active BOOLEAN DEFAULT true,
+  training_expiry_date DATE,
+  competency_level INTEGER DEFAULT 0 CHECK (competency_level >= 0 AND competency_level <= 100),
+  can_administer_medication BOOLEAN DEFAULT false,
+  emergency_contact TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(care_home_id, employee_id)
+);
+
+-- Care home residents table
+CREATE TABLE IF NOT EXISTS care_home_residents (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  care_home_id UUID REFERENCES care_homes(id) ON DELETE CASCADE,
+  resident_number TEXT NOT NULL,
+  full_name TEXT NOT NULL,
+  date_of_birth DATE NOT NULL,
+  room_number TEXT NOT NULL,
+  admission_date DATE NOT NULL,
+  care_level TEXT NOT NULL CHECK (care_level IN ('low', 'medium', 'high', 'critical')),
+  seizure_type TEXT,
+  risk_assessment TEXT DEFAULT 'green' CHECK (risk_assessment IN ('green', 'amber', 'red')),
+  mobility_level TEXT,
+  dietary_requirements TEXT,
+  next_of_kin TEXT NOT NULL,
+  next_of_kin_phone TEXT NOT NULL,
+  emergency_contact TEXT NOT NULL,
+  gp_name TEXT NOT NULL,
+  gp_practice TEXT,
+  gp_phone TEXT,
+  care_plan_review_date DATE,
+  is_active BOOLEAN DEFAULT true,
+  discharge_date DATE,
+  notes TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(care_home_id, resident_number)
+);
+
+-- Care home incidents table
+CREATE TABLE IF NOT EXISTS care_home_incidents (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  care_home_id UUID REFERENCES care_homes(id) ON DELETE CASCADE,
+  resident_id UUID REFERENCES care_home_residents(id) ON DELETE CASCADE,
+  staff_id UUID REFERENCES care_home_staff(id) ON DELETE SET NULL,
+  incident_type TEXT NOT NULL CHECK (incident_type IN ('seizure', 'fall', 'medication_error', 'behavioral', 'injury', 'other')),
+  severity INTEGER NOT NULL CHECK (severity >= 1 AND severity <= 5),
+  incident_date DATE NOT NULL,
+  incident_time TIME NOT NULL,
+  description TEXT NOT NULL,
+  location TEXT,
+  witnesses TEXT,
+  actions_taken TEXT NOT NULL,
+  family_notified BOOLEAN DEFAULT false,
+  family_notification_time TIMESTAMP WITH TIME ZONE,
+  gp_contacted BOOLEAN DEFAULT false,
+  gp_contact_time TIMESTAMP WITH TIME ZONE,
+  emergency_services_called BOOLEAN DEFAULT false,
+  status TEXT DEFAULT 'open' CHECK (status IN ('open', 'investigating', 'closed')),
+  follow_up_required BOOLEAN DEFAULT false,
+  follow_up_date DATE,
+  manager_review_completed BOOLEAN DEFAULT false,
+  cqc_reportable BOOLEAN DEFAULT false,
+  reported_to_cqc BOOLEAN DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Care home medication administration records
+CREATE TABLE IF NOT EXISTS care_home_mar (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  care_home_id UUID REFERENCES care_homes(id) ON DELETE CASCADE,
+  resident_id UUID REFERENCES care_home_residents(id) ON DELETE CASCADE,
+  staff_id UUID REFERENCES care_home_staff(id) ON DELETE SET NULL,
+  medication_name TEXT NOT NULL,
+  dosage TEXT NOT NULL,
+  route TEXT DEFAULT 'oral',
+  scheduled_date DATE NOT NULL,
+  scheduled_time TIME NOT NULL,
+  administered BOOLEAN DEFAULT false,
+  administered_time TIMESTAMP WITH TIME ZONE,
+  refused BOOLEAN DEFAULT false,
+  missed BOOLEAN DEFAULT false,
+  reason_not_given TEXT,
+  notes TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Care home family communications
+CREATE TABLE IF NOT EXISTS care_home_family_communications (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  care_home_id UUID REFERENCES care_homes(id) ON DELETE CASCADE,
+  resident_id UUID REFERENCES care_home_residents(id) ON DELETE CASCADE,
+  staff_id UUID REFERENCES care_home_staff(id) ON DELETE SET NULL,
+  communication_type TEXT NOT NULL CHECK (communication_type IN ('phone_call', 'email', 'visit', 'letter', 'incident_notification')),
+  family_member_name TEXT NOT NULL,
+  relationship TEXT NOT NULL,
+  subject TEXT NOT NULL,
+  content TEXT NOT NULL,
+  communication_date TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  method_of_contact TEXT,
+  response_received BOOLEAN DEFAULT false,
+  follow_up_required BOOLEAN DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Staff shifts and handovers
+CREATE TABLE IF NOT EXISTS care_home_shifts (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  care_home_id UUID REFERENCES care_homes(id) ON DELETE CASCADE,
+  staff_id UUID REFERENCES care_home_staff(id) ON DELETE CASCADE,
+  shift_date DATE NOT NULL,
+  shift_start TIME NOT NULL,
+  shift_end TIME NOT NULL,
+  actual_start_time TIMESTAMP WITH TIME ZONE,
+  actual_end_time TIMESTAMP WITH TIME ZONE,
+  handover_notes TEXT,
+  residents_assigned TEXT[],
+  break_times TEXT[],
+  overtime_hours DECIMAL(4,2) DEFAULT 0,
+  status TEXT DEFAULT 'scheduled' CHECK (status IN ('scheduled', 'active', 'completed', 'cancelled')),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create indexes for performance
+CREATE INDEX IF NOT EXISTS idx_care_homes_subscription ON care_homes(subscription_status);
+CREATE INDEX IF NOT EXISTS idx_care_home_staff_home ON care_home_staff(care_home_id);
+CREATE INDEX IF NOT EXISTS idx_care_home_staff_active ON care_home_staff(is_active);
+CREATE INDEX IF NOT EXISTS idx_care_home_residents_home ON care_home_residents(care_home_id);
+CREATE INDEX IF NOT EXISTS idx_care_home_residents_active ON care_home_residents(is_active);
+CREATE INDEX IF NOT EXISTS idx_care_home_incidents_home ON care_home_incidents(care_home_id);
+CREATE INDEX IF NOT EXISTS idx_care_home_incidents_date ON care_home_incidents(incident_date);
+CREATE INDEX IF NOT EXISTS idx_care_home_mar_home ON care_home_mar(care_home_id);
+CREATE INDEX IF NOT EXISTS idx_care_home_mar_date ON care_home_mar(scheduled_date);
+CREATE INDEX IF NOT EXISTS idx_care_home_shifts_date ON care_home_shifts(shift_date);
+
+-- Row Level Security
+ALTER TABLE care_homes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE care_home_staff ENABLE ROW LEVEL SECURITY;
+ALTER TABLE care_home_residents ENABLE ROW LEVEL SECURITY;
+ALTER TABLE care_home_incidents ENABLE ROW LEVEL SECURITY;
+ALTER TABLE care_home_mar ENABLE ROW LEVEL SECURITY;
+ALTER TABLE care_home_family_communications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE care_home_shifts ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies for care homes
+CREATE POLICY "Staff can view their care home" ON care_homes
+  FOR SELECT USING (
+    id IN (
+      SELECT care_home_id FROM care_home_staff 
+      WHERE email = auth.jwt() ->> 'email' AND is_active = true
+    )
+  );
+
+-- RLS Policies for care home staff
+CREATE POLICY "Staff can view colleagues in same care home" ON care_home_staff
+  FOR SELECT USING (
+    care_home_id IN (
+      SELECT care_home_id FROM care_home_staff 
+      WHERE email = auth.jwt() ->> 'email' AND is_active = true
+    )
+  );
+
+-- RLS Policies for residents
+CREATE POLICY "Staff can view residents in their care home" ON care_home_residents
+  FOR SELECT USING (
+    care_home_id IN (
+      SELECT care_home_id FROM care_home_staff 
+      WHERE email = auth.jwt() ->> 'email' AND is_active = true
+    )
+  );
+
+-- RLS Policies for incidents
+CREATE POLICY "Staff can view incidents in their care home" ON care_home_incidents
+  FOR SELECT USING (
+    care_home_id IN (
+      SELECT care_home_id FROM care_home_staff 
+      WHERE email = auth.jwt() ->> 'email' AND is_active = true
+    )
+  );
+
+CREATE POLICY "Staff can insert incidents in their care home" ON care_home_incidents
+  FOR INSERT WITH CHECK (
+    care_home_id IN (
+      SELECT care_home_id FROM care_home_staff 
+      WHERE email = auth.jwt() ->> 'email' AND is_active = true
+    )
+  );
+
+-- Create triggers for updated_at timestamps
+CREATE TRIGGER update_care_homes_updated_at BEFORE UPDATE
+  ON care_homes FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_care_home_staff_updated_at BEFORE UPDATE
+  ON care_home_staff FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_care_home_residents_updated_at BEFORE UPDATE
+  ON care_home_residents FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_care_home_incidents_updated_at BEFORE UPDATE
+  ON care_home_incidents FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_care_home_mar_updated_at BEFORE UPDATE
+  ON care_home_mar FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Insert sample care home data
+INSERT INTO care_homes (
+  name, address, phone_number, email, cqc_registration_number, cqc_rating,
+  manager_name, subscription_plan, resident_capacity, current_occupancy
+) VALUES (
+  'Sunnydale Care Home', '123 Care Street, Manchester, M1 1AA', '0161 234 5678',
+  'admin@sunnydale-care.co.uk', 'CQC123456', 'good', 'Patricia Matthews',
+  'premium', 45, 42
+) ON CONFLICT DO NOTHING;
+
 -- Insert sample medications (for demo purposes)
 INSERT INTO medications (
   user_id, name, generic_name, dosage, dosage_unit, frequency, schedule_times,
@@ -309,4 +555,5 @@ INSERT INTO medications (
   ('sample-user-id', 'Lamotrigine', 'Lamictal', '100', 'mg', 'twice-daily', 
    ARRAY['08:00', '20:00'], CURRENT_DATE - INTERVAL '60 days', 'Dr. Smith', 5, 30, 'active'),
   ('sample-user-id', 'Lorazepam', 'Ativan', '1', 'mg', 'as-needed', 
-   ARRAY['09:00'], CURRENT_DATE - INTERVAL '90 days', 'Dr. Johnson', 3, 10, 'active');
+   ARRAY['09:00'], CURRENT_DATE - INTERVAL '90 days', 'Dr. Johnson', 3, 10, 'active') 
+ON CONFLICT DO NOTHING;
