@@ -80,6 +80,21 @@ export default function Dashboard() {
 
       if (profile) {
         userData = profile
+      } else {
+        // Create user profile if it doesn't exist
+        const { error: insertError } = await supabase
+          .from('user_profiles')
+          .insert([{
+            id: session.user.id,
+            full_name: userData.full_name,
+            email: userData.email,
+            account_type: userData.account_type,
+            created_at: new Date().toISOString()
+          }])
+
+        if (insertError) {
+          console.error('Error creating user profile:', insertError)
+        }
       }
 
       setUser(userData)
