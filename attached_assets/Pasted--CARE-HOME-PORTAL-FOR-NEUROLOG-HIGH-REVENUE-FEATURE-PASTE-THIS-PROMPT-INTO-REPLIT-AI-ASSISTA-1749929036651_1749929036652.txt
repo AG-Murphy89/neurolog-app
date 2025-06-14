@@ -1,0 +1,171 @@
+# CARE HOME PORTAL FOR NEUROLOG - HIGH REVENUE FEATURE
+
+**PASTE THIS PROMPT INTO REPLIT AI ASSISTANT:**
+
+---
+
+Please create a comprehensive care home portal for my NeuroLog app. This is a high-value subscription feature for residential care facilities managing residents with seizure conditions.
+
+## REQUIREMENTS:
+
+### CORE FUNCTIONALITY:
+- Multi-resident dashboard for care home staff
+- Staff shift management and handover system
+- CQC audit compliance and documentation tools
+- Incident reporting and emergency response
+- Family communication and updates
+- Medication Administration Records (MAR)
+- Staff training and competency tracking
+- Real-time resident monitoring
+
+### CARE HOME DASHBOARD FEATURES:
+- All residents overview with status indicators
+- Today's medication schedule across all residents
+- Recent incidents and seizures
+- Staff on duty and shift schedules
+- CQC compliance checklist
+- Family notification center
+- Emergency contact quick access
+- Resident risk assessments
+
+### RESIDENT MANAGEMENT:
+- Individual resident profiles with medical history
+- Seizure tracking with staff witness accounts
+- Medication tracking with time stamps
+- Care plan management and updates
+- Daily living activities tracking
+- Behavioral observation notes
+- Family contact and visit logs
+- Medical appointment scheduling
+
+### CQC COMPLIANCE TOOLS:
+- Incident reporting forms (seizures, falls, concerns)
+- Staff training records and certificates
+- Medicine administration audit trails
+- Safeguarding documentation
+- Quality assurance checklists
+- Inspection preparation tools
+- Policy and procedure tracking
+- Risk assessment documentation
+
+### STAFF FEATURES:
+- Staff login with role-based permissions
+- Shift handover communication system
+- Daily task assignments and completion
+- Training module access
+- Emergency procedures quick reference
+- Resident allocation management
+- Overtime and staffing level tracking
+- Performance monitoring tools
+
+### FAMILY COMMUNICATION:
+- Family portal access (view-only for their relative)
+- Automated update notifications
+- Photo and activity sharing
+- Care plan sharing with families
+- Visiting schedule management
+- Family feedback collection
+- Emergency notification system
+- Progress report generation
+
+### SUBSCRIPTION FEATURES:
+- Free trial (14 days for care homes)
+- Standard plan (£150/month up to 30 residents)
+- Premium plan (£250/month up to 60 residents)
+- Enterprise plan (£400/month unlimited residents)
+- Multi-site management for care home groups
+- Advanced analytics and reporting
+
+### DESIGN REQUIREMENTS:
+- Professional care home interface
+- Large buttons for easy use by all staff ages
+- High contrast colors for visibility
+- NHS blue theme (#005EB8) with care home branding
+- Mobile and tablet responsive for staff devices
+- Clear typography suitable for quick reading
+- Accessibility compliant for diverse staff abilities
+
+### TECHNICAL SPECIFICATIONS:
+- New file: pages/care-home-portal.tsx
+- Connect to existing Supabase tables
+- Multi-resident data management
+- Staff authentication and role management
+- Real-time updates across all staff devices
+- Offline capability for emergency situations
+- Data backup and recovery systems
+
+### SECURITY & COMPLIANCE:
+- GDPR compliance for resident data
+- Care home data protection policies
+- Staff access logging and audit trails
+- Resident consent management
+- Data retention policies
+- Secure family access controls
+- CQC inspection ready documentation
+
+### REVENUE INTEGRATION:
+- Subscription management for facilities
+- Usage tracking (number of residents)
+- Billing integration for care home chains
+- Upgrade prompts for premium features
+- Contract management for annual agreements
+- Multi-site discount pricing
+
+### EMERGENCY FEATURES:
+- One-click emergency services contact
+- Staff emergency alert system
+- Resident emergency medical information
+- Next of kin automatic notification
+- Emergency evacuation procedures
+- Critical incident rapid reporting
+- On-call manager notification system
+
+### REPORTING & ANALYTICS:
+- Monthly CQC compliance reports
+- Incident trend analysis
+- Medication adherence statistics
+- Staff performance metrics
+- Resident wellbeing indicators
+- Family satisfaction surveys
+- Cost analysis and budget tracking
+
+### PAGE STRUCTURE:
+1. Care home staff login and verification
+2. Main dashboard with all residents overview
+3. Individual resident detail management
+4. Staff shift management interface
+5. CQC compliance documentation center
+6. Family communication portal
+7. Incident reporting system
+8. Settings and subscription management
+
+### INTEGRATION FEATURES:
+- Import resident data from care home systems
+- Export to CQC inspection software
+- Integration with NHS patient records
+- Connection to GP practice systems
+- Pharmacy ordering system integration
+- Local authority reporting tools
+
+### STAFF TRAINING MODULE:
+- Seizure first aid training videos
+- Medication administration training
+- Emergency procedure simulations
+- CQC compliance training
+- Data protection training
+- Competency assessments and certificates
+
+### SAMPLE DATA TO INCLUDE:
+Pre-populate with realistic care home scenarios:
+- 25-30 example residents with various conditions
+- Different seizure types and frequencies
+- Realistic staff shift patterns
+- Sample incident reports
+- Training completion records
+- Family communication examples
+
+Please create a professional, production-ready care home portal that residential facilities will pay £150-400/month to use. Focus on CQC compliance, staff efficiency, and resident safety. This should be the most comprehensive seizure management system available to UK care homes.
+
+---
+
+**END OF PROMPT - PASTE THE ABOVE INTO REPLIT AI ASSISTANT**
