@@ -17,37 +17,45 @@ export default function NeuroLog() {
         </h1>
 
         <p className={styles.description}>
-          "Professional Seizure Management System"
+          Professional Seizure Management System
         </p>
 
-        <div style={{ marginBottom: '2rem', display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
+        <div
+          style={{
+            marginBottom: "2rem",
+            display: "flex",
+            gap: "16px",
+            justifyContent: "center",
+            flexWrap: "wrap",
+          }}
+        >
           <button
-            onClick={() => window.location.href = '/auth/login'}
+            onClick={() => (window.location.href = "/auth/login")}
             style={{
-              background: 'linear-gradient(135deg, #005EB8 0%, #003087 100%)',
-              color: 'white',
-              border: 'none',
-              padding: '16px 32px',
-              borderRadius: '12px',
-              fontSize: '18px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              boxShadow: '0 6px 20px rgba(0, 94, 184, 0.4)'
+              background: "linear-gradient(135deg, #005EB8 0%, #003087 100%)",
+              color: "white",
+              border: "none",
+              padding: "16px 32px",
+              borderRadius: "12px",
+              fontSize: "18px",
+              fontWeight: "600",
+              cursor: "pointer",
+              boxShadow: "0 6px 20px rgba(0, 94, 184, 0.4)",
             }}
           >
             Sign In
           </button>
           <button
-            onClick={() => window.location.href = '/auth/signup'}
+            onClick={() => (window.location.href = "/auth/signup")}
             style={{
-              background: 'transparent',
-              color: '#005EB8',
-              border: '2px solid #005EB8',
-              padding: '16px 32px',
-              borderRadius: '12px',
-              fontSize: '18px',
-              fontWeight: '600',
-              cursor: 'pointer'
+              background: "transparent",
+              color: "#005EB8",
+              border: "2px solid #005EB8",
+              padding: "16px 32px",
+              borderRadius: "12px",
+              fontSize: "18px",
+              fontWeight: "600",
+              cursor: "pointer",
             }}
           >
             Register
