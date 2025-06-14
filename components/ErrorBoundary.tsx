@@ -1,41 +1,47 @@
+'use client'
 
-import React, { Component, ErrorInfo, ReactNode } from 'react'
+import React from 'react'
 
-interface Props {
-  children: ReactNode
-  fallback?: ReactNode
-}
-
-interface State {
+interface ErrorBoundaryState {
   hasError: boolean
   error?: Error
-  errorInfo?: ErrorInfo
 }
 
-export class ErrorBoundary extends Component<Props, State> {
-  constructor(props: Props) {
+export class ErrorBoundary extends React.Component<
+  React.PropsWithChildren<{}>,
+  ErrorBoundaryState
+> {
+  constructor(props: React.PropsWithChildren<{}>) {
     super(props)
     this.state = { hasError: false }
   }
 
-  static getDerivedStateFromError(error: Error): State {
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return { hasError: true, error }
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    this.setState({ errorInfo })
-    console.error('Error caught by boundary:', error, errorInfo)
-    
-    // In a real app, you might want to log this to an error reporting service
-    // errorReportingService.logError(error, errorInfo)
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    // Log error to monitoring service in production
+    if (process.env.NODE_ENV === 'production') {
+      console.error('Application Error:', error, errorInfo)
+      // Send to monitoring service
+      fetch('/api/log-error', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          error: error.message,
+          stack: error.stack,
+          componentStack: errorInfo.componentStack,
+          timestamp: new Date().toISOString()
+        })
+      }).catch(() => {
+        // Fail silently for error logging
+      })
+    }
   }
 
   render() {
     if (this.state.hasError) {
-      if (this.props.fallback) {
-        return this.props.fallback
-      }
-
       return (
         <div style={{
           minHeight: '100vh',
@@ -43,125 +49,70 @@ export class ErrorBoundary extends Component<Props, State> {
           alignItems: 'center',
           justifyContent: 'center',
           backgroundColor: '#f8f9fa',
-          fontFamily: 'system-ui, -apple-system, sans-serif',
-          padding: '20px'
+          fontFamily: 'system-ui, -apple-system, sans-serif'
         }}>
           <div style={{
-            background: 'white',
-            borderRadius: '16px',
-            padding: '40px',
-            maxWidth: '600px',
+            maxWidth: '480px',
             width: '100%',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            backgroundColor: 'white',
+            borderRadius: '16px',
+            padding: '32px',
+            boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
             textAlign: 'center'
           }}>
             <div style={{
-              fontSize: '64px',
-              marginBottom: '20px'
+              width: '64px',
+              height: '64px',
+              backgroundColor: '#fee2e2',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 24px',
+              fontSize: '24px'
             }}>
               ⚠️
             </div>
-            
-            <h1 style={{
-              color: '#dc3545',
-              fontSize: '24px',
-              fontWeight: 'bold',
-              marginBottom: '16px'
+            <h3 style={{
+              fontSize: '20px',
+              fontWeight: '600',
+              color: '#111827',
+              margin: '0 0 12px 0'
             }}>
               Something went wrong
-            </h1>
-            
+            </h3>
             <p style={{
-              color: '#666',
+              color: '#6b7280',
               fontSize: '16px',
-              lineHeight: '1.6',
-              marginBottom: '24px'
+              margin: '0 0 24px 0',
+              lineHeight: '1.5'
             }}>
-              NeuroLog encountered an unexpected error. This has been logged and we'll investigate the issue.
+              We've been notified about this issue. Please try refreshing the page.
             </p>
-
-            <div style={{
-              background: '#f8f9fa',
-              border: '1px solid #e1e5e9',
-              borderRadius: '8px',
-              padding: '16px',
-              marginBottom: '24px',
-              textAlign: 'left'
-            }}>
-              <details>
-                <summary style={{ cursor: 'pointer', fontWeight: '500', color: '#005EB8' }}>
-                  Technical Details
-                </summary>
-                <pre style={{
-                  fontSize: '12px',
-                  color: '#666',
-                  marginTop: '12px',
-                  whiteSpace: 'pre-wrap',
-                  wordBreak: 'break-word'
-                }}>
-                  {this.state.error?.message}
-                  {this.state.errorInfo?.componentStack}
-                </pre>
-              </details>
-            </div>
-
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-              <button
-                onClick={() => window.location.reload()}
-                style={{
-                  background: 'linear-gradient(135deg, #005EB8 0%, #003087 100%)',
-                  color: 'white',
-                  border: 'none',
-                  padding: '12px 24px',
-                  borderRadius: '8px',
-                  fontSize: '16px',
-                  fontWeight: '500',
-                  cursor: 'pointer'
-                }}
-              >
-                Reload Page
-              </button>
-              
-              <button
-                onClick={() => window.location.href = '/'}
-                style={{
-                  background: 'transparent',
-                  color: '#666',
-                  border: '2px solid #e1e5e9',
-                  padding: '12px 24px',
-                  borderRadius: '8px',
-                  fontSize: '16px',
-                  fontWeight: '500',
-                  cursor: 'pointer'
-                }}
-              >
-                Go Home
-              </button>
-            </div>
-
-            <div style={{
-              marginTop: '24px',
-              padding: '16px',
-              background: '#e3f2fd',
-              borderRadius: '8px',
-              fontSize: '14px',
-              color: '#1565c0'
-            }}>
-              <strong>💙 Your data is safe:</strong> All your seizure records and medications are securely stored and will be available when you reload the page.
-            </div>
+            <button
+              onClick={() => window.location.reload()}
+              style={{
+                width: '100%',
+                backgroundColor: '#005EB8',
+                color: 'white',
+                border: 'none',
+                padding: '12px 24px',
+                borderRadius: '8px',
+                fontSize: '16px',
+                fontWeight: '500',
+                cursor: 'pointer',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#003087'}
+              onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#005EB8'}
+            >
+              Reload Page
+            </button>
           </div>
         </div>
       )
     }
 
     return this.props.children
-  }
-}
-
-// Hook for functional components to handle errors
-export const useErrorHandler = () => {
-  return (error: Error, errorInfo?: string) => {
-    console.error('Error handled:', error, errorInfo)
-    // You could also trigger a state update to show an error UI
   }
 }
