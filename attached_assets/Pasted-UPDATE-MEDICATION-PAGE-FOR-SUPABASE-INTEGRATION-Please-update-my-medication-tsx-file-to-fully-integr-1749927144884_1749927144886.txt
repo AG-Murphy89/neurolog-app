@@ -1,0 +1,82 @@
+UPDATE MEDICATION PAGE FOR SUPABASE INTEGRATION
+Please update my medication.tsx file to fully integrate with Supabase instead of localStorage. I need a comprehensive medication management system.
+REQUIREMENTS:
+CORE FUNCTIONALITY:
+
+Connect to 'medications' table in Supabase database
+Add/edit/delete medications with full CRUD operations
+Medication scheduling (AM/Midday/PM times)
+Daily medication tracking and adherence
+Side effects and effectiveness tracking
+Refill reminders and pharmacy information
+
+MEDICATION DATA STRUCTURE:
+Each medication should include:
+
+Medication name and generic name
+Dose amount and unit (mg, ml, etc)
+Frequency and specific times
+Start date and prescribing doctor
+Pharmacy information
+Side effects experienced
+Effectiveness rating (1-5 stars)
+Days supply remaining
+Next refill date
+Special instructions and notes
+Status (active, paused, discontinued)
+
+UI FEATURES NEEDED:
+
+Current medications list with status indicators
+Today's medication schedule with AM/Midday/PM sections
+Add/edit medication form with validation
+Medication history and timeline
+Quick "Take Medication" buttons with tracking
+Adherence statistics and charts
+Search and filter medications
+Export medication list for doctors
+
+DESIGN REQUIREMENTS:
+
+Match existing NeuroLog NHS blue theme (#005EB8)
+Mobile responsive design
+Professional healthcare appearance
+Color-coded medication status (active=green, paused=yellow, discontinued=red)
+Clear typography for elderly users
+Loading states and error handling
+
+TECHNICAL SPECIFICATIONS:
+
+Use React hooks (useState, useEffect)
+TypeScript interfaces for all data
+Supabase integration with error handling
+Row Level Security (user can only see their own medications)
+Form validation for all inputs
+Success/error notifications
+Real-time data synchronization
+
+PAGE SECTIONS:
+
+Header with "My Medications" and add button
+Today's Schedule (AM/Midday/PM with checkboxes)
+Current Medications cards with key details
+Medication statistics (total medications, adherence rate)
+Add/Edit medication modal form
+Medication history timeline
+
+SAMPLE MEDICATIONS TO INCLUDE:
+Pre-populate examples:
+
+Levetiracetam 500mg twice daily (8am, 8pm)
+Lamotrigine 100mg twice daily (8am, 8pm)
+Lorazepam 1mg as needed for seizures
+
+ADDITIONAL FEATURES:
+
+Medication interaction warnings
+Missed dose tracking
+Adherence percentage calculation
+Export medication list as PDF
+Share with healthcare providers option
+
+Please create a complete, production-ready medication management page that integrates seamlessly with the existing NeuroLog Supabase database and matches the professional healthcare design standards.
