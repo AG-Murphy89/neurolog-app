@@ -238,7 +238,7 @@ export default function Home() {
               />
             </div>
 
-            <div style={{ marginBottom: '24px' }}>
+            <div style={{ marginBottom: isLogin ? '16px' : '24px' }}>
               <input
                 type="password"
                 placeholder={isLogin ? "Password" : "Create a secure password"}
@@ -258,6 +258,25 @@ export default function Home() {
                 minLength={isLogin ? 1 : 6}
               />
             </div>
+
+            {isLogin && (
+              <div style={{ marginBottom: '24px', textAlign: 'right' }}>
+                <button
+                  type="button"
+                  onClick={() => router.push('/auth/reset-password')}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#005EB8',
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    textDecoration: 'underline'
+                  }}
+                >
+                  Forgot your password?
+                </button>
+              </div>
+            )}</div>
             
             {!isLogin && (
               <>

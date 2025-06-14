@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabase'
+import { dataExportUtils } from '../lib/dataExport'
 
 interface SeizureEntry {
   id: string
@@ -189,14 +190,26 @@ export default function Dashboard() {
     }
   }
 
-  const exportData = () => {
-    const dataStr = JSON.stringify(seizures, null, 2)
-    const dataBlob = new Blob([dataStr], {type: 'application/json'})
-    const url = URL.createObjectURL(dataBlob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `neurolog-seizure-data-${new Date().toISOString().split('T')[0]}.json`
-    link.click()
+  const exportData = async (format: 'json' | 'pdf' = 'json') => {
+    if (!user) return
+
+    try {
+      if (format === 'pdf') {
+        const result = await dataExportUtils.generateMedicalReportPDF(user.id)
+        if (!result.success) {
+          alert(`Failed to generate PDF: ${result.error}`)
+        }
+      } else {
+        const result = await dataExportUtils.exportAllUserData(user.id)
+        if (result.success && result.data) {
+          dataExportUtils.downloadAsJSON(result.data)
+        } else {
+          alert(`Failed to export data: ${result.error}`)
+        }
+      }
+    } catch (error: any) {
+      alert(`Export failed: ${error.message}`)
+    }
   }
 
   const getRecentSeizures = () => {
@@ -302,21 +315,38 @@ export default function Dashboard() {
               </div>
             </div>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-              <button
-                onClick={exportData}
-                style={{
-                  background: 'rgba(255,255,255,0.2)',
-                  border: 'none',
-                  color: 'white',
-                  padding: '8px 16px',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontSize: '12px',
-                  fontWeight: '500'
-                }}
-              >
-                📄 Export Data
-              </button>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  onClick={() => exportData('json')}
+                  style={{
+                    background: 'rgba(255,255,255,0.2)',
+                    border: 'none',
+                    color: 'white',
+                    padding: '8px 16px',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    fontWeight: '500'
+                  }}
+                >
+                  📄 Export JSON
+                </button>
+                <button
+                  onClick={() => exportData('pdf')}
+                  style={{
+                    background: 'rgba(255,255,255,0.2)',
+                    border: 'none',
+                    color: 'white',
+                    padding: '8px 16px',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    fontWeight: '500'
+                  }}
+                >
+                  📋 Medical Report
+                </button>
+              </div>
               <button
                 onClick={handleLogout}
                 style={{
@@ -760,20 +790,36 @@ export default function Dashboard() {
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                 <h2 style={{ margin: '0', color: '#003087' }}>Seizure History</h2>
-                <button
-                  onClick={exportData}
-                  style={{
-                    background: '#28a745',
-                    color: 'white',
-                    border: 'none',
-                    padding: '8px 16px',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    fontSize: '14px'
-                  }}
-                >
-                  📄 Export All Data
-                </button>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    onClick={() => exportData('json')}
+                    style={{
+                      background: '#28a745',
+                      color: 'white',
+                      border: 'none',
+                      padding: '8px 16px',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontSize: '14px'
+                    }}
+                  >
+                    📄 Export JSON
+                  </button>
+                  <button
+                    onClick={() => exportData('pdf')}
+                    style={{
+                      background: '#007bff',
+                      color: 'white',
+                      border: 'none',
+                      padding: '8px 16px',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontSize: '14px'
+                    }}
+                  >
+                    📋 Medical Report
+                  </button>
+                </div>
               </div>
               
               {seizures.length === 0 ? (
@@ -1175,7 +1221,7 @@ export default function Dashboard() {
                   <h3 style={{ margin: '0 0 16px 0', color: '#003087' }}>Data & Privacy</h3>
                   <div style={{ display: 'grid', gap: '12px' }}>
                     <button
-                      onClick={exportData}
+                      onClick={() => exportData('json')}
                       style={{
                         background: '#28a745',
                         color: 'white',
@@ -1188,6 +1234,21 @@ export default function Dashboard() {
                       }}
                     >
                       📄 Export All My Data (GDPR)
+                    </button>
+                    <button
+                      onClick={() => exportData('pdf')}
+                      style={{
+                        background: '#007bff',
+                        color: 'white',
+                        border: 'none',
+                        padding: '8px 16px',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        textAlign: 'left'
+                      }}
+                    >
+                      📋 Generate Medical Report
                     </button>
                     <button
                       onClick={() => alert('Privacy settings coming soon! This will allow you to control data sharing preferences.')}
