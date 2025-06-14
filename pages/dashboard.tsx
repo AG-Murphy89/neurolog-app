@@ -1238,10 +1238,26 @@ export default function Dashboard() {
               <h2 style={{ margin: '0 0 20px 0', color: '#003087' }}>Medication Management</h2>
               <div style={{ textAlign: 'center', color: '#666', padding: '40px 0' }}>
                 <div style={{ fontSize: '48px', marginBottom: '16px' }}>💊</div>
-                <div style={{ marginBottom: '16px' }}>Medication tracking coming soon!</div>
-                <div style={{ fontSize: '14px', color: '#999' }}>
-                  This feature will include medication schedules, reminders, side effects tracking, and more.
+                <div style={{ marginBottom: '16px' }}>Professional medication tracking and management</div>
+                <div style={{ marginBottom: '24px', fontSize: '14px', color: '#666' }}>
+                  Track medications, schedule reminders, monitor adherence, and manage side effects.
                 </div>
+                <button
+                  onClick={() => router.push('/medication')}
+                  style={{
+                    background: 'linear-gradient(135deg, #005EB8 0%, #003087 100%)',
+                    color: 'white',
+                    border: 'none',
+                    padding: '16px 32px',
+                    borderRadius: '12px',
+                    fontSize: '16px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    boxShadow: '0 6px 20px rgba(0, 94, 184, 0.4)'
+                  }}
+                >
+                  Open Medication Manager
+                </button>
               </div>
             </div>
           )}
