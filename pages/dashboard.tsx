@@ -34,7 +34,12 @@ export default function Dashboard() {
   const [formData, setFormData] = useState({
     seizure_date: new Date().toISOString().split('T')[0],
     seizure_time: '',
+    seizure_hour: '12',
+    seizure_minute: '00',
+    seizure_ampm: 'PM',
     duration: '',
+    duration_value: '',
+    duration_unit: 'minutes',
     seizure_type: '',
     triggers: '',
     severity: 3,
@@ -125,12 +130,32 @@ export default function Dashboard() {
     if (!user) return
 
     try {
+      // Format time from dropdowns
+      let hour = parseInt(formData.seizure_hour)
+      if (formData.seizure_ampm === 'PM' && hour !== 12) {
+        hour += 12
+      } else if (formData.seizure_ampm === 'AM' && hour === 12) {
+        hour = 0
+      }
+      const formattedTime = `${hour.toString().padStart(2, '0')}:${formData.seizure_minute}`
+      
+      // Format duration
+      const formattedDuration = `${formData.duration_value} ${formData.duration_unit}`
+
       const { data, error } = await supabase
         .from('seizure_records')
         .insert([
           {
             user_id: user.id,
-            ...formData
+            seizure_date: formData.seizure_date,
+            seizure_time: formattedTime,
+            duration: formattedDuration,
+            seizure_type: formData.seizure_type,
+            triggers: formData.triggers,
+            severity: formData.severity,
+            symptoms: formData.symptoms,
+            medication_taken: formData.medication_taken,
+            additional_notes: formData.additional_notes
           }
         ])
         .select()
@@ -148,7 +173,12 @@ export default function Dashboard() {
       setFormData({
         seizure_date: new Date().toISOString().split('T')[0],
         seizure_time: '',
+        seizure_hour: '12',
+        seizure_minute: '00',
+        seizure_ampm: 'PM',
         duration: '',
+        duration_value: '',
+        duration_unit: 'minutes',
         seizure_type: '',
         triggers: '',
         severity: 3,
@@ -583,41 +613,102 @@ export default function Dashboard() {
                     
                     <div>
                       <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>Time</label>
-                      <input
-                        type="time"
-                        value={formData.seizure_time}
-                        onChange={(e) => setFormData({...formData, seizure_time: e.target.value})}
-                        style={{
-                          width: '100%',
-                          padding: '12px',
-                          borderRadius: '8px',
-                          border: '2px solid #e1e5e9',
-                          fontSize: '16px',
-                          boxSizing: 'border-box'
-                        }}
-                        required
-                      />
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <select
+                          value={formData.seizure_hour}
+                          onChange={(e) => setFormData({...formData, seizure_hour: e.target.value})}
+                          style={{
+                            flex: 1,
+                            padding: '12px',
+                            borderRadius: '8px',
+                            border: '2px solid #e1e5e9',
+                            fontSize: '16px',
+                            backgroundColor: 'white',
+                            boxSizing: 'border-box'
+                          }}
+                          required
+                        >
+                          {Array.from({length: 12}, (_, i) => i + 1).map(hour => (
+                            <option key={hour} value={hour.toString()}>{hour}</option>
+                          ))}
+                        </select>
+                        <select
+                          value={formData.seizure_minute}
+                          onChange={(e) => setFormData({...formData, seizure_minute: e.target.value})}
+                          style={{
+                            flex: 1,
+                            padding: '12px',
+                            borderRadius: '8px',
+                            border: '2px solid #e1e5e9',
+                            fontSize: '16px',
+                            backgroundColor: 'white',
+                            boxSizing: 'border-box'
+                          }}
+                          required
+                        >
+                          {Array.from({length: 60}, (_, i) => i.toString().padStart(2, '0')).map(minute => (
+                            <option key={minute} value={minute}>{minute}</option>
+                          ))}
+                        </select>
+                        <select
+                          value={formData.seizure_ampm}
+                          onChange={(e) => setFormData({...formData, seizure_ampm: e.target.value})}
+                          style={{
+                            flex: '0 0 auto',
+                            padding: '12px',
+                            borderRadius: '8px',
+                            border: '2px solid #e1e5e9',
+                            fontSize: '16px',
+                            backgroundColor: 'white',
+                            boxSizing: 'border-box'
+                          }}
+                          required
+                        >
+                          <option value="AM">AM</option>
+                          <option value="PM">PM</option>
+                        </select>
+                      </div>
                     </div>
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                     <div>
                       <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>Duration</label>
-                      <input
-                        type="text"
-                        placeholder="e.g., 2 minutes"
-                        value={formData.duration}
-                        onChange={(e) => setFormData({...formData, duration: e.target.value})}
-                        style={{
-                          width: '100%',
-                          padding: '12px',
-                          borderRadius: '8px',
-                          border: '2px solid #e1e5e9',
-                          fontSize: '16px',
-                          boxSizing: 'border-box'
-                        }}
-                        required
-                      />
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <input
+                          type="number"
+                          min="1"
+                          placeholder="1"
+                          value={formData.duration_value}
+                          onChange={(e) => setFormData({...formData, duration_value: e.target.value})}
+                          style={{
+                            flex: 2,
+                            padding: '12px',
+                            borderRadius: '8px',
+                            border: '2px solid #e1e5e9',
+                            fontSize: '16px',
+                            boxSizing: 'border-box'
+                          }}
+                          required
+                        />
+                        <select
+                          value={formData.duration_unit}
+                          onChange={(e) => setFormData({...formData, duration_unit: e.target.value})}
+                          style={{
+                            flex: 1,
+                            padding: '12px',
+                            borderRadius: '8px',
+                            border: '2px solid #e1e5e9',
+                            fontSize: '16px',
+                            backgroundColor: 'white',
+                            boxSizing: 'border-box'
+                          }}
+                          required
+                        >
+                          <option value="seconds">Seconds</option>
+                          <option value="minutes">Minutes</option>
+                        </select>
+                      </div>
                     </div>
                     
                     <div>
@@ -642,6 +733,7 @@ export default function Dashboard() {
                         <option value="Absence">Absence (Petit mal)</option>
                         <option value="Myoclonic">Myoclonic</option>
                         <option value="Atonic">Atonic (Drop)</option>
+                        <option value="Status Epilepticus">Status Epilepticus</option>
                         <option value="Other">Other</option>
                       </select>
                     </div>
