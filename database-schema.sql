@@ -298,6 +298,50 @@ INSERT INTO doctors (
   'Neurology', 'St. Mary\'s Hospital', 'trial', true
 ) ON CONFLICT (email) DO NOTHING;
 
+-- Doctors table
+CREATE TABLE IF NOT EXISTS doctors (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  full_name TEXT NOT NULL,
+  email TEXT UNIQUE NOT NULL,
+  gmc_number TEXT UNIQUE NOT NULL,
+  speciality TEXT NOT NULL,
+  practice_name TEXT NOT NULL,
+  practice_address TEXT,
+  phone_number TEXT,
+  subscription_status TEXT DEFAULT 'trial' CHECK (subscription_status IN ('trial', 'active', 'expired', 'cancelled')),
+  trial_ends_at TIMESTAMP WITH TIME ZONE DEFAULT (NOW() + INTERVAL '30 days'),
+  verification_status TEXT DEFAULT 'pending' CHECK (verification_status IN ('pending', 'verified', 'rejected')),
+  billing_contact TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Patient-Doctor relationships
+CREATE TABLE IF NOT EXISTS patient_doctor_relationships (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  patient_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  doctor_id UUID REFERENCES doctors(id) ON DELETE CASCADE,
+  status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'active', 'revoked')),
+  consent_given_at TIMESTAMP WITH TIME ZONE,
+  consent_expires_at TIMESTAMP WITH TIME ZONE,
+  access_level TEXT DEFAULT 'basic' CHECK (access_level IN ('basic', 'full', 'emergency_only')),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(patient_id, doctor_id)
+);
+
+-- Doctor usage tracking for billing
+CREATE TABLE IF NOT EXISTS doctor_usage_tracking (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  doctor_id UUID REFERENCES doctors(id) ON DELETE CASCADE,
+  action TEXT NOT NULL,
+  patient_count INTEGER DEFAULT 0,
+  notes_created INTEGER DEFAULT 0,
+  reports_generated INTEGER DEFAULT 0,
+  date DATE DEFAULT CURRENT_DATE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Care homes table
 CREATE TABLE IF NOT EXISTS care_homes (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,

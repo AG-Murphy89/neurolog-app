@@ -399,10 +399,56 @@ export default function Home() {
             </div>
           )}
 
+          {/* Professional Portals */}
+          <div style={{
+            textAlign: 'center',
+            marginTop: '32px',
+            padding: '20px',
+            backgroundColor: '#f8f9fa',
+            borderRadius: '16px',
+            border: '1px solid #e1e5e9'
+          }}>
+            <p style={{ color: '#666', margin: '0 0 16px 0', fontSize: '14px' }}>
+              Healthcare Professional?
+            </p>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <a 
+                href="/doctor-login" 
+                style={{ 
+                  display: 'inline-block',
+                  background: 'linear-gradient(135deg, #005EB8 0%, #003087 100%)',
+                  color: 'white',
+                  textDecoration: 'none',
+                  padding: '10px 20px',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}
+              >
+                ⚕️ Doctor Portal
+              </a>
+              <a 
+                href="/care-home-login" 
+                style={{ 
+                  display: 'inline-block',
+                  background: 'linear-gradient(135deg, #005EB8 0%, #003087 100%)',
+                  color: 'white',
+                  textDecoration: 'none',
+                  padding: '10px 20px',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}
+              >
+                🏠 Care Home Portal
+              </a>
+            </div>
+          </div>
+
           {/* Footer */}
           <div style={{ 
             textAlign: 'center', 
-            marginTop: '32px',
+            marginTop: '24px',
             fontSize: '13px',
             color: '#999'
           }}>
