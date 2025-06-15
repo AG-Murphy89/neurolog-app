@@ -108,8 +108,8 @@ export default function Home() {
 
     setIsLoading(false)
   }
-
-  return (
+return (
+  <React.Fragment>
     <>
       <Head>
         <title>NeuroLog - Professional Seizure Tracking</title>
