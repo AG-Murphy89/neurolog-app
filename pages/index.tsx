@@ -109,7 +109,7 @@ export default function Home() {
   }
 
   return (
-    <>
+    <React.Fragment>
       <Head>
         <title>NeuroLog - Professional Seizure Tracking</title>
         <meta name="description" content="GDPR-compliant seizure tracking for personal use and healthcare providers" />
@@ -475,6 +475,6 @@ export default function Home() {
           padding: 0;
         }
       `}</style>
-    </>
+    </React.Fragment>
   )
 }

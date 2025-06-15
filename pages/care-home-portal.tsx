@@ -236,7 +236,7 @@ export default function CareHomePortal() {
   }
 
   return (
-    <>
+    <React.Fragment>
       <Head>
         <title>Care Home Portal - {careHome?.name} - NeuroLog</title>
       </Head>
@@ -991,6 +991,6 @@ export default function CareHomePortal() {
           )}
         </div>
       </div>
-    </>
+    </React.Fragment>
   )
 }

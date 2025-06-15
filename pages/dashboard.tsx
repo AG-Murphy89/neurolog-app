@@ -315,7 +315,7 @@ export default function Dashboard() {
   }
 
   return (
-    <>
+    <React.Fragment>
       <Head>
         <title>Dashboard - NeuroLog</title>
       </Head>
@@ -1977,6 +1977,6 @@ export default function Dashboard() {
           )}
         </div>
       </div>
-    </>
+    </React.Fragment>
   )
 }
