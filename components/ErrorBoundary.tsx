@@ -1,3 +1,4 @@
+
 'use client'
 
 import React from 'react'
@@ -5,7 +6,6 @@ import React from 'react'
 interface ErrorBoundaryProps {
   children: React.ReactNode
   fallback?: React.ComponentType<{ error?: Error }>
-  error?: Error
 }
 
 interface ErrorBoundaryState {
@@ -24,13 +24,13 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Error caught by boundary:', error, errorInfo)
+    console.error('ErrorBoundary caught an error:', error, errorInfo)
   }
 
   render() {
     if (this.state.hasError) {
-      if (this.props.fallback) {
-        const FallbackComponent = this.props.fallback
+      const FallbackComponent = this.props.fallback
+      if (FallbackComponent) {
         return <FallbackComponent error={this.state.error} />
       }
 
@@ -38,26 +38,27 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
         <div style={{
           padding: '20px',
           textAlign: 'center',
-          color: '#721c24',
-          backgroundColor: '#f8d7da',
-          border: '1px solid #f5c6cb',
+          backgroundColor: '#fee',
+          border: '1px solid #fcc',
           borderRadius: '8px',
           margin: '20px'
         }}>
-          <h2>Something went wrong</h2>
-          <p>We're sorry, but something unexpected happened.</p>
-          <button 
-            onClick={() => this.setState({ hasError: false })}
+          <h2 style={{ color: '#c33', marginBottom: '10px' }}>Something went wrong</h2>
+          <p style={{ color: '#666', marginBottom: '15px' }}>
+            We're sorry, but something unexpected happened.
+          </p>
+          <button
+            onClick={() => this.setState({ hasError: false, error: undefined })}
             style={{
-              backgroundColor: '#007bff',
+              backgroundColor: '#005EB8',
               color: 'white',
               border: 'none',
               padding: '10px 20px',
-              borderRadius: '4px',
+              borderRadius: '6px',
               cursor: 'pointer'
             }}
           >
-            Try again
+            Try Again
           </button>
         </div>
       )
