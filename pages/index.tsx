@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabase'
+import Link from 'next/link'
 
 export default function Home() {
   const [isLogin, setIsLogin] = useState(false)
@@ -26,13 +27,13 @@ export default function Home() {
       }
     }
     checkUser()
-  }, [])
+  }, [router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setMessage('')
-    
+
     if (!isLogin && !formData.gdprConsent) {
       setMessage('Please accept the privacy policy to continue')
       setIsLoading(false)
@@ -44,7 +45,7 @@ export default function Home() {
       setIsLoading(false)
       return
     }
-    
+
     try {
       if (isLogin) {
         // Login with Supabase
@@ -52,7 +53,7 @@ export default function Home() {
           email: formData.email,
           password: formData.password,
         })
-        
+
         if (error) {
           setMessage(`Login failed: ${error.message}`)
         } else {
@@ -73,7 +74,7 @@ export default function Home() {
             }
           }
         })
-        
+
         if (error) {
           setMessage(`Registration failed: ${error.message}`)
         } else {
@@ -91,19 +92,19 @@ export default function Home() {
                   data_sharing_consent: formData.dataSharing,
                 }
               ])
-            
+
             if (profileError) {
               console.error('Profile creation error:', profileError)
             }
           }
-          
+
           setMessage('Registration successful! Please check your email to confirm your account.')
         }
       }
     } catch (error: any) {
       setMessage(`Error: ${error.message}`)
     }
-    
+
     setIsLoading(false)
   }
 
@@ -134,7 +135,7 @@ export default function Home() {
           border: '1px solid rgba(255,255,255,0.2)',
           animation: 'slideUp 0.6s ease-out'
         }}>
-          
+
           {/* Header */}
           <div style={{ textAlign: 'center', marginBottom: '40px' }}>
             <div style={{
@@ -277,7 +278,7 @@ export default function Home() {
                 </button>
               </div>
             )}
-            
+
             {!isLogin && (
               <>
                 <div style={{ marginBottom: '24px' }}>
@@ -299,7 +300,7 @@ export default function Home() {
                     required
                   />
                 </div>
-                
+
                 <div style={{ marginBottom: '24px' }}>
                   <select
                     value={formData.type}
@@ -344,7 +345,7 @@ export default function Home() {
                       </span>
                     </label>
                   </div>
-                  
+
                   <div>
                     <label style={{ display: 'flex', alignItems: 'flex-start', cursor: 'pointer' }}>
                       <input
@@ -361,7 +362,7 @@ export default function Home() {
                 </div>
               </>
             )}
-            
+
             <button 
               type="submit"
               disabled={isLoading}
@@ -383,7 +384,7 @@ export default function Home() {
               {isLoading ? 'Please wait...' : (isLogin ? 'Sign In' : 'Create Account')}
             </button>
           </form>
-          
+
           {message && (
             <div style={{ 
               marginTop: '24px', 
@@ -412,9 +413,9 @@ export default function Home() {
               Healthcare Professional?
             </p>
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <a 
-                href="/doctor-login" 
-                style={{ 
+              <Link
+                href="/doctor-login"
+                style={{
                   display: 'inline-block',
                   background: 'linear-gradient(135deg, #005EB8 0%, #003087 100%)',
                   color: 'white',
@@ -426,10 +427,10 @@ export default function Home() {
                 }}
               >
                 ⚕️ Doctor Portal
-              </a>
-              <a 
-                href="/care-home-login" 
-                style={{ 
+              </Link>
+              <Link
+                href="/care-home-login"
+                style={{
                   display: 'inline-block',
                   background: 'linear-gradient(135deg, #005EB8 0%, #003087 100%)',
                   color: 'white',
@@ -441,7 +442,7 @@ export default function Home() {
                 }}
               >
                 🏠 Care Home Portal
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -468,7 +469,7 @@ export default function Home() {
             transform: translateY(0);
           }
         }
-        
+
         body {
           margin: 0;
           padding: 0;

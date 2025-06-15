@@ -32,7 +32,7 @@ export default function CareHomeLogin() {
       }
     }
     checkUser()
-  }, [])
+  }, [router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

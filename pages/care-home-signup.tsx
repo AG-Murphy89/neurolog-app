@@ -1,4 +1,3 @@
-
 import { useState } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -125,6 +124,25 @@ export default function CareHomeSignup() {
     setIsLoading(false)
   }
 
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) {
+        const { data: staffData } = await supabase
+          .from('care_home_staff')
+          .select('*')
+          .eq('email', session.user.email)
+          .eq('is_active', true)
+          .single()
+
+        if (staffData) {
+          router.push('/care-home-portal')
+        }
+      }
+    }
+    checkUser()
+  }, [router])
+
   return (
     <>
       <Head>
@@ -145,7 +163,7 @@ export default function CareHomeSignup() {
           padding: '48px',
           boxShadow: '0 25px 60px rgba(0,0,0,0.15)'
         }}>
-          
+
           <div style={{ textAlign: 'center', marginBottom: '40px' }}>
             <div style={{
               width: '80px',
@@ -182,7 +200,7 @@ export default function CareHomeSignup() {
           <form onSubmit={handleSubmit}>
             <div style={{ marginBottom: '32px' }}>
               <h3 style={{ color: '#003087', marginBottom: '20px', fontSize: '20px' }}>Care Home Information</h3>
-              
+
               <div style={{ marginBottom: '20px' }}>
                 <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
                   Care Home Name *
@@ -267,7 +285,7 @@ export default function CareHomeSignup() {
 
             <div style={{ marginBottom: '32px' }}>
               <h3 style={{ color: '#003087', marginBottom: '20px', fontSize: '20px' }}>Manager Information</h3>
-              
+
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
@@ -356,7 +374,7 @@ export default function CareHomeSignup() {
 
             <div style={{ marginBottom: '32px' }}>
               <h3 style={{ color: '#003087', marginBottom: '20px', fontSize: '20px' }}>Subscription Plan</h3>
-              
+
               <div style={{ marginBottom: '20px' }}>
                 <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
                   Select Plan *
@@ -449,7 +467,7 @@ export default function CareHomeSignup() {
                   </span>
                 </label>
               </div>
-              
+
               <div>
                 <label style={{ display: 'flex', alignItems: 'flex-start', cursor: 'pointer' }}>
                   <input
@@ -465,7 +483,7 @@ export default function CareHomeSignup() {
                 </label>
               </div>
             </div>
-            
+
             <button 
               type="submit"
               disabled={isLoading}
@@ -505,7 +523,7 @@ export default function CareHomeSignup() {
               ← Back to main site
             </Link>
           </div>
-          
+
           {message && (
             <div style={{ 
               marginTop: '24px', 
