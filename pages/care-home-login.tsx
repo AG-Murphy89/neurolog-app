@@ -1,3 +1,4 @@
+import React from 'react'
 import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -81,7 +82,7 @@ export default function CareHomeLogin() {
 
       if (error) {
         setMessage('Demo login failed. Creating demo account...')
-        // Create demo care home if doesn't exist
+        // Create demo care home if doesn&apos;t exist
         const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email: 'manager@democarehome.com',
           password: 'DemoCareHome123!',
