@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
@@ -141,7 +141,7 @@ export default function CareHomeSignup() {
       }
     }
     checkUser()
-  }, [router])
+  }, [router, checkUser])
 
   return (
     <>
