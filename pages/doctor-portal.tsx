@@ -1,8 +1,16 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
 import Head from 'next/head'
-import { useRouter } from 'next/router'
-import { supabase } from '../lib/supabase'
+// ... other imports
+
+export default function Doctorportal() {
+  // ... component code
+  
+  return (
+    <>
+      <Head>
+        <title>Care Home Portal - NeuroLog</title>
+      </Head>
 
 interface Patient {
   id: string
