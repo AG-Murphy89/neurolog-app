@@ -1,3 +1,4 @@
+iimport React from 'react'
 import { useState } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -69,11 +70,13 @@ export default function Register() {
       }
 
       // Store user data (in real app, this would be sent to backend)
-      localStorage.setItem('neurolog_user', JSON.stringify(userData))
-      localStorage.setItem(`neurolog_account_${formData.email}`, JSON.stringify({
-        ...userData,
-        password: formData.password // In real app, password would be hashed
-      }))
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('neurolog_user', JSON.stringify(userData))
+        localStorage.setItem(`neurolog_account_${formData.email}`, JSON.stringify({
+          ...userData,
+          password: formData.password // In real app, password would be hashed
+        }))
+      }
 
       // Redirect to dashboard
       router.push('/dashboard')
