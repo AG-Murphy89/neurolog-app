@@ -1,3 +1,4 @@
+import React from 'react'
 import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -161,7 +162,7 @@ export default function MedicationPage() {
 
       setTodaysMedications(todaysSchedule)
     } catch (error) {
-      console.error('Error loading today\'s medications:', error)
+      console.error('Error loading today&apos;s medications:', error)
     }
   }
 
@@ -545,7 +546,7 @@ export default function MedicationPage() {
                   textTransform: 'capitalize'
                 }}
               >
-                {section === 'schedule' ? "Today's Schedule" : section}
+                {section === 'schedule' ? "Today&apos;s Schedule" : section}
               </button>
             ))}
           </div>
@@ -567,7 +568,7 @@ export default function MedicationPage() {
                 boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                 border: '1px solid #e1e5e9'
               }}>
-                <h2 style={{ margin: '0 0 24px 0', color: '#003087' }}>Today's Medication Schedule</h2>
+                <h2 style={{ margin: '0 0 24px 0', color: '#003087' }}>Today&apos;s Medication Schedule</h2>
 
                 {['AM', 'Midday', 'PM'].map(period => {
                   const periodMeds = todaysMedications.filter(m => m.period === period)
@@ -849,7 +850,7 @@ export default function MedicationPage() {
                   <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#28a745', marginBottom: '8px' }}>
                     {getAdherenceRate()}%
                   </div>
-                  <div style={{ color: '#666', fontSize: '16px' }}>Today's Adherence</div>
+                  <div style={{ color: '#666', fontSize: '16px' }}>Today&apos;s Adherence</div>
                 </div>
 
                 <div style={{
