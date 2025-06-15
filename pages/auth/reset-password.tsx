@@ -1,3 +1,4 @@
+import React from 'react'
 import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -11,73 +12,73 @@ export default function ResetPassword() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [message, setMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [passwordErrors, setPasswordErrors([])
+  const [passwordErrors, setPasswordErrors] = useState<string[]>([])
   const router = useRouter()
 
   useEffect(() => {
-    // Check if this is a password reset callback
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'PASSWORD_RECOVERY') {
-        setStep('reset')
-      }
-    })
-
-    return () => {
-      authListener.subscription.unsubscribe()
+    // Check for reset token in URL
+    const { access_token, type } = router.query
+    if (access_token && type === 'recovery') {
+      setStep('reset')
     }
-  }, [])
+  }, [router.query])
 
   const handleRequestReset = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setMessage('')
 
-    if (!authUtils.isOnline()) {
-      setMessage('You appear to be offline. Please check your internet connection.')
-      setIsLoading(false)
-      return
-    }
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/reset-password`
+      })
 
-    const result = await authUtils.resetPassword(email)
-
-    if (result.success) {
-      setMessage('Password reset email sent! Please check your inbox and spam folder.')
-      setTimeout(() => setStep('success'), 2000)
-    } else {
-      setMessage(result.error?.message || 'Failed to send reset email')
+      if (error) {
+        setMessage(`Error: ${error.message}`)
+      } else {
+        setMessage('Password reset email sent! Check your inbox.')
+        setStep('success')
+      }
+    } catch (error: any) {
+      setMessage(`Error: ${error.message}`)
     }
 
     setIsLoading(false)
   }
 
-  const handlePasswordUpdate = async (e: React.FormEvent) => {
+  const handlePasswordReset = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setMessage('')
-    setPasswordErrors([])
 
-    // Validate passwords match
+    // Validate password
+    const errors = authUtils.validatePassword(newPassword)
+    setPasswordErrors(errors)
+
+    if (errors.length > 0) {
+      setIsLoading(false)
+      return
+    }
+
     if (newPassword !== confirmPassword) {
       setMessage('Passwords do not match')
       setIsLoading(false)
       return
     }
 
-    // Validate password strength
-    const validation = authUtils.validatePassword(newPassword)
-    if (!validation.isValid) {
-      setPasswordErrors(validation.errors)
-      setIsLoading(false)
-      return
-    }
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      })
 
-    const result = await authUtils.updatePassword(newPassword)
-
-    if (result.success) {
-      setMessage('Password updated successfully!')
-      setTimeout(() => router.push('/dashboard'), 2000)
-    } else {
-      setMessage(result.error?.message || 'Failed to update password')
+      if (error) {
+        setMessage(`Error: ${error.message}`)
+      } else {
+        setMessage('Password updated successfully!')
+        setTimeout(() => router.push('/'), 2000)
+      }
+    } catch (error: any) {
+      setMessage(`Error: ${error.message}`)
     }
 
     setIsLoading(false)
@@ -118,20 +119,29 @@ export default function ResetPassword() {
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: '32px',
-              color: 'white',
-              fontWeight: 'bold'
+              color: 'white'
             }}>
-              🔒
+              🔑
             </div>
-            <h1 style={{ color: '#003087', fontSize: '28px', fontWeight: 'bold', margin: '0 0 12px 0' }}>
-              {step === 'request' && 'Reset Password'}
-              {step === 'reset' && 'Create New Password'}
-              {step === 'success' && 'Check Your Email'}
+            <h1 style={{ 
+              color: '#003087', 
+              fontSize: '32px', 
+              fontWeight: 'bold',
+              margin: '0 0 12px 0'
+            }}>
+              {step === 'request' ? 'Reset Password' : 
+               step === 'reset' ? 'Set New Password' : 
+               'Password Reset'}
             </h1>
-            <p style={{ color: '#666', fontSize: '16px', margin: '0', lineHeight: '1.6' }}>
-              {step === 'request' && 'Enter your email to receive a password reset link'}
-              {step === 'reset' && 'Choose a strong new password for your account'}
-              {step === 'success' && 'We&apos;ve sent you a password reset link'}
+            <p style={{ 
+              color: '#666', 
+              fontSize: '16px',
+              margin: '0',
+              lineHeight: '1.6'
+            }}>
+              {step === 'request' ? 'Enter your email to receive reset instructions' :
+               step === 'reset' ? 'Enter your new password' :
+               'Your password has been reset successfully'}
             </p>
           </div>
 
@@ -140,27 +150,26 @@ export default function ResetPassword() {
               <div style={{ marginBottom: '24px' }}>
                 <input
                   type="email"
-                  placeholder="Enter your email address"
+                  placeholder="Email address"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '18px',
-                    borderRadius: '16px',
+                  style={{ 
+                    width: '100%', 
+                    padding: '18px', 
+                    borderRadius: '16px', 
                     border: '2px solid #e1e5e9',
                     fontSize: '16px',
                     outline: 'none',
-                    transition: 'all 0.3s ease',
                     boxSizing: 'border-box'
                   }}
                   required
                 />
               </div>
 
-              <button
+              <button 
                 type="submit"
                 disabled={isLoading}
-                style={{
+                style={{ 
                   width: '100%',
                   padding: '18px',
                   background: isLoading ? '#ccc' : 'linear-gradient(135deg, #005EB8 0%, #003087 100%)',
@@ -170,45 +179,27 @@ export default function ResetPassword() {
                   fontSize: '18px',
                   fontWeight: '700',
                   cursor: isLoading ? 'not-allowed' : 'pointer',
-                  transition: 'all 0.3s ease',
-                  boxShadow: '0 6px 20px rgba(0, 94, 184, 0.4)',
-                  marginBottom: '16px'
+                  marginBottom: '24px',
+                  boxShadow: '0 6px 20px rgba(0, 94, 184, 0.4)'
                 }}
               >
-                {isLoading ? 'Sending...' : 'Send Reset Link'}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => router.push('/')}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  background: 'transparent',
-                  color: '#666',
-                  border: '2px solid #e1e5e9',
-                  borderRadius: '12px',
-                  fontSize: '16px',
-                  cursor: 'pointer'
-                }}
-              >
-                Back to Login
+                {isLoading ? 'Sending...' : 'Send Reset Email'}
               </button>
             </form>
           )}
 
           {step === 'reset' && (
-            <form onSubmit={handlePasswordUpdate}>
+            <form onSubmit={handlePasswordReset}>
               <div style={{ marginBottom: '24px' }}>
                 <input
                   type="password"
                   placeholder="New password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '18px',
-                    borderRadius: '16px',
+                  style={{ 
+                    width: '100%', 
+                    padding: '18px', 
+                    borderRadius: '16px', 
                     border: '2px solid #e1e5e9',
                     fontSize: '16px',
                     outline: 'none',
@@ -224,10 +215,10 @@ export default function ResetPassword() {
                   placeholder="Confirm new password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '18px',
-                    borderRadius: '16px',
+                  style={{ 
+                    width: '100%', 
+                    padding: '18px', 
+                    borderRadius: '16px', 
                     border: '2px solid #e1e5e9',
                     fontSize: '16px',
                     outline: 'none',
@@ -238,25 +229,19 @@ export default function ResetPassword() {
               </div>
 
               {passwordErrors.length > 0 && (
-                <div style={{
-                  background: '#fee',
-                  border: '1px solid #fcc',
-                  borderRadius: '8px',
-                  padding: '12px',
-                  marginBottom: '16px'
-                }}>
-                  <ul style={{ margin: '0', paddingLeft: '20px', color: '#c33' }}>
-                    {passwordErrors.map((error, index) => (
-                      <li key={index} style={{ fontSize: '14px' }}>{error}</li>
-                    ))}
-                  </ul>
+                <div style={{ marginBottom: '24px' }}>
+                  {passwordErrors.map((error, index) => (
+                    <div key={index} style={{ color: '#dc3545', fontSize: '14px', marginBottom: '4px' }}>
+                      • {error}
+                    </div>
+                  ))}
                 </div>
               )}
 
-              <button
+              <button 
                 type="submit"
                 disabled={isLoading}
-                style={{
+                style={{ 
                   width: '100%',
                   padding: '18px',
                   background: isLoading ? '#ccc' : 'linear-gradient(135deg, #005EB8 0%, #003087 100%)',
@@ -266,6 +251,7 @@ export default function ResetPassword() {
                   fontSize: '18px',
                   fontWeight: '700',
                   cursor: isLoading ? 'not-allowed' : 'pointer',
+                  marginBottom: '24px',
                   boxShadow: '0 6px 20px rgba(0, 94, 184, 0.4)'
                 }}
               >
@@ -274,36 +260,12 @@ export default function ResetPassword() {
             </form>
           )}
 
-          {step === 'success' && (
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>📧</div>
-              <p style={{ color: '#666', marginBottom: '24px' }}>
-                If an account exists with that email, you'll receive a password reset link shortly.
-              </p>
-              <button
-                onClick={() => router.push('/')}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  background: 'transparent',
-                  color: '#666',
-                  border: '2px solid #e1e5e9',
-                  borderRadius: '12px',
-                  fontSize: '16px',
-                  cursor: 'pointer'
-                }}
-              >
-                Back to Login
-              </button>
-            </div>
-          )}
-
           {message && (
-            <div style={{
-              marginTop: '24px',
-              padding: '18px',
-              backgroundColor: message.includes('failed') || message.includes('Error') || message.includes('not match') ? '#fee' : '#efe',
-              color: message.includes('failed') || message.includes('Error') || message.includes('not match') ? '#c33' : '#363',
+            <div style={{ 
+              marginTop: '24px', 
+              padding: '18px', 
+              backgroundColor: message.includes('Error') ? '#fee' : '#efe',
+              color: message.includes('Error') ? '#c33' : '#363',
               borderRadius: '16px',
               textAlign: 'center',
               fontSize: '15px',
