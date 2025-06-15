@@ -7,7 +7,14 @@ interface ErrorBoundaryState {
   error?: Error
 }
 
-export class ErrorBoundary extends React.Component<
+export import React from 'react'
+
+interface ErrorBoundaryState {
+  hasError: boolean
+  error?: Error
+}
+
+class ErrorBoundary extends React.Component<
   React.PropsWithChildren<{}>,
   ErrorBoundaryState
 > {
@@ -116,3 +123,5 @@ export class ErrorBoundary extends React.Component<
     return this.props.children
   }
 }
+
+export { ErrorBoundary }

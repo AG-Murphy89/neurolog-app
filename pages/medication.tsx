@@ -85,7 +85,7 @@ export default function MedicationPage() {
   useEffect(() => {
     checkUser()
     requestNotificationPermission()
-  }, [checkUser])
+  }, [])
 
   const checkUser = async () => {
     try {
@@ -1150,7 +1150,8 @@ export default function MedicationPage() {
                           type="number"
                           min="1"
                           value={formData.days_supply}
-                          onChange={(e) => setFormData({...formData, days_supply: parseInt(e.target.value})}                          style={{
+                          onChange={(e) => setFormData({...formData, days_supply: parseInt(e.target.value)})}
+                          style={{
                             width: '100%',
                             padding: '12px',
                             borderRadius: '8px',

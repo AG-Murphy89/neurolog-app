@@ -1,4 +1,3 @@
-
 import { useState } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -43,11 +42,11 @@ export default function Register() {
     if (!formData.firstName) newErrors.firstName = 'First name is required'
     if (!formData.lastName) newErrors.lastName = 'Last name is required'
     if (!formData.gdprConsent) newErrors.gdprConsent = 'You must accept the privacy policy'
-    
+
     if ((formData.userType === 'care_home' || formData.userType === 'professional') && !formData.organizationName) {
       newErrors.organizationName = 'Organization name is required'
     }
-    
+
     if (formData.userType === 'professional' && !formData.professionalId) {
       newErrors.professionalId = 'Professional ID is required'
     }

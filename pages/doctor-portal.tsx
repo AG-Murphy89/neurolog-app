@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -84,7 +83,7 @@ export default function DoctorPortal() {
   const checkDoctorAuth = async () => {
     try {
       const { data: { session }, error } = await supabase.auth.getSession()
-      
+
       if (error || !session) {
         router.push('/doctor-login')
         return
@@ -140,7 +139,7 @@ export default function DoctorPortal() {
       const patientsWithMetrics = await Promise.all(
         (data || []).map(async (relationship) => {
           const patient = relationship.patient
-          
+
           // Get seizure count
           const { count: seizureCount } = await supabase
             .from('seizure_records')
@@ -378,7 +377,7 @@ export default function DoctorPortal() {
                 </p>
               </div>
             </div>
-            
+
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               {/* Subscription Status */}
               {doctor?.subscription_status === 'trial' && (
@@ -393,7 +392,7 @@ export default function DoctorPortal() {
                   {isTrialExpired() ? 'Trial Expired' : `Trial: ${getDaysLeftInTrial()} days left`}
                 </div>
               )}
-              
+
               {doctor?.subscription_status === 'active' && (
                 <div style={{
                   background: '#28a745',
@@ -422,7 +421,7 @@ export default function DoctorPortal() {
               >
                 💳 Upgrade
               </button>
-              
+
               <button
                 onClick={() => supabase.auth.signOut()}
                 style={{
@@ -572,7 +571,7 @@ export default function DoctorPortal() {
                 <h3 style={{ margin: '0 0 16px 0', color: '#003087', fontSize: '18px' }}>
                   🚨 Patients Requiring Attention
                 </h3>
-                
+
                 {patients.filter(p => p.risk_level === 'high' || p.consent_status === 'pending').length === 0 ? (
                   <div style={{ color: '#666', textAlign: 'center', padding: '20px' }}>
                     No patients require immediate attention
@@ -631,7 +630,7 @@ export default function DoctorPortal() {
                 <h3 style={{ margin: '0 0 16px 0', color: '#003087', fontSize: '18px' }}>
                   📊 Recent Seizures Across All Patients
                 </h3>
-                
+
                 {recentSeizures.length === 0 ? (
                   <div style={{ color: '#666', textAlign: 'center', padding: '20px' }}>
                     No recent seizures recorded
@@ -700,7 +699,7 @@ export default function DoctorPortal() {
                   + Add Clinical Note
                 </button>
               </div>
-              
+
               {patients.length === 0 ? (
                 <div style={{ textAlign: 'center', color: '#666', padding: '40px 0' }}>
                   <div style={{ fontSize: '48px', marginBottom: '16px' }}>👥</div>
@@ -742,7 +741,7 @@ export default function DoctorPortal() {
                               {patient.risk_level} risk
                             </div>
                           </div>
-                          
+
                           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '8px', fontSize: '14px', color: '#666' }}>
                             <div><strong>Total Seizures:</strong> {patient.total_seizures}</div>
                             <div><strong>Last Seizure:</strong> {patient.last_seizure_date ? new Date(patient.last_seizure_date).toLocaleDateString() : 'None'}</div>
@@ -802,7 +801,7 @@ export default function DoctorPortal() {
               border: '1px solid #e1e5e9'
             }}>
               <h2 style={{ margin: '0 0 20px 0', color: '#003087' }}>Practice Analytics</h2>
-              
+
               <div style={{ display: 'grid', gap: '24px' }}>
                 <div style={{
                   background: '#f8f9fa',
@@ -902,7 +901,7 @@ export default function DoctorPortal() {
                   + Add Note
                 </button>
               </div>
-              
+
               {clinicalNotes.length === 0 ? (
                 <div style={{ textAlign: 'center', color: '#666', padding: '40px 0' }}>
                   <div style={{ fontSize: '48px', marginBottom: '16px' }}>📝</div>
@@ -958,7 +957,7 @@ export default function DoctorPortal() {
               border: '1px solid #e1e5e9'
             }}>
               <h2 style={{ margin: '0 0 20px 0', color: '#003087' }}>Settings & Subscription</h2>
-              
+
               <div style={{ display: 'grid', gap: '24px' }}>
                 <div style={{
                   background: '#f8f9fa',
@@ -984,7 +983,7 @@ export default function DoctorPortal() {
                        'Subscription Expired'}
                     </div>
                   </div>
-                  
+
                   {doctor?.subscription_status !== 'active' && (
                     <button
                       onClick={() => setShowUpgradeModal(true)}
@@ -1065,7 +1064,7 @@ export default function DoctorPortal() {
               overflow: 'auto'
             }}>
               <h3 style={{ margin: '0 0 20px 0', color: '#003087' }}>Add Clinical Note</h3>
-              
+
               <form onSubmit={addClinicalNote}>
                 <div style={{ display: 'grid', gap: '16px' }}>
                   <div>
@@ -1223,7 +1222,7 @@ export default function DoctorPortal() {
               <h3 style={{ margin: '0 0 20px 0', color: '#003087', fontSize: '24px' }}>
                 Upgrade to NeuroLog Pro
               </h3>
-              
+
               <div style={{ marginBottom: '24px' }}>
                 <div style={{ fontSize: '36px', fontWeight: 'bold', color: '#005EB8', marginBottom: '8px' }}>
                   £35/month

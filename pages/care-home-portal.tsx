@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -284,7 +283,7 @@ export default function CareHomePortal() {
                 </p>
               </div>
             </div>
-            
+
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               {/* CQC Rating */}
               <div style={{
@@ -488,7 +487,7 @@ export default function CareHomePortal() {
                 <h3 style={{ margin: '0 0 16px 0', color: '#003087', fontSize: '18px' }}>
                   🎯 Priority Actions Today
                 </h3>
-                
+
                 <div style={{ display: 'grid', gap: '12px' }}>
                   <div style={{
                     display: 'flex',
@@ -609,7 +608,7 @@ export default function CareHomePortal() {
                     Report Incident
                   </button>
                 </div>
-                
+
                 {incidents.length === 0 ? (
                   <div style={{ color: '#666', textAlign: 'center', padding: '20px' }}>
                     No recent incidents
@@ -706,7 +705,7 @@ export default function CareHomePortal() {
                   </button>
                 </div>
               </div>
-              
+
               <div style={{ display: 'grid', gap: '16px' }}>
                 {residents.map(resident => {
                   const careLevel = getCareLevel(resident.care_level)
@@ -744,7 +743,7 @@ export default function CareHomePortal() {
                               {careLevel.label} Care
                             </div>
                           </div>
-                          
+
                           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px', fontSize: '14px', color: '#666' }}>
                             <div><strong>Room:</strong> {resident.room_number}</div>
                             <div><strong>DOB:</strong> {new Date(resident.date_of_birth).toLocaleDateString()}</div>
@@ -845,7 +844,7 @@ export default function CareHomePortal() {
                   </button>
                 </div>
               </div>
-              
+
               <div style={{ marginBottom: '24px' }}>
                 <h3 style={{ color: '#003087', marginBottom: '12px' }}>Today's Medication Schedule</h3>
                 <div style={{ display: 'grid', gap: '8px' }}>
@@ -940,7 +939,7 @@ export default function CareHomePortal() {
               border: '1px solid #e1e5e9'
             }}>
               <h2 style={{ margin: '0 0 20px 0', color: '#003087' }}>CQC Compliance Dashboard</h2>
-              
+
               <div style={{ display: 'grid', gap: '20px' }}>
                 <div style={{
                   background: '#f8f9fa',
