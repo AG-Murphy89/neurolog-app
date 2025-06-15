@@ -1981,7 +1981,6 @@ export default function Dashboard() {
   )
 }
 import React, { useState, useEffect } from 'react'
-import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabase'
 
@@ -2094,7 +2093,7 @@ export default function Dashboard() {
           notes: ''
         })
         setShowForm(false)
-        
+
         // Refresh logs
         const { data: logs } = await supabase
           .from('seizure_logs')
@@ -2135,11 +2134,11 @@ export default function Dashboard() {
   const getRecentStats = () => {
     const thirtyDaysAgo = new Date()
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-    
+
     const recentLogs = seizureLogs.filter(log => 
       new Date(log.created_at) >= thirtyDaysAgo
     )
-    
+
     const avgSeverity = recentLogs.length > 0 
       ? recentLogs.reduce((sum, log) => sum + log.severity, 0) / recentLogs.length
       : 0
@@ -2179,9 +2178,7 @@ export default function Dashboard() {
 
   return (
     <React.Fragment>
-      <Head>
-        <title>Dashboard - NeuroLog</title>
-      </Head>
+      
 
       <div style={{
         minHeight: '100vh',
@@ -2230,7 +2227,7 @@ export default function Dashboard() {
               </p>
             </div>
           </div>
-          
+
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
             <button
               onClick={() => router.push('/medication')}
@@ -2338,7 +2335,7 @@ export default function Dashboard() {
               marginBottom: '32px'
             }}>
               <h2 style={{ margin: '0 0 24px 0', color: '#003087' }}>Add Seizure Log</h2>
-              
+
               <form onSubmit={handleSubmit}>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
                   <div>
@@ -2559,26 +2556,26 @@ export default function Dashboard() {
                               Severity: {log.severity}/10
                             </span>
                           </div>
-                          
+
                           {log.duration && (
                             <p style={{ margin: '0 0 8px 0', color: '#666' }}>
                               <strong>Duration:</strong> {log.duration}
                             </p>
                           )}
-                          
+
                           {log.triggers && (
                             <p style={{ margin: '0 0 8px 0', color: '#666' }}>
                               <strong>Triggers:</strong> {log.triggers}
                             </p>
                           )}
-                          
+
                           {log.notes && (
                             <p style={{ margin: '0', color: '#666' }}>
                               <strong>Notes:</strong> {log.notes}
                             </p>
                           )}
                         </div>
-                        
+
                         <button
                           onClick={() => deleteLog(log.id)}
                           style={{
