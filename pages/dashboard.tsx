@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import React from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabase'
@@ -48,11 +49,7 @@ export default function Dashboard() {
   })
   const router = useRouter()
 
-  useEffect(() => {
-    checkUser()
-  }, [checkUser])
-
-  const checkUser = async () => {
+  const checkUser = useCallback(async () => {
     try {
       // Check if user is authenticated
       const { data: { session }, error } = await supabase.auth.getSession()
@@ -110,7 +107,11 @@ export default function Dashboard() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [router])
+
+  useEffect(() => {
+    checkUser()
+  }, [checkUser])
 
   const loadSeizures = async (userId: string) => {
     try {
@@ -585,7 +586,7 @@ export default function Dashboard() {
                 {seizures.length === 0 && (
                   <div style={{ textAlign: 'center', color: '#666', padding: '40px 0' }}>
                     <div style={{ fontSize: '48px', marginBottom: '16px' }}>📊</div>
-                    <div>No seizures recorded yet. Click "Record New Seizure" to get started.</div>
+                    <div>No seizures recorded yet. Click &quot;Record New Seizure&quot; to get started.</div>
                   </div>
                 )}
               </div>
@@ -762,7 +763,7 @@ export default function Dashboard() {
                       min="1"
                       max="5"
                       value={formData.severity}
-                      onChange={(e) => setFormData({...formData, severity: parseInt(e.target.value))}
+                      onChange={(e) => setFormData({...formData, severity: parseInt(e.target.value)})}
                       style={{ width: '100%' }}
                     />
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#666', marginTop: '4px' }}>
@@ -1713,7 +1714,7 @@ export default function Dashboard() {
               </div>
 
               <div style={{ background: '#d1ecf1', padding: '16px', borderRadius: '8px', marginBottom: '24px', border: '1px solid #bee5eb' }}>
-                <strong style={{ color: '#0c5460' }}>Legal Information:</strong> This person will be contacted for medical decisions if you're unable to make them yourself.
+                <strong style={{ color: '#0c5460' }}>Legal Information:</strong> This person will be contacted for medical decisions if you&apos;re unable to make them yourself.
               </div>
 
               <form onSubmit={(e) => { e.preventDefault(); alert('Next of kin information saved! This feature will be fully implemented soon.'); }}>
