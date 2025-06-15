@@ -7,13 +7,6 @@ interface ErrorBoundaryState {
   error?: Error
 }
 
-export import React from 'react'
-
-interface ErrorBoundaryState {
-  hasError: boolean
-  error?: Error
-}
-
 class ErrorBoundary extends React.Component<
   React.PropsWithChildren<{}>,
   ErrorBoundaryState

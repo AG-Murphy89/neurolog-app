@@ -11,7 +11,7 @@ export default function ResetPassword() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [message, setMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [passwordErrors, setPasswordErrors([])
+  const [passwordErrors, setPasswordErrors] = useState<string[]>([])
   const router = useRouter()
 
   useEffect(() => {
