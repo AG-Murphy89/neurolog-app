@@ -475,6 +475,6 @@ export default function Home() {
           padding: 0;
         }
       `}</style>
-    </React.Fragment>
+    </>
   )
 }
