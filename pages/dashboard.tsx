@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -51,13 +50,13 @@ export default function Dashboard() {
 
   useEffect(() => {
     checkUser()
-  }, [])
+  }, [checkUser])
 
   const checkUser = async () => {
     try {
       // Check if user is authenticated
       const { data: { session }, error } = await supabase.auth.getSession()
-      
+
       if (error || !session) {
         router.push('/')
         return
@@ -141,7 +140,7 @@ export default function Dashboard() {
 
   const handleAddSeizure = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!user) return
 
     try {
@@ -153,7 +152,7 @@ export default function Dashboard() {
         hour = 0
       }
       const formattedTime = `${hour.toString().padStart(2, '0')}:${formData.seizure_minute}`
-      
+
       // Format duration
       const formattedDuration = `${formData.duration_value} ${formData.duration_unit}`
 
@@ -183,7 +182,7 @@ export default function Dashboard() {
 
       // Reload seizures
       await loadSeizures(user.id)
-      
+
       // Reset form
       setFormData({
         seizure_date: new Date().toISOString().split('T')[0],
@@ -273,12 +272,12 @@ export default function Dashboard() {
     if (seizures.length === 0) return 'None recorded'
     const triggers = seizures.map(s => s.triggers).filter(t => t && t.trim())
     if (triggers.length === 0) return 'None recorded'
-    
+
     const triggerCount: {[key: string]: number} = {}
     triggers.forEach(trigger => {
       triggerCount[trigger] = (triggerCount[trigger] || 0) + 1
     })
-    
+
     return Object.entries(triggerCount).sort(([,a], [,b]) => b - a)[0][0]
   }
 
@@ -604,7 +603,7 @@ export default function Dashboard() {
               margin: '0 auto'
             }}>
               <h2 style={{ margin: '0 0 24px 0', color: '#003087', textAlign: 'center' }}>Record New Seizure</h2>
-              
+
               <form onSubmit={handleAddSeizure}>
                 <div style={{ display: 'grid', gap: '20px' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
@@ -625,7 +624,7 @@ export default function Dashboard() {
                         required
                       />
                     </div>
-                    
+
                     <div>
                       <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>Time</label>
                       <div style={{ display: 'flex', gap: '8px' }}>
@@ -725,7 +724,7 @@ export default function Dashboard() {
                         </select>
                       </div>
                     </div>
-                    
+
                     <div>
                       <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>Type</label>
                       <select
@@ -763,7 +762,7 @@ export default function Dashboard() {
                       min="1"
                       max="5"
                       value={formData.severity}
-                      onChange={(e) => setFormData({...formData, severity: parseInt(e.target.value)})}
+                      onChange={(e) => setFormData({...formData, severity: parseInt(e.target.value))}
                       style={{ width: '100%' }}
                     />
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#666', marginTop: '4px' }}>
@@ -928,7 +927,7 @@ export default function Dashboard() {
                   </button>
                 </div>
               </div>
-              
+
               {seizures.length === 0 ? (
                 <div style={{ textAlign: 'center', color: '#666', padding: '40px 0' }}>
                   <div style={{ fontSize: '48px', marginBottom: '16px' }}>📊</div>
@@ -974,7 +973,7 @@ export default function Dashboard() {
                       >
                         Delete
                       </button>
-                      
+
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '16px' }}>
                         <div>
                           <strong style={{ color: '#003087' }}>Date & Time:</strong><br/>
@@ -1001,25 +1000,25 @@ export default function Dashboard() {
                           </div>
                         </div>
                       </div>
-                      
+
                       {seizure.triggers && (
                         <div style={{ marginBottom: '12px' }}>
                           <strong style={{ color: '#003087' }}>Triggers:</strong> {seizure.triggers}
                         </div>
                       )}
-                      
+
                       {seizure.symptoms && (
                         <div style={{ marginBottom: '12px' }}>
                           <strong style={{ color: '#003087' }}>Symptoms:</strong> {seizure.symptoms}
                         </div>
                       )}
-                      
+
                       {seizure.medication_taken && (
                         <div style={{ marginBottom: '12px' }}>
                           <strong style={{ color: '#003087' }}>Medication:</strong> {seizure.medication_taken}
                         </div>
                       )}
-                      
+
                       {seizure.additional_notes && (
                         <div style={{ marginBottom: '12px' }}>
                           <strong style={{ color: '#003087' }}>Notes:</strong> {seizure.additional_notes}
@@ -1066,17 +1065,17 @@ export default function Dashboard() {
                       onClick={async () => {
                         const element = document.getElementById('insights-content')
                         if (!element) return
-                        
+
                         try {
                           const html2canvas = (await import('html2canvas')).default
                           const jsPDF = (await import('jspdf')).jsPDF
-                          
+
                           const canvas = await html2canvas(element, {
                             scale: 2,
                             useCORS: true,
                             backgroundColor: '#ffffff'
                           })
-                          
+
                           const imgData = canvas.toDataURL('image/png')
                           const pdf = new jsPDF('p', 'mm', 'a4')
                           const pdfWidth = pdf.internal.pageSize.getWidth()
@@ -1086,12 +1085,12 @@ export default function Dashboard() {
                           const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight)
                           const imgX = (pdfWidth - imgWidth * ratio) / 2
                           const imgY = 30
-                          
+
                           pdf.setFontSize(16)
                           pdf.text('NeuroLog - Seizure Insights Report', pdfWidth / 2, 20, { align: 'center' })
                           pdf.setFontSize(10)
                           pdf.text(`Generated on: ${new Date().toLocaleDateString()}`, pdfWidth / 2, 25, { align: 'center' })
-                          
+
                           pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio)
                           pdf.save(`neurolog-insights-${new Date().toISOString().split('T')[0]}.pdf`)
                         } catch (error) {
@@ -1117,7 +1116,7 @@ export default function Dashboard() {
                     </button>
                   </div>
                 </div>
-                
+
                 {seizures.length < 3 ? (
                   <div style={{ textAlign: 'center', color: '#666', padding: '40px 0' }}>
                     <div style={{ fontSize: '48px', marginBottom: '16px' }}>📈</div>
@@ -1271,7 +1270,7 @@ export default function Dashboard() {
               border: '1px solid #e1e5e9'
             }}>
               <h2 style={{ margin: '0 0 20px 0', color: '#003087' }}>Profile & Settings</h2>
-              
+
               <div style={{ display: 'grid', gap: '24px', maxWidth: '600px' }}>
                 <div style={{
                   background: '#f8f9fa',
@@ -1893,7 +1892,7 @@ export default function Dashboard() {
                           style={{ marginRight: '12px', transform: 'scale(1.2)' }}
                         />
                         <span style={{ fontSize: '15px', color: '#333' }}>
-                          This person has the authority to make medical decisions on my behalf if I'm unable to do so
+                          This person has the authority to make medical decisions on my behalf if I&apos;m unable to do so
                         </span>
                       </label>
                       <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>

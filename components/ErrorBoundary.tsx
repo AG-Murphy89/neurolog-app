@@ -87,7 +87,7 @@ export class ErrorBoundary extends React.Component<
               margin: '0 0 24px 0',
               lineHeight: '1.5'
             }}>
-              We've been notified about this issue. Please try refreshing the page.
+              We&apos;ve been notified about this issue. Please try refreshing the page.
             </p>
             <button
               onClick={() => window.location.reload()}

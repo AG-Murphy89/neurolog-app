@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -12,7 +11,7 @@ export default function ResetPassword() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [message, setMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [passwordErrors, setPasswordErrors] = useState<string[]>([])
+  const [passwordErrors, setPasswordErrors([])
   const router = useRouter()
 
   useEffect(() => {
@@ -40,14 +39,14 @@ export default function ResetPassword() {
     }
 
     const result = await authUtils.resetPassword(email)
-    
+
     if (result.success) {
       setMessage('Password reset email sent! Please check your inbox and spam folder.')
       setTimeout(() => setStep('success'), 2000)
     } else {
       setMessage(result.error?.message || 'Failed to send reset email')
     }
-    
+
     setIsLoading(false)
   }
 
@@ -73,14 +72,14 @@ export default function ResetPassword() {
     }
 
     const result = await authUtils.updatePassword(newPassword)
-    
+
     if (result.success) {
       setMessage('Password updated successfully!')
       setTimeout(() => router.push('/dashboard'), 2000)
     } else {
       setMessage(result.error?.message || 'Failed to update password')
     }
-    
+
     setIsLoading(false)
   }
 
@@ -132,7 +131,7 @@ export default function ResetPassword() {
             <p style={{ color: '#666', fontSize: '16px', margin: '0', lineHeight: '1.6' }}>
               {step === 'request' && 'Enter your email to receive a password reset link'}
               {step === 'reset' && 'Choose a strong new password for your account'}
-              {step === 'success' && 'We\'ve sent you a password reset link'}
+              {step === 'success' && 'We&apos;ve sent you a password reset link'}
             </p>
           </div>
 

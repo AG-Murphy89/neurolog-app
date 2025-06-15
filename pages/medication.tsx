@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -86,7 +85,7 @@ export default function MedicationPage() {
   useEffect(() => {
     checkUser()
     requestNotificationPermission()
-  }, [])
+  }, [checkUser])
 
   const checkUser = async () => {
     try {
@@ -141,7 +140,7 @@ export default function MedicationPage() {
 
   const loadTodaysMedications = async (userId: string) => {
     const today = new Date().toISOString().split('T')[0]
-    
+
     try {
       const { data: meds, error } = await supabase
         .from('medications')
@@ -168,7 +167,7 @@ export default function MedicationPage() {
 
   const loadMedicationsTaken = async (userId: string) => {
     const today = new Date().toISOString().split('T')[0]
-    
+
     try {
       const { data, error } = await supabase
         .from('medication_taken')
@@ -569,10 +568,10 @@ export default function MedicationPage() {
                 border: '1px solid #e1e5e9'
               }}>
                 <h2 style={{ margin: '0 0 24px 0', color: '#003087' }}>Today's Medication Schedule</h2>
-                
+
                 {['AM', 'Midday', 'PM'].map(period => {
                   const periodMeds = todaysMedications.filter(m => m.period === period)
-                  
+
                   return (
                     <div key={period} style={{ marginBottom: '24px' }}>
                       <h3 style={{ 
@@ -586,7 +585,7 @@ export default function MedicationPage() {
                       }}>
                         {period} ({periodMeds.length} medications)
                       </h3>
-                      
+
                       {periodMeds.length === 0 ? (
                         <div style={{ 
                           padding: '20px', 
@@ -601,7 +600,7 @@ export default function MedicationPage() {
                         <div style={{ display: 'grid', gap: '12px' }}>
                           {periodMeds.map((item, index) => {
                             const taken = isMedicationTaken(item.medication.id, item.scheduled_time)
-                            
+
                             return (
                               <div key={index} style={{
                                 display: 'flex',
@@ -723,13 +722,13 @@ export default function MedicationPage() {
                               {medication.status}
                             </div>
                           </div>
-                          
+
                           {medication.generic_name && (
                             <div style={{ color: '#666', fontSize: '14px', marginBottom: '8px' }}>
                               Generic: {medication.generic_name}
                             </div>
                           )}
-                          
+
                           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px', marginBottom: '12px' }}>
                             <div style={{ color: '#666' }}>
                               <strong>Dosage:</strong> {medication.dosage} {medication.dosage_unit}
@@ -1151,8 +1150,7 @@ export default function MedicationPage() {
                           type="number"
                           min="1"
                           value={formData.days_supply}
-                          onChange={(e) => setFormData({...formData, days_supply: parseInt(e.target.value)})}
-                          style={{
+                          onChange={(e) => setFormData({...formData, days_supply: parseInt(e.target.value})}                          style={{
                             width: '100%',
                             padding: '12px',
                             borderRadius: '8px',
