@@ -23,22 +23,6 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('ErrorBoundary caught an error:', error, errorInfo)
-
-    // Send error to logging service
-    if (typeof window !== 'undefined') {
-      fetch('/api/log-error', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          error: error.message,
-          stack: error.stack,
-          componentStack: errorInfo.componentStack,
-          timestamp: new Date().toISOString()
-        })
-      }).catch(err => console.error('Failed to log error:', err))
-    }
   }
 
   render() {
@@ -53,58 +37,30 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
           fontFamily: 'system-ui, -apple-system, sans-serif'
         }}>
           <div style={{
-            maxWidth: '480px',
-            width: '100%',
             backgroundColor: 'white',
+            padding: '48px',
             borderRadius: '16px',
-            padding: '32px',
-            boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-            textAlign: 'center'
+            textAlign: 'center',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+            maxWidth: '400px'
           }}>
-            <div style={{
-              width: '64px',
-              height: '64px',
-              backgroundColor: '#fee2e2',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              margin: '0 auto 24px',
-              fontSize: '24px'
-            }}>
-              ⚠️
-            </div>
-            <h3 style={{
-              fontSize: '20px',
-              fontWeight: '600',
-              color: '#111827',
-              margin: '0 0 12px 0'
-            }}>
-              Something went wrong
-            </h3>
-            <p style={{
-              color: '#6b7280',
-              fontSize: '16px',
-              margin: '0 0 24px 0',
-              lineHeight: '1.5'
-            }}>
-              We&apos;ve been notified about this issue. Please try refreshing the page.
+            <h2 style={{ color: '#dc3545', marginBottom: '16px' }}>Something went wrong</h2>
+            <p style={{ color: '#666', marginBottom: '24px' }}>
+              An error occurred while loading the page. Please refresh and try again.
             </p>
             <button
               onClick={() => window.location.reload()}
               style={{
-                backgroundColor: '#005EB8',
+                background: '#005EB8',
                 color: 'white',
                 border: 'none',
-                borderRadius: '8px',
                 padding: '12px 24px',
-                fontSize: '16px',
-                fontWeight: '500',
+                borderRadius: '8px',
                 cursor: 'pointer',
-                transition: 'background-color 0.2s'
+                fontSize: '16px'
               }}
             >
-              Refresh Page
+              Reload Page
             </button>
           </div>
         </div>
@@ -115,4 +71,4 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
   }
 }
 
-export { ErrorBoundary as default }
+export default ErrorBoundary
