@@ -112,66 +112,6 @@ export default function Dashboard() {
     checkUser()
   }, [checkUser])
 
-  const checkUser = async () => {
-    try {
-      // Check if user is authenticated
-      const { data: { session }, error } = await supabase.auth.getSession()
-
-      if (error || !session) {
-        router.push('/')
-        return
-      }
-
-      // Get user profile or use session data
-      let userData = {
-        id: session.user.id,
-        full_name: session.user.user_metadata?.full_name || session.user.email,
-        email: session.user.email,
-        account_type: session.user.user_metadata?.account_type || 'personal'
-      }
-
-      // Try to get profile from user_profiles table
-      const { data: profile, error: profileError } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('id', session.user.id)
-        .single()
-
-      if (profile) {
-        userData = profile
-      } else {
-        // Create user profile if it doesn't exist
-        const { error: insertError } = await supabase
-          .from('user_profiles')
-          .insert([{
-            id: session.user.id,
-            full_name: userData.full_name,
-            email: userData.email,
-            account_type: userData.account_type,
-            created_at: new Date().toISOString()
-          }])
-
-        if (insertError) {
-          console.error('Error creating user profile:', insertError)
-        }
-      }
-
-      setUser(userData)
-      await loadSeizures(session.user.id)
-    } catch (error) {
-      console.error('Error checking user:', error)
-      // Don't redirect on error - user might still be valid
-      setUser({
-        id: 'temp',
-        full_name: 'User',
-        email: 'user@example.com',
-        account_type: 'personal'
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
   const loadSeizures = async (userId: string) => {
     try {
       const { data, error } = await supabase

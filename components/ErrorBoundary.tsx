@@ -1,3 +1,4 @@
+
 'use client'
 
 import React from 'react'
@@ -7,11 +8,12 @@ interface ErrorBoundaryState {
   error?: Error
 }
 
-class ErrorBoundary extends React.Component<
-  React.PropsWithChildren<{}>,
-  ErrorBoundaryState
-> {
-  constructor(props: React.PropsWithChildren<{}>) {
+interface ErrorBoundaryProps {
+  children: React.ReactNode
+}
+
+export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
     super(props)
     this.state = { hasError: false }
   }
@@ -21,22 +23,22 @@ class ErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    // Log error to monitoring service in production
-    if (process.env.NODE_ENV === 'production') {
-      console.error('Application Error:', error, errorInfo)
-      // Send to monitoring service
+    console.error('ErrorBoundary caught an error:', error, errorInfo)
+    
+    // Send error to logging service
+    if (typeof window !== 'undefined') {
       fetch('/api/log-error', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
           error: error.message,
           stack: error.stack,
           componentStack: errorInfo.componentStack,
           timestamp: new Date().toISOString()
         })
-      }).catch(() => {
-        // Fail silently for error logging
-      })
+      }).catch(err => console.error('Failed to log error:', err))
     }
   }
 
@@ -92,21 +94,18 @@ class ErrorBoundary extends React.Component<
             <button
               onClick={() => window.location.reload()}
               style={{
-                width: '100%',
                 backgroundColor: '#005EB8',
                 color: 'white',
                 border: 'none',
-                padding: '12px 24px',
                 borderRadius: '8px',
+                padding: '12px 24px',
                 fontSize: '16px',
                 fontWeight: '500',
                 cursor: 'pointer',
                 transition: 'background-color 0.2s'
               }}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#003087'}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#005EB8'}
             >
-              Reload Page
+              Refresh Page
             </button>
           </div>
         </div>
@@ -117,4 +116,4 @@ class ErrorBoundary extends React.Component<
   }
 }
 
-export { ErrorBoundary }
+export { ErrorBoundary as default }
