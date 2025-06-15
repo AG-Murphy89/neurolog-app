@@ -43,5 +43,13 @@
       "source": "/health",
       "destination": "/api/health"
     }
-  ]
+  ],
+  "functions": {
+    "pages/api/health.ts": {
+      "maxDuration": 10
+    },
+    "pages/api/analytics.ts": {
+      "maxDuration": 30
+    }
+  }
 }
