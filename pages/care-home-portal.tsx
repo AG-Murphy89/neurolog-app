@@ -490,6 +490,338 @@ export default function CareHomePortal() {
                 </h3>
 
                 <div style={{ display: 'grid', gap: '16px' }}>
+                  {residents.map(resident => {
+                    const careLevel = getCareLevel(resident.care_level)
+                    return (
+                      <div key={resident.id} style={{
+                        border: '1px solid #e1e5e9',
+                        borderRadius: '8px',
+                        padding: '16px',
+                        backgroundColor: 'white'
+                      }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                              <h4 style={{ margin: '0', color: '#003087', fontSize: '18px' }}>
+                                {resident.full_name}
+                              </h4>
+                              <div style={{
+                                padding: '2px 8px',
+                                borderRadius: '12px',
+                                fontSize: '11px',
+                                fontWeight: '600',
+                                backgroundColor: getRiskColor(resident.risk_assessment),
+                                color: 'white'
+                              }}>
+                                {resident.risk_assessment.toUpperCase()}
+                              </div>
+                              <div style={{
+                                padding: '2px 8px',
+                                borderRadius: '12px',
+                                fontSize: '11px',
+                                fontWeight: '600',
+                                backgroundColor: careLevel.color,
+                                color: 'white'
+                              }}>
+                                {careLevel.label} Care
+                              </div>
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px', fontSize: '14px', color: '#666' }}>
+                              <div><strong>Room:</strong> {resident.room_number}</div>
+                              <div><strong>DOB:</strong> {new Date(resident.date_of_birth).toLocaleDateString()}</div>
+                              <div><strong>Seizure Type:</strong> {resident.seizure_type}</div>
+                              <div><strong>Last Seizure:</strong> {resident.last_seizure_date ? new Date(resident.last_seizure_date).toLocaleDateString() : 'None recorded'}</div>
+                              <div><strong>GP:</strong> {resident.gp_name}</div>
+                              <div><strong>Medications:</strong> {resident.medications_count} active</div>
+                              <div><strong>Next of Kin:</strong> {resident.next_of_kin}</div>
+                              <div><strong>Mobility:</strong> {resident.mobility_level}</div>
+                            </div>
+                          </div>
+
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button
+                              onClick={() => setSelectedResident(resident)}
+                              style={{
+                                background: '#007bff',
+                                color: 'white',
+                                border: 'none',
+                                padding: '6px 12px',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                fontSize: '12px'
+                              }}
+                            >
+                              View Profile
+                            </button>
+                            <button
+                              onClick={() => showNotification('success', `Care plan opened for ${resident.full_name}`)}
+                              style={{
+                                background: '#28a745',
+                                color: 'white',
+                                border: 'none',
+                                padding: '6px 12px',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                fontSize: '12px'
+                              }}
+                            >
+                              Care Plan
+                            </button>
+                            <button
+                              onClick={() => showNotification('warning', `Emergency contact called for ${resident.full_name}`)}
+                              style={{
+                                background: '#dc3545',
+                                color: 'white',
+                                border: 'none',
+                                padding: '6px 12px',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                fontSize: '12px'
+                              }}
+                            >
+                              Emergency
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* Priority Actions */}
+              <div style={{
+                background: 'white',
+                borderRadius: '12px',
+                padding: '20px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                border: '1px solid #e1e5e9'
+              }}>
+                <h3 style={{ margin: '0 0 16px 0', color: '#003087', fontSize: '18px' }}>
+                  🚨 Urgent Actions Required
+                </h3>
+
+                <div style={{ display: 'grid', gap: '12px' }}>
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '12px',
+                    backgroundColor: '#fff3cd',
+                    borderRadius: '8px',
+                    border: '1px solid #ffeaa7'
+                  }}>
+                    <div>
+                      <div style={{ fontWeight: '600', color: '#856404' }}>
+                        Care Plan Review Due: Dorothy Williams
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#856404' }}>
+                        Due: 25/01/2024 • High priority resident
+                      </div>
+                    </div>
+                    <button style={{
+                      background: '#005EB8',
+                      color: 'white',
+                      border: 'none',
+                      padding: '6px 12px',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '12px'
+                    }}>
+                      Review
+                    </button>
+                  </div>
+
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '12px',
+                    backgroundColor: '#f8d7da',
+                    borderRadius: '8px',
+                    border: '1px solid #f5c6cb'
+                  }}>
+                    <div>
+                      <div style={{ fontWeight: '600', color: '#721c24' }}>
+                        Incident Follow-up Required: Dorothy Williams
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#721c24' }}>
+                        Status epilepticus yesterday • GP contact pending
+                      </div>
+                    </div>
+                    <button style={{
+                      background: '#dc3545',
+                      color: 'white',
+                      border: 'none',
+                      padding: '6px 12px',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '12px'
+                    }}>
+                      Follow Up
+                    </button>
+                  </div>
+
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '12px',
+                    backgroundColor: '#d4edda',
+                    borderRadius: '8px',
+                    border: '1px solid #c3e6cb'
+                  }}>
+                    <div>
+                      <div style={{ fontWeight: '600', color: '#155724' }}>
+                        Staff Training Update Required: Michael Brown
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#155724' }}>
+                        Epilepsy training expires: 20/04/2024
+                      </div>
+                    </div>
+                    <button style={{
+                      background: '#28a745',
+                      color: 'white',
+                      border: 'none',
+                      padding: '6px 12px',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '12px'
+                    }}>
+                      Schedule
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Recent Incidents */}
+              {/* Recent Incidents */}
+              <div style={{
+                background: 'white',
+                borderRadius: '12px',
+                padding: '20px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                border: '1px solid #e1e5e9'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                  <h3 style={{ margin: '0', color: '#003087', fontSize: '18px' }}>
+                    📋 Recent Incidents
+                  </h3>
+                  <button
+                    onClick={() => setShowAddIncident(true)}
+                    style={{
+                      background: '#005EB8',
+                      color: 'white',
+                      border: 'none',
+                      padding: '6px 12px',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '12px'
+                    }}
+                  >
+                    Report Incident
+                  </button>
+                </div>
+
+                {incidents.length === 0 ? (
+                  <div style={{ color: '#666', textAlign: 'center', padding: '20px' }}>
+                    No recent incidents
+                  </div>
+                ) : (
+                  <div style={{ display: 'grid', gap: '8px' }}>
+                    {incidents.slice(0, 5).map(incident => (
+                      <div key={incident.id} style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '12px',
+                        backgroundColor: '#f8f9fa',
+                        borderRadius: '8px',
+                        border: '1px solid #e1e5e9'
+                      }}>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontWeight: '600', color: '#003087', marginBottom: '4px' }}>
+                            {incident.resident_name} - {incident.incident_type.replace('_', ' ')}
+                          </div>
+                          <div style={{ fontSize: '12px', color: '#666', marginBottom: '4px' }}>
+                            {new Date(incident.date_time).toLocaleDateString()} at {new Date(incident.date_time).toLocaleTimeString()} • 
+                            Witnessed by: {incident.staff_witness}
+                          </div>
+                          <div style={{ fontSize: '13px', color: '#333' }}>
+                            {incident.description}
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '16px' }}>
+                          <div style={{
+                            padding: '2px 8px',
+                            borderRadius: '12px',
+                            fontSize: '11px',
+                            fontWeight: '600',
+                            backgroundColor: incident.severity >= 4 ? '#dc3545' : 
+                                           incident.severity >= 3 ? '#fd7e14' : '#28a745',
+                            color: 'white'
+                          }}>
+                            Severity {incident.severity}
+                          </div>
+                          <div style={{
+                            padding: '2px 8px',
+                            borderRadius: '12px',
+                            fontSize: '11px',
+                            fontWeight: '600',
+                            backgroundColor: incident.status === 'open' ? '#dc3545' : 
+                                           incident.status === 'investigating' ? '#ffc107' : '#28a745',
+                            color: incident.status === 'investigating' ? '#000' : 'white'
+                          }}>
+                            {incident.status}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Residents Tab */}
+          {activeTab === 'residents' && (
+            <div style={{
+              background: 'white',
+              borderRadius: '12px',
+              padding: '20px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              border: '1px solid #e1e5e9'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <h2 style={{ margin: '0', color: '#003087' }}>Resident Management</h2>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <select style={{
+                    padding: '6px 12px',
+                    borderRadius: '4px',
+                    border: '1px solid #ccc',
+                    fontSize: '14px'
+                  }}>
+                    <option>All Residents</option>
+                    <option>High Risk Only</option>
+                    <option>Critical Care</option>
+                    <option>Medication Due</option>
+                  </select>
+                  <button style={{
+                    background: '#005EB8',
+                    color: 'white',
+                    border: 'none',
+                    padding: '6px 12px',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '14px'
+                  }}>
+                    + New Resident
+                  </button>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gap: '12px' }}>
                 {residents.map(resident => {
                   const careLevel = getCareLevel(resident.care_level)
                   return (
@@ -499,7 +831,7 @@ export default function CareHomePortal() {
                       padding: '16px',
                       backgroundColor: 'white'
                     }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div style={{ flex: 1 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
                             <h4 style={{ margin: '0', color: '#003087', fontSize: '18px' }}>
@@ -533,9 +865,11 @@ export default function CareHomePortal() {
                             <div><strong>Seizure Type:</strong> {resident.seizure_type}</div>
                             <div><strong>Last Seizure:</strong> {resident.last_seizure_date ? new Date(resident.last_seizure_date).toLocaleDateString() : 'None recorded'}</div>
                             <div><strong>GP:</strong> {resident.gp_name}</div>
-                            <div><strong>Medications:</strong> {resident.medications_count} active</div>
                             <div><strong>Next of Kin:</strong> {resident.next_of_kin}</div>
+                            <div><strong>Emergency Contact:</strong> {resident.emergency_contact}</div>
                             <div><strong>Mobility:</strong> {resident.mobility_level}</div>
+                            <div><strong>Diet:</strong> {resident.dietary_requirements}</div>
+                            <div><strong>Medications:</strong> {resident.medications_count} active</div>
                           </div>
                         </div>
 
@@ -567,20 +901,6 @@ export default function CareHomePortal() {
                             }}
                           >
                             Care Plan
-                          </button>
-                          <button
-                            onClick={() => showNotification('warning', `Emergency contact called for ${resident.full_name}`)}
-                            style={{
-                              background: '#dc3545',
-                              color: 'white',
-                              border: 'none',
-                              padding: '6px 12px',
-                              borderRadius: '4px',
-                              cursor: 'pointer',
-                              fontSize: '12px'
-                            }}
-                          >
-                            Emergency
                           </button>
                         </div>
                       </div>
@@ -712,7 +1032,228 @@ export default function CareHomePortal() {
             </div>
           )}
 
-          {/* Other tabs would be implemented similarly... */}
+          {/* Staff Tab */}
+          {activeTab === 'staff' && (
+            <div style={{
+              background: 'white',
+              borderRadius: '12px',
+              padding: '20px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              border: '1px solid #e1e5e9'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <h2 style={{ margin: '0', color: '#003087' }}>Staff Management</h2>
+                <button style={{
+                  background: '#005EB8',
+                  color: 'white',
+                  border: 'none',
+                  padding: '8px 16px',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '14px'
+                }}>
+                  + Add Staff Member
+                </button>
+              </div>
+
+              <div style={{ display: 'grid', gap: '12px' }}>
+                {staff.map(member => (
+                  <div key={member.id} style={{
+                    border: '1px solid #e1e5e9',
+                    borderRadius: '8px',
+                    padding: '16px',
+                    backgroundColor: member.on_duty ? '#f8f9fa' : '#fff3cd'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                          <h4 style={{ margin: '0', color: '#003087', fontSize: '18px' }}>
+                            {member.name}
+                          </h4>
+                          <div style={{
+                            padding: '2px 8px',
+                            borderRadius: '12px',
+                            fontSize: '11px',
+                            fontWeight: '600',
+                            backgroundColor: member.on_duty ? '#28a745' : '#6c757d',
+                            color: 'white'
+                          }}>
+                            {member.on_duty ? 'ON DUTY' : 'OFF DUTY'}
+                          </div>
+                          <div style={{
+                            padding: '2px 8px',
+                            borderRadius: '12px',
+                            fontSize: '11px',
+                            fontWeight: '600',
+                            backgroundColor: '#005EB8',
+                            color: 'white'
+                          }}>
+                            {member.role.replace('_', ' ').toUpperCase()}
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px', fontSize: '14px', color: '#666' }}>
+                          <div><strong>Shift:</strong> {member.shift_start} - {member.shift_end}</div>
+                          <div><strong>Training Expires:</strong> {new Date(member.training_expires).toLocaleDateString()}</div>
+                          <div><strong>Competency:</strong> {member.competency_level}%</div>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button
+                          style={{
+                            background: '#007bff',
+                            color: 'white',
+                            border: 'none',
+                            padding: '6px 12px',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '12px'
+                          }}
+                        >
+                          View Profile
+                        </button>
+                        <button
+                          style={{
+                            background: '#28a745',
+                            color: 'white',
+                            border: 'none',
+                            padding: '6px 12px',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '12px'
+                          }}
+                        >
+                          Training
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Incidents Tab */}
+          {activeTab === 'incidents' && (
+            <div style={{
+              background: 'white',
+              borderRadius: '12px',
+              padding: '20px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              border: '1px solid #e1e5e9'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <h2 style={{ margin: '0', color: '#003087' }}>Incident Management</h2>
+                <button
+                  onClick={() => setShowAddIncident(true)}
+                  style={{
+                    background: '#dc3545',
+                    color: 'white',
+                    border: 'none',
+                    padding: '8px 16px',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '14px'
+                  }}
+                >
+                  📋 Report New Incident
+                </button>
+              </div>
+
+              <div style={{ display: 'grid', gap: '12px' }}>
+                {incidents.map(incident => (
+                  <div key={incident.id} style={{
+                    border: '1px solid #e1e5e9',
+                    borderRadius: '8px',
+                    padding: '16px',
+                    backgroundColor: 'white'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                          <h4 style={{ margin: '0', color: '#003087', fontSize: '18px' }}>
+                            {incident.resident_name} - {incident.incident_type.replace('_', ' ')}
+                          </h4>
+                          <div style={{
+                            padding: '2px 8px',
+                            borderRadius: '12px',
+                            fontSize: '11px',
+                            fontWeight: '600',
+                            backgroundColor: incident.severity >= 4 ? '#dc3545' : 
+                                           incident.severity >= 3 ? '#fd7e14' : '#28a745',
+                            color: 'white'
+                          }}>
+                            Severity {incident.severity}
+                          </div>
+                          <div style={{
+                            padding: '2px 8px',
+                            borderRadius: '12px',
+                            fontSize: '11px',
+                            fontWeight: '600',
+                            backgroundColor: incident.status === 'open' ? '#dc3545' : 
+                                           incident.status === 'investigating' ? '#ffc107' : '#28a745',
+                            color: incident.status === 'investigating' ? '#000' : 'white'
+                          }}>
+                            {incident.status.toUpperCase()}
+                          </div>
+                        </div>
+
+                        <div style={{ fontSize: '14px', color: '#666', marginBottom: '8px' }}>
+                          <strong>Date/Time:</strong> {new Date(incident.date_time).toLocaleDateString()} at {new Date(incident.date_time).toLocaleTimeString()}<br/>
+                          <strong>Witnessed by:</strong> {incident.staff_witness}<br/>
+                          <strong>Family Notified:</strong> {incident.family_notified ? 'Yes' : 'No'} • 
+                          <strong> GP Contacted:</strong> {incident.gp_contacted ? 'Yes' : 'No'}
+                        </div>
+
+                        <div style={{ fontSize: '14px', color: '#333', marginBottom: '8px' }}>
+                          <strong>Description:</strong> {incident.description}
+                        </div>
+
+                        <div style={{ fontSize: '14px', color: '#333' }}>
+                          <strong>Actions Taken:</strong> {incident.actions_taken}
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button
+                          style={{
+                            background: '#007bff',
+                            color: 'white',
+                            border: 'none',
+                            padding: '6px 12px',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '12px'
+                          }}
+                        >
+                          View Details
+                        </button>
+                        {incident.status !== 'closed' && (
+                          <button
+                            onClick={() => showNotification('success', `Incident ${incident.id} updated`)}
+                            style={{
+                              background: '#28a745',
+                              color: 'white',
+                              border: 'none',
+                              padding: '6px 12px',
+                              borderRadius: '4px',
+                              cursor: 'pointer',
+                              fontSize: '12px'
+                            }}
+                          >
+                            Update Status
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Compliance Tab */}
           {activeTab === 'compliance' && (
             <div style={{
               background: 'white',
@@ -772,193 +1313,9 @@ export default function CareHomePortal() {
               </div>
             </div>
           )}
-        </div>
-      </div>
-    </>
-  )
-} gap: '12px' }}>
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '12px',
-                    backgroundColor: '#fff3cd',
-                    borderRadius: '8px',
-                    border: '1px solid #ffeaa7'
-                  }}>
-                    <div>
-                      <div style={{ fontWeight: '600', color: '#856404' }}>
-                        Care Plan Review Due: Dorothy Williams
-                      </div>
-                      <div style={{ fontSize: '12px', color: '#856404' }}>
-                        Due: 25/01/2024 • High priority resident
-                      </div>
-                    </div>
-                    <button style={{
-                      background: '#005EB8',
-                      color: 'white',
-                      border: 'none',
-                      padding: '6px 12px',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      fontSize: '12px'
-                    }}>
-                      Review
-                    </button>
-                  </div>
 
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '12px',
-                    backgroundColor: '#f8d7da',
-                    borderRadius: '8px',
-                    border: '1px solid #f5c6cb'
-                  }}>
-                    <div>
-                      <div style={{ fontWeight: '600', color: '#721c24' }}>
-                        Incident Follow-up Required: Dorothy Williams
-                      </div>
-                      <div style={{ fontSize: '12px', color: '#721c24' }}>
-                        Status epilepticus yesterday • GP contact pending
-                      </div>
-                    </div>
-                    <button style={{
-                      background: '#dc3545',
-                      color: 'white',
-                      border: 'none',
-                      padding: '6px 12px',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      fontSize: '12px'
-                    }}>
-                      Follow Up
-                    </button>
-                  </div>
-
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '12px',
-                    backgroundColor: '#d4edda',
-                    borderRadius: '8px',
-                    border: '1px solid #c3e6cb'
-                  }}>
-                    <div>
-                      <div style={{ fontWeight: '600', color: '#155724' }}>
-                        Staff Training Update Required: Michael Brown
-                      </div>
-                      <div style={{ fontSize: '12px', color: '#155724' }}>
-                        Epilepsy training expires: 20/04/2024
-                      </div>
-                    </div>
-                    <button style={{
-                      background: '#28a745',
-                      color: 'white',
-                      border: 'none',
-                      padding: '6px 12px',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      fontSize: '12px'
-                    }}>
-                      Schedule
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Recent Incidents */}
-              <div style={{
-                background: 'white',
-                borderRadius: '12px',
-                padding: '20px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                border: '1px solid #e1e5e9'
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                  <h3 style={{ margin: '0', color: '#003087', fontSize: '18px' }}>
-                    📋 Recent Incidents
-                  </h3>
-                  <button
-                    onClick={() => setShowAddIncident(true)}
-                    style={{
-                      background: '#005EB8',
-                      color: 'white',
-                      border: 'none',
-                      padding: '6px 12px',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      fontSize: '12px'
-                    }}
-                  >
-                    Report Incident
-                  </button>
-                </div>
-
-                {incidents.length === 0 ? (
-                  <div style={{ color: '#666', textAlign: 'center', padding: '20px' }}>
-                    No recent incidents
-                  </div>
-                ) : (
-                  <div style={{ display: 'grid', gap: '8px' }}>
-                    {incidents.slice(0, 5).map(incident => (
-                      <div key={incident.id} style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: '12px',
-                        backgroundColor: '#f8f9fa',
-                        borderRadius: '8px',
-                        border: '1px solid #e1e5e9'
-                      }}>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontWeight: '600', color: '#003087', marginBottom: '4px' }}>
-                            {incident.resident_name} - {incident.incident_type.replace('_', ' ')}
-                          </div>
-                          <div style={{ fontSize: '12px', color: '#666', marginBottom: '4px' }}>
-                            {new Date(incident.date_time).toLocaleDateString()} at {new Date(incident.date_time).toLocaleTimeString()} • 
-                            Witnessed by: {incident.staff_witness}
-                          </div>
-                          <div style={{ fontSize: '13px', color: '#333' }}>
-                            {incident.description}
-                          </div>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '16px' }}>
-                          <div style={{
-                            padding: '2px 8px',
-                            borderRadius: '12px',
-                            fontSize: '11px',
-                            fontWeight: '600',
-                            backgroundColor: incident.severity >= 4 ? '#dc3545' : 
-                                           incident.severity >= 3 ? '#fd7e14' : '#28a745',
-                            color: 'white'
-                          }}>
-                            Severity {incident.severity}
-                          </div>
-                          <div style={{
-                            padding: '2px 8px',
-                            borderRadius: '12px',
-                            fontSize: '11px',
-                            fontWeight: '600',
-                            backgroundColor: incident.status === 'open' ? '#dc3545' : 
-                                           incident.status === 'investigating' ? '#ffc107' : '#28a745',
-                            color: incident.status === 'investigating' ? '#000' : 'white'
-                          }}>
-                            {incident.status}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Residents Tab */}
-          {activeTab === 'residents' && (
+          {/* Family Tab */}
+          {activeTab === 'family' && (
             <div style={{
               background: 'white',
               borderRadius: '12px',
@@ -966,32 +1323,26 @@ export default function CareHomePortal() {
               boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
               border: '1px solid #e1e5e9'
             }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <h2 style={{ margin: '0', color: '#003087' }}>Resident Management</h2>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <select style={{
-                    padding: '6px 12px',
-                    borderRadius: '4px',
-                    border: '1px solid #ccc',
-                    fontSize: '14px'
-                  }}>
-                    <option>All Residents</option>
-                    <option>High Risk Only</option>
-                    <option>Critical Care</option>
-                    <option>Medication Due</option>
-                  </select>
-                  <button style={{
-                    background: '#005EB8',
-                    color: 'white',
-                    border: 'none',
-                    padding: '6px 12px',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    fontSize: '14px'
-                  }}>
-                    + New Resident
-                  </button>
-                </div>
-              </div>
+              <h2 style={{ margin: '0 0 20px 0', color: '#003087' }}>Family Communications</h2>
+              <p style={{ color: '#666' }}>Family portal and communication features would be implemented here.</p>
+            </div>
+          )}
 
-              <div style={{ display: 'grid',
+          {/* Reports Tab */}
+          {activeTab === 'reports' && (
+            <div style={{
+              background: 'white',
+              borderRadius: '12px',
+              padding: '20px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              border: '1px solid #e1e5e9'
+            }}>
+              <h2 style={{ margin: '0 0 20px 0', color: '#003087' }}>Reports & Analytics</h2>
+              <p style={{ color: '#666' }}>Reporting and analytics features would be implemented here.</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  )
+}
