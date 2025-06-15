@@ -29,40 +29,28 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     if (this.state.hasError) {
       return (
         <div style={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: '#f8f9fa',
-          fontFamily: 'system-ui, -apple-system, sans-serif'
+          padding: '20px',
+          textAlign: 'center',
+          backgroundColor: '#fee',
+          color: '#c33',
+          borderRadius: '8px',
+          margin: '20px'
         }}>
-          <div style={{
-            backgroundColor: 'white',
-            padding: '48px',
-            borderRadius: '16px',
-            textAlign: 'center',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-            maxWidth: '400px'
-          }}>
-            <h2 style={{ color: '#dc3545', marginBottom: '16px' }}>Something went wrong</h2>
-            <p style={{ color: '#666', marginBottom: '24px' }}>
-              An error occurred while loading the page. Please refresh and try again.
-            </p>
-            <button
-              onClick={() => window.location.reload()}
-              style={{
-                background: '#005EB8',
-                color: 'white',
-                border: 'none',
-                padding: '12px 24px',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontSize: '16px'
-              }}
-            >
-              Reload Page
-            </button>
-          </div>
+          <h2>Something went wrong</h2>
+          <p>We're sorry, but there was an error loading this page.</p>
+          <button 
+            onClick={() => window.location.reload()}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#005EB8',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            Reload Page
+          </button>
         </div>
       )
     }
@@ -70,5 +58,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     return this.props.children
   }
 }
+```
 
+```typescript
 export default ErrorBoundary
