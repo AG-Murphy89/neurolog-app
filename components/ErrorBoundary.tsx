@@ -5,6 +5,7 @@ import React from 'react'
 interface ErrorBoundaryProps {
   children: React.ReactNode
   fallback?: React.ComponentType<{ error?: Error }>
+  error?: Error
 }
 
 interface ErrorBoundaryState {
@@ -23,7 +24,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo)
+    console.error('Error caught by boundary:', error, errorInfo)
   }
 
   render() {
@@ -36,46 +37,28 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
       return (
         <div style={{
           padding: '20px',
-          margin: '20px',
-          border: '1px solid #ff6b6b',
+          textAlign: 'center',
+          color: '#721c24',
+          backgroundColor: '#f8d7da',
+          border: '1px solid #f5c6cb',
           borderRadius: '8px',
-          backgroundColor: '#ffe0e0',
-          textAlign: 'center'
+          margin: '20px'
         }}>
-          <h2 style={{ color: '#d63031', marginBottom: '10px' }}>Something went wrong</h2>
-          <p style={{ color: '#636e72', marginBottom: '15px' }}>
-            We're sorry, but something unexpected happened. Please try refreshing the page.
-          </p>
-          <button
-            onClick={() => window.location.reload()}
+          <h2>Something went wrong</h2>
+          <p>We're sorry, but something unexpected happened.</p>
+          <button 
+            onClick={() => this.setState({ hasError: false })}
             style={{
-              backgroundColor: '#0984e3',
+              backgroundColor: '#007bff',
               color: 'white',
               border: 'none',
               padding: '10px 20px',
-              borderRadius: '5px',
+              borderRadius: '4px',
               cursor: 'pointer'
             }}
           >
-            Refresh Page
+            Try again
           </button>
-          {this.state.error && (
-            <details style={{ marginTop: '15px', textAlign: 'left' }}>
-              <summary style={{ cursor: 'pointer', color: '#636e72' }}>
-                Error Details (for developers)
-              </summary>
-              <pre style={{
-                backgroundColor: '#f8f9fa',
-                padding: '10px',
-                borderRadius: '4px',
-                fontSize: '12px',
-                color: '#495057',
-                overflow: 'auto'
-              }}>
-                {this.state.error.toString()}
-              </pre>
-            </details>
-          )}
         </div>
       )
     }
@@ -85,4 +68,3 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
 }
 
 export default ErrorBoundary
-export { ErrorBoundary }
