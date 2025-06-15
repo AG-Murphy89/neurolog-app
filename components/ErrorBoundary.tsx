@@ -1,3 +1,4 @@
+
 'use client'
 
 import React from 'react'
@@ -58,7 +59,5 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     return this.props.children
   }
 }
-```
 
-```typescript
 export default ErrorBoundary
