@@ -1,3 +1,4 @@
+import React from 'react'
 import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -488,7 +489,294 @@ export default function CareHomePortal() {
                   🎯 Priority Actions Today
                 </h3>
 
-                <div style={{ display: 'grid', gap: '12px' }}>
+                <div style={{ display: 'grid', gap: '16px' }}>
+                {residents.map(resident => {
+                  const careLevel = getCareLevel(resident.care_level)
+                  return (
+                    <div key={resident.id} style={{
+                      border: '1px solid #e1e5e9',
+                      borderRadius: '8px',
+                      padding: '16px',
+                      backgroundColor: 'white'
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                            <h4 style={{ margin: '0', color: '#003087', fontSize: '18px' }}>
+                              {resident.full_name}
+                            </h4>
+                            <div style={{
+                              padding: '2px 8px',
+                              borderRadius: '12px',
+                              fontSize: '11px',
+                              fontWeight: '600',
+                              backgroundColor: getRiskColor(resident.risk_assessment),
+                              color: 'white'
+                            }}>
+                              {resident.risk_assessment.toUpperCase()}
+                            </div>
+                            <div style={{
+                              padding: '2px 8px',
+                              borderRadius: '12px',
+                              fontSize: '11px',
+                              fontWeight: '600',
+                              backgroundColor: careLevel.color,
+                              color: 'white'
+                            }}>
+                              {careLevel.label} Care
+                            </div>
+                          </div>
+
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px', fontSize: '14px', color: '#666' }}>
+                            <div><strong>Room:</strong> {resident.room_number}</div>
+                            <div><strong>DOB:</strong> {new Date(resident.date_of_birth).toLocaleDateString()}</div>
+                            <div><strong>Seizure Type:</strong> {resident.seizure_type}</div>
+                            <div><strong>Last Seizure:</strong> {resident.last_seizure_date ? new Date(resident.last_seizure_date).toLocaleDateString() : 'None recorded'}</div>
+                            <div><strong>GP:</strong> {resident.gp_name}</div>
+                            <div><strong>Medications:</strong> {resident.medications_count} active</div>
+                            <div><strong>Next of Kin:</strong> {resident.next_of_kin}</div>
+                            <div><strong>Mobility:</strong> {resident.mobility_level}</div>
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button
+                            onClick={() => setSelectedResident(resident)}
+                            style={{
+                              background: '#007bff',
+                              color: 'white',
+                              border: 'none',
+                              padding: '6px 12px',
+                              borderRadius: '4px',
+                              cursor: 'pointer',
+                              fontSize: '12px'
+                            }}
+                          >
+                            View Profile
+                          </button>
+                          <button
+                            onClick={() => showNotification('success', `Care plan opened for ${resident.full_name}`)}
+                            style={{
+                              background: '#28a745',
+                              color: 'white',
+                              border: 'none',
+                              padding: '6px 12px',
+                              borderRadius: '4px',
+                              cursor: 'pointer',
+                              fontSize: '12px'
+                            }}
+                          >
+                            Care Plan
+                          </button>
+                          <button
+                            onClick={() => showNotification('warning', `Emergency contact called for ${resident.full_name}`)}
+                            style={{
+                              background: '#dc3545',
+                              color: 'white',
+                              border: 'none',
+                              padding: '6px 12px',
+                              borderRadius: '4px',
+                              cursor: 'pointer',
+                              fontSize: '12px'
+                            }}
+                          >
+                            Emergency
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Medication Tab */}
+          {activeTab === 'medication' && (
+            <div style={{
+              background: 'white',
+              borderRadius: '12px',
+              padding: '20px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              border: '1px solid #e1e5e9'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <h2 style={{ margin: '0', color: '#003087' }}>Medication Administration</h2>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button style={{
+                    background: '#28a745',
+                    color: 'white',
+                    border: 'none',
+                    padding: '6px 12px',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '14px'
+                  }}>
+                    📋 MAR Chart
+                  </button>
+                  <button style={{
+                    background: '#005EB8',
+                    color: 'white',
+                    border: 'none',
+                    padding: '6px 12px',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '14px'
+                  }}>
+                    📊 Compliance Report
+                  </button>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '24px' }}>
+                <h3 style={{ color: '#003087', marginBottom: '12px' }}>Today&apos;s Medication Schedule</h3>
+                <div style={{ display: 'grid', gap: '8px' }}>
+                  {medicationSchedule.map(med => (
+                    <div key={med.id} style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: '12px',
+                      backgroundColor: med.administered ? '#d4edda' : '#fff3cd',
+                      borderRadius: '8px',
+                      border: `1px solid ${med.administered ? '#c3e6cb' : '#ffeaa7'}`
+                    }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: '600', color: '#003087', marginBottom: '4px' }}>
+                          {med.resident_name} - {med.medication_name}
+                        </div>
+                        <div style={{ fontSize: '12px', color: '#666' }}>
+                          {med.dosage} • Due: {med.time_due}
+                          {med.administered && med.administered_by && (
+                            <span> • Given by: {med.administered_by} at {med.administered_time}</span>
+                          )}
+                        </div>
+                        {med.notes && (
+                          <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+                            Notes: {med.notes}
+                          </div>
+                        )}
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        {!med.administered ? (
+                          <>
+                            <button
+                              onClick={() => {
+                                showNotification('success', `Medication administered for ${med.resident_name}`)
+                                // Update medication status
+                              }}
+                              style={{
+                                background: '#28a745',
+                                color: 'white',
+                                border: 'none',
+                                padding: '6px 12px',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                fontSize: '12px'
+                              }}
+                            >
+                              ✓ Given
+                            </button>
+                            <button
+                              onClick={() => showNotification('warning', `Medication refused by ${med.resident_name}`)}
+                              style={{
+                                background: '#dc3545',
+                                color: 'white',
+                                border: 'none',
+                                padding: '6px 12px',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                fontSize: '12px'
+                              }}
+                            >
+                              ✗ Refused
+                            </button>
+                          </>
+                        ) : (
+                          <div style={{
+                            padding: '6px 12px',
+                            borderRadius: '4px',
+                            fontSize: '12px',
+                            fontWeight: '600',
+                            backgroundColor: '#28a745',
+                            color: 'white'
+                          }}>
+                            ✓ Completed
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Other tabs would be implemented similarly... */}
+          {activeTab === 'compliance' && (
+            <div style={{
+              background: 'white',
+              borderRadius: '12px',
+              padding: '20px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              border: '1px solid #e1e5e9'
+            }}>
+              <h2 style={{ margin: '0 0 20px 0', color: '#003087' }}>CQC Compliance Dashboard</h2>
+
+              <div style={{ display: 'grid', gap: '20px' }}>
+                <div style={{
+                  background: '#f8f9fa',
+                  padding: '16px',
+                  borderRadius: '8px',
+                  border: '1px solid #e1e5e9'
+                }}>
+                  <h3 style={{ margin: '0 0 12px 0', color: '#003087', fontSize: '16px' }}>
+                    Compliance Checklist
+                  </h3>
+                  <div style={{ display: 'grid', gap: '8px' }}>
+                    {[
+                      { item: 'Staff training records up to date', status: 'complete' },
+                      { item: 'Incident reports submitted on time', status: 'complete' },
+                      { item: 'Medication administration records', status: 'complete' },
+                      { item: 'Care plan reviews completed', status: 'warning' },
+                      { item: 'Risk assessments updated', status: 'complete' },
+                      { item: 'Family contact logs maintained', status: 'complete' }
+                    ].map((check, index) => (
+                      <div key={index} style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                        padding: '8px',
+                        backgroundColor: 'white',
+                        borderRadius: '4px'
+                      }}>
+                        <div style={{
+                          width: '16px',
+                          height: '16px',
+                          borderRadius: '50%',
+                          backgroundColor: check.status === 'complete' ? '#28a745' : '#ffc107',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '10px',
+                          color: 'white',
+                          fontWeight: 'bold'
+                        }}>
+                          {check.status === 'complete' ? '✓' : '!'}
+                        </div>
+                        <span style={{ fontSize: '14px' }}>{check.item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  )
+} gap: '12px' }}>
                   <div style={{
                     display: 'flex',
                     justifyContent: 'space-between',
@@ -706,291 +994,4 @@ export default function CareHomePortal() {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gap: '16px' }}>
-                {residents.map(resident => {
-                  const careLevel = getCareLevel(resident.care_level)
-                  return (
-                    <div key={resident.id} style={{
-                      border: '1px solid #e1e5e9',
-                      borderRadius: '8px',
-                      padding: '16px',
-                      backgroundColor: 'white'
-                    }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                            <h4 style={{ margin: '0', color: '#003087', fontSize: '18px' }}>
-                              {resident.full_name}
-                            </h4>
-                            <div style={{
-                              padding: '2px 8px',
-                              borderRadius: '12px',
-                              fontSize: '11px',
-                              fontWeight: '600',
-                              backgroundColor: getRiskColor(resident.risk_assessment),
-                              color: 'white'
-                            }}>
-                              {resident.risk_assessment.toUpperCase()}
-                            </div>
-                            <div style={{
-                              padding: '2px 8px',
-                              borderRadius: '12px',
-                              fontSize: '11px',
-                              fontWeight: '600',
-                              backgroundColor: careLevel.color,
-                              color: 'white'
-                            }}>
-                              {careLevel.label} Care
-                            </div>
-                          </div>
-
-                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px', fontSize: '14px', color: '#666' }}>
-                            <div><strong>Room:</strong> {resident.room_number}</div>
-                            <div><strong>DOB:</strong> {new Date(resident.date_of_birth).toLocaleDateString()}</div>
-                            <div><strong>Seizure Type:</strong> {resident.seizure_type}</div>
-                            <div><strong>Last Seizure:</strong> {resident.last_seizure_date ? new Date(resident.last_seizure_date).toLocaleDateString() : 'None recorded'}</div>
-                            <div><strong>GP:</strong> {resident.gp_name}</div>
-                            <div><strong>Medications:</strong> {resident.medications_count} active</div>
-                            <div><strong>Next of Kin:</strong> {resident.next_of_kin}</div>
-                            <div><strong>Mobility:</strong> {resident.mobility_level}</div>
-                          </div>
-                        </div>
-
-                        <div style={{ display: 'flex', gap: '8px' }}>
-                          <button
-                            onClick={() => setSelectedResident(resident)}
-                            style={{
-                              background: '#007bff',
-                              color: 'white',
-                              border: 'none',
-                              padding: '6px 12px',
-                              borderRadius: '4px',
-                              cursor: 'pointer',
-                              fontSize: '12px'
-                            }}
-                          >
-                            View Profile
-                          </button>
-                          <button
-                            onClick={() => showNotification('success', `Care plan opened for ${resident.full_name}`)}
-                            style={{
-                              background: '#28a745',
-                              color: 'white',
-                              border: 'none',
-                              padding: '6px 12px',
-                              borderRadius: '4px',
-                              cursor: 'pointer',
-                              fontSize: '12px'
-                            }}
-                          >
-                            Care Plan
-                          </button>
-                          <button
-                            onClick={() => showNotification('warning', `Emergency contact called for ${resident.full_name}`)}
-                            style={{
-                              background: '#dc3545',
-                              color: 'white',
-                              border: 'none',
-                              padding: '6px 12px',
-                              borderRadius: '4px',
-                              cursor: 'pointer',
-                              fontSize: '12px'
-                            }}
-                          >
-                            Emergency
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Medication Tab */}
-          {activeTab === 'medication' && (
-            <div style={{
-              background: 'white',
-              borderRadius: '12px',
-              padding: '20px',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-              border: '1px solid #e1e5e9'
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <h2 style={{ margin: '0', color: '#003087' }}>Medication Administration</h2>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <button style={{
-                    background: '#28a745',
-                    color: 'white',
-                    border: 'none',
-                    padding: '6px 12px',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    fontSize: '14px'
-                  }}>
-                    📋 MAR Chart
-                  </button>
-                  <button style={{
-                    background: '#005EB8',
-                    color: 'white',
-                    border: 'none',
-                    padding: '6px 12px',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    fontSize: '14px'
-                  }}>
-                    📊 Compliance Report
-                  </button>
-                </div>
-              </div>
-
-              <div style={{ marginBottom: '24px' }}>
-                <h3 style={{ color: '#003087', marginBottom: '12px' }}>Today's Medication Schedule</h3>
-                <div style={{ display: 'grid', gap: '8px' }}>
-                  {medicationSchedule.map(med => (
-                    <div key={med.id} style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      padding: '12px',
-                      backgroundColor: med.administered ? '#d4edda' : '#fff3cd',
-                      borderRadius: '8px',
-                      border: `1px solid ${med.administered ? '#c3e6cb' : '#ffeaa7'}`
-                    }}>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: '600', color: '#003087', marginBottom: '4px' }}>
-                          {med.resident_name} - {med.medication_name}
-                        </div>
-                        <div style={{ fontSize: '12px', color: '#666' }}>
-                          {med.dosage} • Due: {med.time_due}
-                          {med.administered && med.administered_by && (
-                            <span> • Given by: {med.administered_by} at {med.administered_time}</span>
-                          )}
-                        </div>
-                        {med.notes && (
-                          <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
-                            Notes: {med.notes}
-                          </div>
-                        )}
-                      </div>
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        {!med.administered ? (
-                          <>
-                            <button
-                              onClick={() => {
-                                showNotification('success', `Medication administered for ${med.resident_name}`)
-                                // Update medication status
-                              }}
-                              style={{
-                                background: '#28a745',
-                                color: 'white',
-                                border: 'none',
-                                padding: '6px 12px',
-                                borderRadius: '4px',
-                                cursor: 'pointer',
-                                fontSize: '12px'
-                              }}
-                            >
-                              ✓ Given
-                            </button>
-                            <button
-                              onClick={() => showNotification('warning', `Medication refused by ${med.resident_name}`)}
-                              style={{
-                                background: '#dc3545',
-                                color: 'white',
-                                border: 'none',
-                                padding: '6px 12px',
-                                borderRadius: '4px',
-                                cursor: 'pointer',
-                                fontSize: '12px'
-                              }}
-                            >
-                              ✗ Refused
-                            </button>
-                          </>
-                        ) : (
-                          <div style={{
-                            padding: '6px 12px',
-                            borderRadius: '4px',
-                            fontSize: '12px',
-                            fontWeight: '600',
-                            backgroundColor: '#28a745',
-                            color: 'white'
-                          }}>
-                            ✓ Completed
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Other tabs would be implemented similarly... */}
-          {activeTab === 'compliance' && (
-            <div style={{
-              background: 'white',
-              borderRadius: '12px',
-              padding: '20px',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-              border: '1px solid #e1e5e9'
-            }}>
-              <h2 style={{ margin: '0 0 20px 0', color: '#003087' }}>CQC Compliance Dashboard</h2>
-
-              <div style={{ display: 'grid', gap: '20px' }}>
-                <div style={{
-                  background: '#f8f9fa',
-                  padding: '16px',
-                  borderRadius: '8px',
-                  border: '1px solid #e1e5e9'
-                }}>
-                  <h3 style={{ margin: '0 0 12px 0', color: '#003087', fontSize: '16px' }}>
-                    Compliance Checklist
-                  </h3>
-                  <div style={{ display: 'grid', gap: '8px' }}>
-                    {[
-                      { item: 'Staff training records up to date', status: 'complete' },
-                      { item: 'Incident reports submitted on time', status: 'complete' },
-                      { item: 'Medication administration records', status: 'complete' },
-                      { item: 'Care plan reviews completed', status: 'warning' },
-                      { item: 'Risk assessments updated', status: 'complete' },
-                      { item: 'Family contact logs maintained', status: 'complete' }
-                    ].map((check, index) => (
-                      <div key={index} style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '12px',
-                        padding: '8px',
-                        backgroundColor: 'white',
-                        borderRadius: '4px'
-                      }}>
-                        <div style={{
-                          width: '16px',
-                          height: '16px',
-                          borderRadius: '50%',
-                          backgroundColor: check.status === 'complete' ? '#28a745' : '#ffc107',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: '10px',
-                          color: 'white',
-                          fontWeight: 'bold'
-                        }}>
-                          {check.status === 'complete' ? '✓' : '!'}
-                        </div>
-                        <span style={{ fontSize: '14px' }}>{check.item}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </>
-  )
-}
+              <div style={{ display: 'grid',
