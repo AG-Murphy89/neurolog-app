@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -55,9 +54,8 @@ export default function Dashboard() {
 
   const checkUser = async () => {
     try {
-      // Check if user is authenticated
       const { data: { session }, error } = await supabase.auth.getSession()
-      
+
       if (error || !session) {
         router.push('/')
         return
@@ -101,13 +99,7 @@ export default function Dashboard() {
       await loadSeizures(session.user.id)
     } catch (error) {
       console.error('Error checking user:', error)
-      // Don't redirect on error - user might still be valid
-      setUser({
-        id: 'temp',
-        full_name: 'User',
-        email: 'user@example.com',
-        account_type: 'personal'
-      })
+      router.push('/')
     } finally {
       setIsLoading(false)
     }
@@ -130,7 +122,6 @@ export default function Dashboard() {
       setSeizures(data || [])
     } catch (error) {
       console.error('Error loading seizures:', error)
-      // Keep seizures as empty array on error
     }
   }
 
@@ -141,7 +132,7 @@ export default function Dashboard() {
 
   const handleAddSeizure = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!user) return
 
     try {
@@ -153,7 +144,7 @@ export default function Dashboard() {
         hour = 0
       }
       const formattedTime = `${hour.toString().padStart(2, '0')}:${formData.seizure_minute}`
-      
+
       // Format duration
       const formattedDuration = `${formData.duration_value} ${formData.duration_unit}`
 
@@ -183,7 +174,7 @@ export default function Dashboard() {
 
       // Reload seizures
       await loadSeizures(user.id)
-      
+
       // Reset form
       setFormData({
         seizure_date: new Date().toISOString().split('T')[0],
@@ -273,12 +264,12 @@ export default function Dashboard() {
     if (seizures.length === 0) return 'None recorded'
     const triggers = seizures.map(s => s.triggers).filter(t => t && t.trim())
     if (triggers.length === 0) return 'None recorded'
-    
+
     const triggerCount: {[key: string]: number} = {}
     triggers.forEach(trigger => {
       triggerCount[trigger] = (triggerCount[trigger] || 0) + 1
     })
-    
+
     return Object.entries(triggerCount).sort(([,a], [,b]) => b - a)[0][0]
   }
 
@@ -423,7 +414,7 @@ export default function Dashboard() {
             display: 'flex',
             gap: '32px'
           }}>
-            {['overview', 'add', 'history', 'insights', 'medications', 'profile'].filter(tab => !['emergency-contacts', 'next-of-kin'].includes(tab)).map(tab => (
+            {['overview', 'add', 'history', 'insights', 'medications', 'profile'].map(tab => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -587,7 +578,6 @@ export default function Dashboard() {
                   <div style={{ textAlign: 'center', color: '#666', padding: '40px 0' }}>
                     <div style={{ fontSize: '48px', marginBottom: '16px' }}>📊</div>
                     <div>No seizures recorded yet. Click &quot;Record New Seizure&quot; to get started.</div>
-
                   </div>
                 )}
               </div>
@@ -605,7 +595,7 @@ export default function Dashboard() {
               margin: '0 auto'
             }}>
               <h2 style={{ margin: '0 0 24px 0', color: '#003087', textAlign: 'center' }}>Record New Seizure</h2>
-              
+
               <form onSubmit={handleAddSeizure}>
                 <div style={{ display: 'grid', gap: '20px' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
@@ -626,7 +616,7 @@ export default function Dashboard() {
                         required
                       />
                     </div>
-                    
+
                     <div>
                       <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>Time</label>
                       <div style={{ display: 'flex', gap: '8px' }}>
@@ -726,7 +716,7 @@ export default function Dashboard() {
                         </select>
                       </div>
                     </div>
-                    
+
                     <div>
                       <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>Type</label>
                       <select
@@ -929,7 +919,7 @@ export default function Dashboard() {
                   </button>
                 </div>
               </div>
-              
+
               {seizures.length === 0 ? (
                 <div style={{ textAlign: 'center', color: '#666', padding: '40px 0' }}>
                   <div style={{ fontSize: '48px', marginBottom: '16px' }}>📊</div>
@@ -975,7 +965,7 @@ export default function Dashboard() {
                       >
                         Delete
                       </button>
-                      
+
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '16px' }}>
                         <div>
                           <strong style={{ color: '#003087' }}>Date & Time:</strong><br/>
@@ -1002,25 +992,25 @@ export default function Dashboard() {
                           </div>
                         </div>
                       </div>
-                      
+
                       {seizure.triggers && (
                         <div style={{ marginBottom: '12px' }}>
                           <strong style={{ color: '#003087' }}>Triggers:</strong> {seizure.triggers}
                         </div>
                       )}
-                      
+
                       {seizure.symptoms && (
                         <div style={{ marginBottom: '12px' }}>
                           <strong style={{ color: '#003087' }}>Symptoms:</strong> {seizure.symptoms}
                         </div>
                       )}
-                      
+
                       {seizure.medication_taken && (
                         <div style={{ marginBottom: '12px' }}>
                           <strong style={{ color: '#003087' }}>Medication:</strong> {seizure.medication_taken}
                         </div>
                       )}
-                      
+
                       {seizure.additional_notes && (
                         <div style={{ marginBottom: '12px' }}>
                           <strong style={{ color: '#003087' }}>Notes:</strong> {seizure.additional_notes}
@@ -1034,197 +1024,39 @@ export default function Dashboard() {
           )}
 
           {activeTab === 'insights' && (
-            <div style={{ display: 'grid', gap: '24px' }}>
-              <div style={{
-                background: 'white',
-                borderRadius: '16px',
-                padding: '24px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                border: '1px solid #e1e5e9'
-              }} id="insights-content">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                  <h2 style={{ margin: '0', color: '#003087' }}>Seizure Insights & Analytics</h2>
-                  <div style={{ display: 'flex', gap: '12px' }}>
-                    <button
-                      onClick={() => window.print()}
-                      style={{
-                        background: '#28a745',
-                        color: 'white',
-                        border: 'none',
-                        padding: '8px 16px',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        fontSize: '14px',
-                        fontWeight: '500',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px'
-                      }}
-                    >
-                      🖨️ Print
-                    </button>
-                    <button
-                      onClick={async () => {
-                        const element = document.getElementById('insights-content')
-                        if (!element) return
-                        
-                        try {
-                          const html2canvas = (await import('html2canvas')).default
-                          const jsPDF = (await import('jspdf')).jsPDF
-                          
-                          const canvas = await html2canvas(element, {
-                            scale: 2,
-                            useCORS: true,
-                            backgroundColor: '#ffffff'
-                          })
-                          
-                          const imgData = canvas.toDataURL('image/png')
-                          const pdf = new jsPDF('p', 'mm', 'a4')
-                          const pdfWidth = pdf.internal.pageSize.getWidth()
-                          const pdfHeight = pdf.internal.pageSize.getHeight()
-                          const imgWidth = canvas.width
-                          const imgHeight = canvas.height
-                          const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight)
-                          const imgX = (pdfWidth - imgWidth * ratio) / 2
-                          const imgY = 30
-                          
-                          pdf.setFontSize(16)
-                          pdf.text('NeuroLog - Seizure Insights Report', pdfWidth / 2, 20, { align: 'center' })
-                          pdf.setFontSize(10)
-                          pdf.text(`Generated on: ${new Date().toLocaleDateString()}`, pdfWidth / 2, 25, { align: 'center' })
-                          
-                          pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio)
-                          pdf.save(`neurolog-insights-${new Date().toISOString().split('T')[0]}.pdf`)
-                        } catch (error) {
-                          console.error('Error generating PDF:', error)
-                          alert('Error generating PDF. Please try again.')
-                        }
-                      }}
-                      style={{
-                        background: '#dc3545',
-                        color: 'white',
-                        border: 'none',
-                        padding: '8px 16px',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        fontSize: '14px',
-                        fontWeight: '500',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px'
-                      }}
-                    >
-                      📄 Export PDF
-                    </button>
+            <div style={{
+              background: 'white',
+              borderRadius: '16px',
+              padding: '24px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              border: '1px solid #e1e5e9'
+            }}>
+              <h2 style={{ margin: '0 0 20px 0', color: '#003087' }}>Seizure Insights & Analytics</h2>
+              {seizures.length < 3 ? (
+                <div style={{ textAlign: 'center', color: '#666', padding: '40px 0' }}>
+                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>📈</div>
+                  <div>Record at least 3 seizures to see insights and patterns.</div>
+                </div>
+              ) : (
+                <div style={{ display: 'grid', gap: '24px' }}>
+                  <div style={{
+                    background: '#f8f9fa',
+                    padding: '20px',
+                    borderRadius: '12px',
+                    border: '1px solid #e1e5e9'
+                  }}>
+                    <h3 style={{ margin: '0 0 16px 0', color: '#003087' }}>Frequency Analysis</h3>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+                      <div>
+                        <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#005EB8' }}>
+                          {(seizures.length / Math.max(1, Math.ceil((new Date().getTime() - new Date(seizures[seizures.length - 1]?.seizure_date || new Date()).getTime()) / (1000 * 60 * 60 * 24 * 30)))).toFixed(1)}
+                        </div>
+                        <div style={{ color: '#666' }}>Seizures per month</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                
-                {seizures.length < 3 ? (
-                  <div style={{ textAlign: 'center', color: '#666', padding: '40px 0' }}>
-                    <div style={{ fontSize: '48px', marginBottom: '16px' }}>📈</div>
-                    <div>Record at least 3 seizures to see insights and patterns.</div>
-                  </div>
-                ) : (
-                  <div style={{ display: 'grid', gap: '24px' }}>
-                    <div style={{
-                      background: '#f8f9fa',
-                      padding: '20px',
-                      borderRadius: '12px',
-                      border: '1px solid #e1e5e9'
-                    }}>
-                      <h3 style={{ margin: '0 0 16px 0', color: '#003087' }}>Frequency Analysis</h3>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-                        <div>
-                          <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#005EB8' }}>
-                            {(seizures.length / Math.max(1, Math.ceil((new Date().getTime() - new Date(seizures[seizures.length - 1]?.seizure_date || new Date()).getTime()) / (1000 * 60 * 60 * 24 * 30)))).toFixed(1)}
-                          </div>
-                          <div style={{ color: '#666' }}>Seizures per month</div>
-                        </div>
-                        <div>
-                          <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#005EB8' }}>
-                            {seizures.length > 1 ? Math.abs(Math.round((new Date(seizures[0].seizure_date).getTime() - new Date(seizures[1].seizure_date).getTime()) / (1000 * 60 * 60 * 24))) : 'N/A'}
-                          </div>
-                          <div style={{ color: '#666' }}>Days between recent seizures</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div style={{
-                      background: '#f8f9fa',
-                      padding: '20px',
-                      borderRadius: '12px',
-                      border: '1px solid #e1e5e9'
-                    }}>
-                      <h3 style={{ margin: '0 0 16px 0', color: '#003087' }}>Seizure Types</h3>
-                      <div style={{ display: 'grid', gap: '8px' }}>
-                        {Array.from(new Set(seizures.map(s => s.seizure_type))).map(type => {
-                          const count = seizures.filter(s => s.seizure_type === type).length
-                          const percentage = ((count / seizures.length) * 100).toFixed(1)
-                          return (
-                            <div key={type} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                              <span>{type}</span>
-                              <span style={{ color: '#005EB8', fontWeight: 'bold' }}>{count} ({percentage}%)</span>
-                            </div>
-                          )
-                        })}
-                      </div>
-                    </div>
-
-                    <div style={{
-                      background: '#f8f9fa',
-                      padding: '20px',
-                      borderRadius: '12px',
-                      border: '1px solid #e1e5e9'
-                    }}>
-                      <h3 style={{ margin: '0 0 16px 0', color: '#003087' }}>Common Triggers</h3>
-                      <div style={{ display: 'grid', gap: '8px' }}>
-                        {Array.from(new Set(seizures.map(s => s.triggers).filter(t => t && t.trim()))).slice(0, 5).map(trigger => {
-                          const count = seizures.filter(s => s.triggers === trigger).length
-                          return (
-                            <div key={trigger} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                              <span>{trigger}</span>
-                              <span style={{ color: '#005EB8', fontWeight: 'bold' }}>{count}</span>
-                            </div>
-                          )
-                        })}
-                        {seizures.filter(s => s.triggers && s.triggers.trim()).length === 0 && (
-                          <div style={{ color: '#666', fontStyle: 'italic' }}>No triggers recorded yet</div>
-                        )}
-                      </div>
-                    </div>
-
-                    <div style={{
-                      background: '#f8f9fa',
-                      padding: '20px',
-                      borderRadius: '12px',
-                      border: '1px solid #e1e5e9'
-                    }}>
-                      <h3 style={{ margin: '0 0 16px 0', color: '#003087' }}>Severity Trends</h3>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '8px', marginBottom: '16px' }}>
-                        {[1, 2, 3, 4, 5].map(severity => {
-                          const count = seizures.filter(s => s.severity === severity).length
-                          const percentage = seizures.length > 0 ? ((count / seizures.length) * 100).toFixed(0) : 0
-                          return (
-                            <div key={severity} style={{ textAlign: 'center' }}>
-                              <div style={{
-                                height: `${Math.max(20, Number(percentage) * 2)}px`,
-                                backgroundColor: severity > 3 ? '#ff4757' : severity > 2 ? '#ffa502' : '#2ed573',
-                                marginBottom: '8px',
-                                borderRadius: '4px'
-                              }} />
-                              <div style={{ fontSize: '12px', color: '#666' }}>{severity}</div>
-                              <div style={{ fontSize: '14px', fontWeight: 'bold' }}>{count}</div>
-                            </div>
-                          )
-                        })}
-                      </div>
-                      <div style={{ fontSize: '12px', color: '#666', textAlign: 'center' }}>
-                        Severity scale: 1 (Mild) to 5 (Severe)
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
+              )}
             </div>
           )}
 
@@ -1272,7 +1104,7 @@ export default function Dashboard() {
               border: '1px solid #e1e5e9'
             }}>
               <h2 style={{ margin: '0 0 20px 0', color: '#003087' }}>Profile & Settings</h2>
-              
+
               <div style={{ display: 'grid', gap: '24px', maxWidth: '600px' }}>
                 <div style={{
                   background: '#f8f9fa',
@@ -1291,48 +1123,6 @@ export default function Dashboard() {
                     <div>
                       <strong>Account Type:</strong> {user.account_type}
                     </div>
-                  </div>
-                </div>
-
-                <div style={{
-                  background: '#f8f9fa',
-                  padding: '20px',
-                  borderRadius: '12px',
-                  border: '1px solid #e1e5e9'
-                }}>
-                  <h3 style={{ margin: '0 0 16px 0', color: '#003087' }}>Emergency Information</h3>
-                  <div style={{ fontSize: '14px', color: '#666', marginBottom: '16px' }}>
-                    Complete your emergency information for safety during seizures.
-                  </div>
-                  <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                    <button
-                      onClick={() => setActiveTab('emergency-contacts')}
-                      style={{
-                        background: '#dc3545',
-                        color: 'white',
-                        border: 'none',
-                        padding: '8px 16px',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        fontSize: '14px'
-                      }}
-                    >
-                      🚨 Emergency Contacts
-                    </button>
-                    <button
-                      onClick={() => setActiveTab('next-of-kin')}
-                      style={{
-                        background: '#fd7e14',
-                        color: 'white',
-                        border: 'none',
-                        padding: '8px 16px',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        fontSize: '14px'
-                      }}
-                    >
-                      👥 Next of Kin
-                    </button>
                   </div>
                 </div>
 
@@ -1374,40 +1164,6 @@ export default function Dashboard() {
                     >
                       📋 Generate Medical Report
                     </button>
-                    <button
-                      onClick={() => alert('Privacy settings coming soon! This will allow you to control data sharing preferences.')}
-                      style={{
-                        background: '#6c757d',
-                        color: 'white',
-                        border: 'none',
-                        padding: '8px 16px',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        fontSize: '14px',
-                        textAlign: 'left'
-                      }}
-                    >
-                      🔒 Privacy Settings
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (confirm('Are you sure you want to delete your account? This action cannot be undone and will permanently remove all your seizure data.')) {
-                          alert('Account deletion feature coming soon. For immediate assistance, please contact support.')
-                        }
-                      }}
-                      style={{
-                        background: '#dc3545',
-                        color: 'white',
-                        border: 'none',
-                        padding: '8px 16px',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        fontSize: '14px',
-                        textAlign: 'left'
-                      }}
-                    >
-                      🗑️ Delete Account (Right to be Forgotten)
-                    </button>
                   </div>
                 </div>
 
@@ -1419,8 +1175,8 @@ export default function Dashboard() {
                 }}>
                   <h3 style={{ margin: '0 0 16px 0', color: '#1976d2' }}>🔒 Data Security</h3>
                   <div style={{ fontSize: '14px', color: '#1565c0', lineHeight: '1.6' }}>
-                    Your seizure data is stored securely in EU servers with bank-grade encryption. 
-                    NeuroLog is fully GDPR compliant and your data never leaves European borders.
+                    Your seizure data is stored securely with bank-grade encryption.
+                    NeuroLog is fully GDPR compliant and your data is protected.
                   </div>
                 </div>
               </div>

@@ -1,7 +1,9 @@
+
 import { useState } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
+import { supabase } from '../../lib/supabase'
 
 interface RegisterFormData {
   email: string
@@ -24,9 +26,11 @@ export default function Register() {
     gdprConsent: false
   })
   const [errors, setErrors] = useState<{[key: string]: string}>({})
+  const [isLoading, setIsLoading] = useState(false)
+  const [message, setMessage] = useState('')
   const router = useRouter()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const newErrors: {[key: string]: string} = {}
 
@@ -35,6 +39,7 @@ export default function Register() {
     if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required'
     if (!formData.email.trim()) newErrors.email = 'Email is required'
     if (!formData.password) newErrors.password = 'Password is required'
+    if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters'
     if (!formData.confirmPassword) newErrors.confirmPassword = 'Please confirm your password'
     if (!formData.userType) newErrors.userType = 'Please select an account type'
     if (!formData.gdprConsent) newErrors.gdprConsent = 'GDPR consent is required'
@@ -47,26 +52,50 @@ export default function Register() {
     setErrors(newErrors)
 
     if (Object.keys(newErrors).length === 0) {
-      // Create user account
-      const userId = `user_${Date.now()}`
-      const userData = {
-        id: userId,
-        email: formData.email,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        name: `${formData.firstName} ${formData.lastName}`,
-        type: formData.userType,
-        createdAt: new Date().toISOString()
+      setIsLoading(true)
+      try {
+        // Sign up with Supabase
+        const { data, error } = await supabase.auth.signUp({
+          email: formData.email,
+          password: formData.password,
+          options: {
+            data: {
+              full_name: `${formData.firstName} ${formData.lastName}`,
+              first_name: formData.firstName,
+              last_name: formData.lastName,
+              account_type: formData.userType
+            }
+          }
+        })
+
+        if (error) {
+          setErrors({ email: error.message })
+        } else {
+          // Create user profile
+          const { error: profileError } = await supabase
+            .from('user_profiles')
+            .insert([{
+              id: data.user?.id,
+              full_name: `${formData.firstName} ${formData.lastName}`,
+              email: formData.email,
+              account_type: formData.userType,
+              created_at: new Date().toISOString()
+            }])
+
+          if (profileError) {
+            console.error('Error creating profile:', profileError)
+          }
+
+          setMessage('Registration successful! Please check your email to verify your account.')
+          setTimeout(() => {
+            router.push('/auth/login')
+          }, 3000)
+        }
+      } catch (error: any) {
+        setErrors({ email: 'Registration failed. Please try again.' })
+      } finally {
+        setIsLoading(false)
       }
-
-      // Store user account data (in real app, this would be sent to backend)
-      localStorage.setItem(`neurolog_account_${formData.email}`, JSON.stringify({
-        ...userData,
-        password: formData.password // In real app, password would be hashed
-      }))
-
-      // Redirect to login page after successful registration
-      router.push('/auth/login')
     }
   }
 
@@ -105,6 +134,19 @@ export default function Register() {
             </h1>
             <p style={{ color: '#666', margin: 0 }}>Join NeuroLog to start tracking seizures</p>
           </div>
+
+          {message && (
+            <div style={{
+              background: '#d4edda',
+              color: '#155724',
+              padding: '12px',
+              borderRadius: '8px',
+              marginBottom: '20px',
+              border: '1px solid #c3e6cb'
+            }}>
+              {message}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit}>
             <div style={{ display: 'grid', gap: '20px' }}>
@@ -192,6 +234,7 @@ export default function Register() {
                   <option value="family">Family Member</option>
                   <option value="home_carer">Home Carer</option>
                 </select>
+                {errors.userType && <div style={{ color: '#ff4757', fontSize: '14px', marginTop: '4px' }}>{errors.userType}</div>}
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
@@ -260,20 +303,21 @@ export default function Register() {
 
               <button
                 type="submit"
+                disabled={isLoading}
                 style={{
                   width: '100%',
                   padding: '16px',
-                  background: 'linear-gradient(135deg, #005EB8 0%, #003087 100%)',
+                  background: isLoading ? '#ccc' : 'linear-gradient(135deg, #005EB8 0%, #003087 100%)',
                   color: 'white',
                   border: 'none',
                   borderRadius: '12px',
                   fontSize: '16px',
                   fontWeight: '600',
-                  cursor: 'pointer',
+                  cursor: isLoading ? 'not-allowed' : 'pointer',
                   boxShadow: '0 6px 20px rgba(0, 94, 184, 0.4)'
                 }}
               >
-                Register Account
+                {isLoading ? 'Creating Account...' : 'Register Account'}
               </button>
             </div>
           </form>

@@ -1,8 +1,8 @@
-
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
+import { supabase } from '../../lib/supabase'
 
 interface LoginFormData {
   email: string
@@ -15,9 +15,21 @@ export default function Login() {
     password: ''
   })
   const [errors, setErrors] = useState<{[key: string]: string}>({})
+  const [isLoading, setIsLoading] = useState(false)
+  const [message, setMessage] = useState('')
   const router = useRouter()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) {
+        router.push('/dashboard')
+      }
+    }
+    checkUser()
+  }, [router])
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const newErrors: {[key: string]: string} = {}
 
@@ -28,65 +40,25 @@ export default function Login() {
     setErrors(newErrors)
 
     if (Object.keys(newErrors).length === 0) {
-      // Check if account exists
-      const storedAccount = localStorage.getItem(`neurolog_account_${formData.email}`)
-      
-      if (storedAccount) {
-        const accountData = JSON.parse(storedAccount)
-        if (accountData.password === formData.password) {
-          // Login successful
-          localStorage.setItem('neurolog_user', JSON.stringify(accountData))
-          router.push('/dashboard')
+      setIsLoading(true)
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: formData.email,
+          password: formData.password
+        })
+
+        if (error) {
+          setErrors({ email: error.message })
         } else {
-          setErrors({ password: 'Invalid password' })
+          setMessage('Login successful!')
+          router.push('/dashboard')
         }
-      } else {
-        setErrors({ email: 'Account not found' })
+      } catch (error: any) {
+        setErrors({ email: 'Login failed. Please try again.' })
+      } finally {
+        setIsLoading(false)
       }
     }
-  }
-
-  const handleDemoLogin = (userType: string) => {
-    const demoUsers = {
-      patient: {
-        id: 'demo_patient',
-        email: 'patient@demo.com',
-        firstName: 'John',
-        lastName: 'Patient',
-        name: 'John Patient',
-        type: 'patient'
-      },
-      family: {
-        id: 'demo_family',
-        email: 'family@demo.com',
-        firstName: 'Sarah',
-        lastName: 'Family',
-        name: 'Sarah Family',
-        type: 'family'
-      },
-      professional: {
-        id: 'demo_professional',
-        email: 'doctor@demo.com',
-        firstName: 'Dr. Emma',
-        lastName: 'Professional',
-        name: 'Dr. Emma Professional',
-        type: 'professional',
-        organizationName: 'NeuroHealth Clinic',
-        professionalId: 'GMC123456'
-      },
-      care_home: {
-        id: 'demo_care_home',
-        email: 'admin@carehome.com',
-        firstName: 'Care Home',
-        lastName: 'Administrator',
-        name: 'Care Home Administrator',
-        type: 'care_home',
-        organizationName: 'Sunshine Care Home'
-      }
-    }
-
-    localStorage.setItem('neurolog_user', JSON.stringify(demoUsers[userType]))
-    router.push('/dashboard')
   }
 
   return (
@@ -124,6 +96,19 @@ export default function Login() {
             </h1>
             <p style={{ color: '#666', margin: 0 }}>Sign in to your NeuroLog account</p>
           </div>
+
+          {message && (
+            <div style={{
+              background: '#d4edda',
+              color: '#155724',
+              padding: '12px',
+              borderRadius: '8px',
+              marginBottom: '20px',
+              border: '1px solid #c3e6cb'
+            }}>
+              {message}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit}>
             <div style={{ display: 'grid', gap: '20px' }}>
@@ -169,117 +154,28 @@ export default function Login() {
 
               <button
                 type="submit"
+                disabled={isLoading}
                 style={{
                   width: '100%',
                   padding: '16px',
-                  background: 'linear-gradient(135deg, #005EB8 0%, #003087 100%)',
+                  background: isLoading ? '#ccc' : 'linear-gradient(135deg, #005EB8 0%, #003087 100%)',
                   color: 'white',
                   border: 'none',
                   borderRadius: '12px',
                   fontSize: '16px',
                   fontWeight: '600',
-                  cursor: 'pointer',
+                  cursor: isLoading ? 'not-allowed' : 'pointer',
                   boxShadow: '0 6px 20px rgba(0, 94, 184, 0.4)'
                 }}
               >
-                Sign In
+                {isLoading ? 'Signing In...' : 'Sign In'}
               </button>
             </div>
           </form>
 
-          <div style={{ margin: '32px 0', textAlign: 'center' }}>
-            <div style={{ 
-              height: '1px', 
-              background: '#e1e5e9', 
-              position: 'relative',
-              marginBottom: '16px'
-            }}>
-              <span style={{
-                background: 'white',
-                padding: '0 16px',
-                color: '#666',
-                fontSize: '14px',
-                position: 'absolute',
-                top: '-8px',
-                left: '50%',
-                transform: 'translateX(-50%)'
-              }}>
-                Or try demo accounts
-              </span>
-            </div>
-          </div>
-
-          <div style={{ display: 'grid', gap: '12px' }}>
-            <button
-              onClick={() => handleDemoLogin('patient')}
-              style={{
-                width: '100%',
-                padding: '12px',
-                background: 'transparent',
-                color: '#005EB8',
-                border: '2px solid #005EB8',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontWeight: '500',
-                cursor: 'pointer'
-              }}
-            >
-              Demo Patient Account
-            </button>
-            <button
-              onClick={() => handleDemoLogin('family')}
-              style={{
-                width: '100%',
-                padding: '12px',
-                background: 'transparent',
-                color: '#005EB8',
-                border: '2px solid #005EB8',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontWeight: '500',
-                cursor: 'pointer'
-              }}
-            >
-              Demo Family Account
-            </button>
-            <button
-              onClick={() => handleDemoLogin('professional')}
-              style={{
-                width: '100%',
-                padding: '12px',
-                background: 'transparent',
-                color: '#005EB8',
-                border: '2px solid #005EB8',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontWeight: '500',
-                cursor: 'pointer'
-              }}
-            >
-              Demo Healthcare Professional
-            </button>
-            <button
-              onClick={() => handleDemoLogin('care_home')}
-              style={{
-                width: '100%',
-                padding: '12px',
-                background: 'transparent',
-                color: '#005EB8',
-                border: '2px solid #005EB8',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontWeight: '500',
-                cursor: 'pointer'
-              }}
-            >
-              Demo Care Home
-            </button>
-          </div>
-
           <div style={{ textAlign: 'center', marginTop: '24px' }}>
             <p style={{ color: '#666', margin: 0 }}>
-             Don&apos;t have an account?{' '}
-
+              Don&apos;t have an account?{' '}
               <Link href="/auth/signup" style={{ color: '#005EB8', textDecoration: 'none', fontWeight: '500' }}>
                 Register
               </Link>
