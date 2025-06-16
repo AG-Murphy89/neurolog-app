@@ -157,7 +157,7 @@ export default function Home() {
             <Link 
               href="/doctor-portal"
               style={{
-                background: 'linear-gradient(135deg, #28a745 0%, #20c997 100%)',
+                background: 'linear-gradient(135deg, #005EB8 0%, #003087 100%)',
                 color: 'white',
                 textDecoration: 'none',
                 padding: '14px 30px',
@@ -173,7 +173,7 @@ export default function Home() {
             <Link 
               href="/care-home-portal"
               style={{
-                background: 'linear-gradient(135deg, #fd7e14 0%, #ffc107 100%)',
+                background: 'linear-gradient(135deg, #005EB8 0%, #003087 100%)',
                 color: 'white',
                 textDecoration: 'none',
                 padding: '14px 30px',
