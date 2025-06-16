@@ -83,8 +83,6 @@ export default function MedicationPage() {
   const [newSideEffect, setNewSideEffect] = useState('')
   const router = useRouter()
 
-  
-
   const checkUser = async () => {
     try {
       const { data: { session }, error } = await supabase.auth.getSession()
@@ -114,6 +112,11 @@ export default function MedicationPage() {
       setIsLoading(false)
     }
   }
+
+  useEffect(() => {
+    checkUser()
+    requestNotificationPermission()
+  }, [checkUser])
 
   const loadMedications = async (userId: string) => {
     try {
