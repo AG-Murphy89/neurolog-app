@@ -140,15 +140,15 @@ export default function Home() {
             <Link 
               href="/auth/login"
               style={{
-                background: 'transparent',
-                color: '#005EB8',
-                border: '2px solid #005EB8',
+                background: 'linear-gradient(135deg, #005EB8 0%, #003087 100%)',
+                color: 'white',
                 textDecoration: 'none',
-                padding: '14px 30px',
+                padding: '16px 32px',
                 borderRadius: '12px',
                 fontSize: '18px',
                 fontWeight: '600',
-                display: 'inline-block'
+                display: 'inline-block',
+                boxShadow: '0 6px 20px rgba(0, 94, 184, 0.4)'
               }}
             >
               Login
