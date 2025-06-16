@@ -65,22 +65,10 @@ export default function Home() {
             </div>
 
             <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-              <Link href="/auth/login" style={{ color: '#005EB8', textDecoration: 'none', fontWeight: '500' }}>
+              <span style={{ color: '#005EB8', fontWeight: '500' }}>
                 CQC & GDPR Compliant
-              </Link>
-              <Link 
-                href="/auth/signup"
-                style={{
-                  background: 'linear-gradient(135deg, #005EB8 0%, #003087 100%)',
-                  color: 'white',
-                  textDecoration: 'none',
-                  padding: '12px 24px',
-                  borderRadius: '8px',
-                  fontWeight: '500'
-                }}
-              >
-                CQC & GDPR Compliant
-              </Link>
+              </span>
+              
             </div>
           </div>
         </nav>
