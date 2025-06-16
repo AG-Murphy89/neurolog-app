@@ -120,25 +120,25 @@ export default function Home() {
           </p>
 
           <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <button
-              onClick={handleQuickStart}
+            <Link 
+              href="/auth/signup"
               style={{
                 background: 'linear-gradient(135deg, #005EB8 0%, #003087 100%)',
                 color: 'white',
-                border: 'none',
+                textDecoration: 'none',
                 padding: '16px 32px',
                 borderRadius: '12px',
                 fontSize: '18px',
                 fontWeight: '600',
-                cursor: 'pointer',
+                display: 'inline-block',
                 boxShadow: '0 6px 20px rgba(0, 94, 184, 0.4)'
               }}
             >
-              Start Tracking Today
-            </button>
+              Register
+            </Link>
 
             <Link 
-              href="/doctor-login"
+              href="/auth/login"
               style={{
                 background: 'transparent',
                 color: '#005EB8',
@@ -151,7 +151,39 @@ export default function Home() {
                 display: 'inline-block'
               }}
             >
-              Healthcare Provider Portal
+              Login
+            </Link>
+
+            <Link 
+              href="/doctor-portal"
+              style={{
+                background: 'linear-gradient(135deg, #28a745 0%, #20c997 100%)',
+                color: 'white',
+                textDecoration: 'none',
+                padding: '14px 30px',
+                borderRadius: '12px',
+                fontSize: '18px',
+                fontWeight: '600',
+                display: 'inline-block'
+              }}
+            >
+              Doctors Portal
+            </Link>
+
+            <Link 
+              href="/care-home-portal"
+              style={{
+                background: 'linear-gradient(135deg, #fd7e14 0%, #ffc107 100%)',
+                color: 'white',
+                textDecoration: 'none',
+                padding: '14px 30px',
+                borderRadius: '12px',
+                fontSize: '18px',
+                fontWeight: '600',
+                display: 'inline-block'
+              }}
+            >
+              Care Home Portal
             </Link>
           </div>
         </section>
@@ -257,11 +289,11 @@ export default function Home() {
                   fontWeight: '600'
                 }}
               >
-                Create Free Account
+                Register Account
               </Link>
 
               <Link 
-                href="/doctor-login"
+                href="/auth/login"
                 style={{
                   background: 'transparent',
                   color: 'white',
@@ -273,7 +305,7 @@ export default function Home() {
                   fontWeight: '600'
                 }}
               >
-                Healthcare Access
+                Sign In
               </Link>
             </div>
           </div>
