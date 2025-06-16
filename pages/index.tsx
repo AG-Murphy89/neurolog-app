@@ -1,479 +1,319 @@
 import { useState, useEffect } from 'react'
 import Head from 'next/head'
+import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { supabase } from '../lib/supabase'
+import ErrorBoundary from '../components/ErrorBoundary'
 
 export default function Home() {
-  const [isLogin, setIsLogin] = useState(false)
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    name: '',
-    type: 'personal',
-    gdprConsent: false,
-    dataSharing: false
-  })
-  const [message, setMessage] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+  const [user, setUser] = useState<any>(null)
   const router = useRouter()
 
-  // Check if user is already logged in
   useEffect(() => {
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (session) {
-        router.push('/dashboard')
+    const checkUser = () => {
+      const userData = localStorage.getItem('neurolog_user')
+      if (userData) {
+        setUser(JSON.parse(userData))
       }
     }
     checkUser()
   }, [])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setMessage('')
-    
-    if (!isLogin && !formData.gdprConsent) {
-      setMessage('Please accept the privacy policy to continue')
-      setIsLoading(false)
-      return
-    }
-
-    if (!isLogin && !formData.password) {
-      setMessage('Please enter a password')
-      setIsLoading(false)
-      return
-    }
-    
-    try {
-      if (isLogin) {
-        // Login with Supabase
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: formData.email,
-          password: formData.password,
-        })
-        
-        if (error) {
-          setMessage(`Login failed: ${error.message}`)
-        } else {
-          setMessage('Login successful!')
-          setTimeout(() => router.push('/dashboard'), 1500)
-        }
-      } else {
-        // Register with Supabase
-        const { data, error } = await supabase.auth.signUp({
-          email: formData.email,
-          password: formData.password,
-          options: {
-            data: {
-              full_name: formData.name,
-              account_type: formData.type,
-              gdpr_consent: formData.gdprConsent,
-              data_sharing_consent: formData.dataSharing,
-            }
-          }
-        })
-        
-        if (error) {
-          setMessage(`Registration failed: ${error.message}`)
-        } else {
-          // Create user profile in our custom table
-          if (data.user) {
-            const { error: profileError } = await supabase
-              .from('user_profiles')
-              .insert([
-                {
-                  id: data.user.id,
-                  email: formData.email,
-                  full_name: formData.name,
-                  account_type: formData.type,
-                  gdpr_consent: formData.gdprConsent,
-                  data_sharing_consent: formData.dataSharing,
-                }
-              ])
-            
-            if (profileError) {
-              console.error('Profile creation error:', profileError)
-            }
-          }
-          
-          setMessage('Registration successful! Please check your email to confirm your account.')
-        }
-      }
-    } catch (error: any) {
-      setMessage(`Error: ${error.message}`)
-    }
-    
-    setIsLoading(false)
+  const handleQuickStart = () => {
+    router.push('/auth/signup')
   }
 
   return (
-    <>
+    <ErrorBoundary>
       <Head>
-        <title>NeuroLog - Professional Seizure Tracking</title>
-        <meta name="description" content="GDPR-compliant seizure tracking for personal use and healthcare providers" />
-        <link rel="icon" href="/favicon.ico" />
+        <title>NeuroLog - Seizure Tracking & Management</title>
+        <meta name="description" content="Professional seizure tracking and management platform for patients, families, and healthcare providers" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
       <div style={{
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #005EB8 0%, #003087 100%)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '20px',
+        background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
         fontFamily: 'system-ui, -apple-system, sans-serif'
       }}>
-        <div style={{
-          backgroundColor: 'white',
-          borderRadius: '24px',
-          padding: '48px',
-          maxWidth: '480px',
-          width: '100%',
-          boxShadow: '0 25px 60px rgba(0,0,0,0.15)',
-          border: '1px solid rgba(255,255,255,0.2)',
-          animation: 'slideUp 0.6s ease-out'
+        {/* Navigation */}
+        <nav style={{
+          background: 'rgba(255, 255, 255, 0.95)',
+          backdropFilter: 'blur(10px)',
+          borderBottom: '1px solid #e1e5e9',
+          padding: '16px 0',
+          position: 'sticky',
+          top: 0,
+          zIndex: 100
         }}>
-          
-          {/* Header */}
-          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+          <div style={{
+            maxWidth: '1200px',
+            margin: '0 auto',
+            padding: '0 20px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}>
             <div style={{
-              width: '80px',
-              height: '80px',
-              background: 'linear-gradient(135deg, #005EB8 0%, #003087 100%)',
-              borderRadius: '20px',
-              margin: '0 auto 20px',
+              fontSize: '24px',
+              fontWeight: 'bold',
+              color: '#003087',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '32px',
-              color: 'white',
-              fontWeight: 'bold'
+              gap: '8px'
             }}>
-              🧠
-            </div>
-            <h1 style={{ 
-              color: '#003087', 
-              fontSize: '36px', 
-              fontWeight: 'bold',
-              margin: '0 0 12px 0'
-            }}>
-              NeuroLog
-            </h1>
-            <p style={{ 
-              color: '#666', 
-              fontSize: '18px',
-              margin: '0',
-              lineHeight: '1.6'
-            }}>
-              GDPR-compliant seizure tracking for personal use and healthcare providers
-            </p>
-          </div>
-
-          {/* Tab Buttons */}
-          <div style={{ 
-            display: 'flex', 
-            marginBottom: '32px',
-            backgroundColor: '#f8f9fa',
-            borderRadius: '16px',
-            padding: '6px'
-          }}>
-            <button 
-              onClick={() => setIsLogin(false)} 
-              style={{ 
-                flex: 1,
-                padding: '14px 24px',
-                backgroundColor: !isLogin ? '#005EB8' : 'transparent',
-                color: !isLogin ? 'white' : '#666',
-                border: 'none',
-                borderRadius: '12px',
-                fontSize: '16px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                transform: !isLogin ? 'translateY(-1px)' : 'none'
-              }}
-            >
-              Create Account
-            </button>
-            <button 
-              onClick={() => setIsLogin(true)}
-              style={{ 
-                flex: 1,
-                padding: '14px 24px',
-                backgroundColor: isLogin ? '#005EB8' : 'transparent',
-                color: isLogin ? 'white' : '#666',
-                border: 'none',
-                borderRadius: '12px',
-                fontSize: '16px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                transform: isLogin ? 'translateY(-1px)' : 'none'
-              }}
-            >
-              Sign In
-            </button>
-          </div>
-
-          {/* Form */}
-          <form onSubmit={handleSubmit}>
-            <div style={{ marginBottom: '24px' }}>
-              <input
-                type="email"
-                placeholder="Email address"
-                value={formData.email}
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
-                style={{ 
-                  width: '100%', 
-                  padding: '18px', 
-                  borderRadius: '16px', 
-                  border: '2px solid #e1e5e9',
-                  fontSize: '16px',
-                  outline: 'none',
-                  transition: 'all 0.3s ease',
-                  boxSizing: 'border-box'
-                }}
-                required
-              />
+              🧠 NeuroLog
             </div>
 
-            <div style={{ marginBottom: isLogin ? '16px' : '24px' }}>
-              <input
-                type="password"
-                placeholder={isLogin ? "Password" : "Create a secure password"}
-                value={formData.password}
-                onChange={(e) => setFormData({...formData, password: e.target.value})}
-                style={{ 
-                  width: '100%', 
-                  padding: '18px', 
-                  borderRadius: '16px', 
-                  border: '2px solid #e1e5e9',
-                  fontSize: '16px',
-                  outline: 'none',
-                  transition: 'all 0.3s ease',
-                  boxSizing: 'border-box'
-                }}
-                required
-                minLength={isLogin ? 1 : 6}
-              />
-            </div>
-
-            {isLogin && (
-              <div style={{ marginBottom: '24px', textAlign: 'right' }}>
-                <button
-                  type="button"
-                  onClick={() => router.push('/auth/reset-password')}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: '#005EB8',
-                    fontSize: '14px',
-                    cursor: 'pointer',
-                    textDecoration: 'underline'
-                  }}
-                >
-                  Forgot your password?
-                </button>
-              </div>
-            )}
-            
-            {!isLogin && (
-              <>
-                <div style={{ marginBottom: '24px' }}>
-                  <input
-                    type="text"
-                    placeholder="Full name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    style={{ 
-                      width: '100%', 
-                      padding: '18px', 
-                      borderRadius: '16px', 
-                      border: '2px solid #e1e5e9',
-                      fontSize: '16px',
-                      outline: 'none',
-                      transition: 'all 0.3s ease',
-                      boxSizing: 'border-box'
-                    }}
-                    required
-                  />
-                </div>
-                
-                <div style={{ marginBottom: '24px' }}>
-                  <select
-                    value={formData.type}
-                    onChange={(e) => setFormData({...formData, type: e.target.value})}
-                    style={{ 
-                      width: '100%', 
-                      padding: '18px', 
-                      borderRadius: '16px', 
-                      border: '2px solid #e1e5e9',
-                      fontSize: '16px',
-                      outline: 'none',
-                      backgroundColor: 'white',
-                      boxSizing: 'border-box'
+            <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+              {user ? (
+                <>
+                  <span style={{ color: '#666' }}>Welcome, {user.name}</span>
+                  <Link 
+                    href="/dashboard"
+                    style={{
+                      background: 'linear-gradient(135deg, #005EB8 0%, #003087 100%)',
+                      color: 'white',
+                      textDecoration: 'none',
+                      padding: '12px 24px',
+                      borderRadius: '8px',
+                      fontWeight: '500'
                     }}
                   >
-                    <option value="personal">Personal use (myself, family, loved one)</option>
-                    <option value="professional">Professional care (care home, medical practice)</option>
-                  </select>
-                </div>
+                    Dashboard
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link href="/auth/login" style={{ color: '#005EB8', textDecoration: 'none', fontWeight: '500' }}>
+                    Sign In
+                  </Link>
+                  <Link 
+                    href="/auth/signup"
+                    style={{
+                      background: 'linear-gradient(135deg, #005EB8 0%, #003087 100%)',
+                      color: 'white',
+                      textDecoration: 'none',
+                      padding: '12px 24px',
+                      borderRadius: '8px',
+                      fontWeight: '500'
+                    }}
+                  >
+                    Get Started
+                  </Link>
+                </>
+              )}
+            </div>
+          </div>
+        </nav>
 
-                {/* GDPR Consent */}
-                <div style={{ 
-                  marginBottom: '24px',
-                  padding: '24px',
-                  backgroundColor: '#f8f9fa',
-                  borderRadius: '16px',
-                  border: '2px solid #e1e5e9'
-                }}>
-                  <div style={{ marginBottom: '16px' }}>
-                    <label style={{ display: 'flex', alignItems: 'flex-start', cursor: 'pointer' }}>
-                      <input
-                        type="checkbox"
-                        checked={formData.gdprConsent}
-                        onChange={(e) => setFormData({...formData, gdprConsent: e.target.checked})}
-                        style={{ marginRight: '12px', marginTop: '2px' }}
-                        required
-                      />
-                      <span style={{ fontSize: '15px', color: '#333', lineHeight: '1.5' }}>
-                        I consent to processing my health data for seizure tracking and have read the 
-                        <span style={{ color: '#005EB8', fontWeight: '600' }}> Privacy Policy</span>
-                        <br/><small style={{ color: '#666' }}>Data is stored securely in EU servers and encrypted.</small>
-                      </span>
-                    </label>
-                  </div>
-                  
-                  <div>
-                    <label style={{ display: 'flex', alignItems: 'flex-start', cursor: 'pointer' }}>
-                      <input
-                        type="checkbox"
-                        checked={formData.dataSharing}
-                        onChange={(e) => setFormData({...formData, dataSharing: e.target.checked})}
-                        style={{ marginRight: '12px', marginTop: '2px' }}
-                      />
-                      <span style={{ fontSize: '15px', color: '#666', lineHeight: '1.5' }}>
-                        I consent to sharing my data with healthcare providers (optional)
-                      </span>
-                    </label>
-                  </div>
-                </div>
-              </>
-            )}
-            
-            <button 
-              type="submit"
-              disabled={isLoading}
-              style={{ 
-                width: '100%',
-                padding: '18px',
-                background: isLoading ? '#ccc' : 'linear-gradient(135deg, #005EB8 0%, #003087 100%)',
+        {/* Hero Section */}
+        <section style={{
+          padding: '80px 20px',
+          textAlign: 'center',
+          maxWidth: '1200px',
+          margin: '0 auto'
+        }}>
+          <h1 style={{
+            fontSize: '48px',
+            fontWeight: 'bold',
+            color: '#003087',
+            margin: '0 0 24px 0',
+            lineHeight: '1.2'
+          }}>
+            Professional Seizure Tracking &amp; Management
+          </h1>
+
+          <p style={{
+            fontSize: '20px',
+            color: '#666',
+            margin: '0 0 40px 0',
+            maxWidth: '600px',
+            margin: '0 auto 40px auto'
+          }}>
+            Comprehensive platform for patients, families, and healthcare providers to track, monitor, and manage epilepsy with precision and care.
+          </p>
+
+          <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button
+              onClick={handleQuickStart}
+              style={{
+                background: 'linear-gradient(135deg, #005EB8 0%, #003087 100%)',
                 color: 'white',
                 border: 'none',
-                borderRadius: '16px',
+                padding: '16px 32px',
+                borderRadius: '12px',
                 fontSize: '18px',
-                fontWeight: '700',
-                cursor: isLoading ? 'not-allowed' : 'pointer',
-                transition: 'all 0.3s ease',
-                boxShadow: '0 6px 20px rgba(0, 94, 184, 0.4)',
-                transform: isLoading ? 'none' : 'translateY(-1px)'
+                fontWeight: '600',
+                cursor: 'pointer',
+                boxShadow: '0 6px 20px rgba(0, 94, 184, 0.4)'
               }}
             >
-              {isLoading ? 'Please wait...' : (isLogin ? 'Sign In' : 'Create Account')}
+              Start Tracking Today
             </button>
-          </form>
-          
-          {message && (
-            <div style={{ 
-              marginTop: '24px', 
-              padding: '18px', 
-              backgroundColor: message.includes('failed') || message.includes('Error') ? '#fee' : '#efe',
-              color: message.includes('failed') || message.includes('Error') ? '#c33' : '#363',
-              borderRadius: '16px',
+
+            <Link 
+              href="/doctor-portal"
+              style={{
+                background: 'transparent',
+                color: '#005EB8',
+                border: '2px solid #005EB8',
+                textDecoration: 'none',
+                padding: '14px 30px',
+                borderRadius: '12px',
+                fontSize: '18px',
+                fontWeight: '600',
+                display: 'inline-block'
+              }}
+            >
+              Healthcare Provider Portal
+            </Link>
+          </div>
+        </section>
+
+        {/* Features Grid */}
+        <section style={{
+          padding: '80px 20px',
+          background: 'white',
+          margin: '0 20px',
+          borderRadius: '24px',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
+        }}>
+          <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+            <h2 style={{
+              fontSize: '36px',
+              fontWeight: 'bold',
+              color: '#003087',
               textAlign: 'center',
-              fontSize: '15px',
-              fontWeight: '500'
+              margin: '0 0 60px 0'
             }}>
-              {message}
-            </div>
-          )}
+              Why Choose NeuroLog?
+            </h2>
 
-          {/* Professional Portals */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+              gap: '40px'
+            }}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{
+                  fontSize: '48px',
+                  marginBottom: '16px'
+                }}>📊</div>
+                <h3 style={{ color: '#003087', margin: '0 0 16px 0' }}>Comprehensive Tracking</h3>
+                <p style={{ color: '#666', lineHeight: '1.6' }}>
+                  Record seizures, medications, triggers, and symptoms with detailed analytics and insights.
+                </p>
+              </div>
+
+              <div style={{ textAlign: 'center' }}>
+                <div style={{
+                  fontSize: '48px',
+                  marginBottom: '16px'
+                }}>👨‍⚕️</div>
+                <h3 style={{ color: '#003087', margin: '0 0 16px 0' }}>Healthcare Integration</h3>
+                <p style={{ color: '#666', lineHeight: '1.6' }}>
+                  Share data securely with your healthcare team for better treatment decisions.
+                </p>
+              </div>
+
+              <div style={{ textAlign: 'center' }}>
+                <div style={{
+                  fontSize: '48px',
+                  marginBottom: '16px'
+                }}>🔒</div>
+                <h3 style={{ color: '#003087', margin: '0 0 16px 0' }}>GDPR Compliant</h3>
+                <p style={{ color: '#666', lineHeight: '1.6' }}>
+                  Your data is protected with enterprise-grade security and privacy controls.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        <section style={{
+          padding: '80px 20px',
+          textAlign: 'center'
+        }}>
           <div style={{
-            textAlign: 'center',
-            marginTop: '32px',
-            padding: '20px',
-            backgroundColor: '#f8f9fa',
-            borderRadius: '16px',
-            border: '1px solid #e1e5e9'
+            background: 'linear-gradient(135deg, #005EB8 0%, #003087 100%)',
+            padding: '60px 40px',
+            borderRadius: '24px',
+            color: 'white',
+            maxWidth: '800px',
+            margin: '0 auto'
           }}>
-            <p style={{ color: '#666', margin: '0 0 16px 0', fontSize: '14px' }}>
-              Healthcare Professional?
+            <h2 style={{
+              fontSize: '32px',
+              fontWeight: 'bold',
+              margin: '0 0 16px 0'
+            }}>
+              Ready to Take Control?
+            </h2>
+            <p style={{
+              fontSize: '18px',
+              margin: '0 0 32px 0',
+              opacity: 0.9
+            }}>
+              Join thousands of patients and healthcare providers using NeuroLog for better seizure management.
             </p>
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <a 
-                href="/doctor-login" 
-                style={{ 
-                  display: 'inline-block',
-                  background: 'linear-gradient(135deg, #005EB8 0%, #003087 100%)',
-                  color: 'white',
+
+            <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <Link 
+                href="/auth/signup"
+                style={{
+                  background: 'white',
+                  color: '#003087',
                   textDecoration: 'none',
-                  padding: '10px 20px',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  fontWeight: '500'
+                  padding: '16px 32px',
+                  borderRadius: '12px',
+                  fontSize: '16px',
+                  fontWeight: '600'
                 }}
               >
-                ⚕️ Doctor Portal
-              </a>
-              <a 
-                href="/care-home-login" 
-                style={{ 
-                  display: 'inline-block',
-                  background: 'linear-gradient(135deg, #005EB8 0%, #003087 100%)',
+                Create Free Account
+              </Link>
+
+              <Link 
+                href="/doctor-portal"
+                style={{
+                  background: 'transparent',
                   color: 'white',
+                  border: '2px solid white',
                   textDecoration: 'none',
-                  padding: '10px 20px',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  fontWeight: '500'
+                  padding: '14px 30px',
+                  borderRadius: '12px',
+                  fontSize: '16px',
+                  fontWeight: '600'
                 }}
               >
-                🏠 Care Home Portal
-              </a>
+                Healthcare Access
+              </Link>
             </div>
           </div>
+        </section>
 
-          {/* Footer */}
-          <div style={{ 
-            textAlign: 'center', 
-            marginTop: '24px',
-            fontSize: '13px',
-            color: '#999'
-          }}>
-            🔒 EU-hosted, GDPR-compliant seizure tracking
+        {/* Footer */}
+        <footer style={{
+          background: '#003087',
+          color: 'white',
+          padding: '40px 20px',
+          textAlign: 'center'
+        }}>
+          <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+            <div style={{
+              fontSize: '20px',
+              fontWeight: 'bold',
+              marginBottom: '16px'
+            }}>
+              🧠 NeuroLog
+            </div>
+            <p style={{ margin: '0', opacity: 0.8 }}>
+              Professional seizure tracking and management platform
+            </p>
           </div>
-        </div>
+        </footer>
       </div>
-
-      <style jsx global>{`
-        @keyframes slideUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        body {
-          margin: 0;
-          padding: 0;
-        }
-      `}</style>
-    </>
+    </ErrorBoundary>
   )
 }

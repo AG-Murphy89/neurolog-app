@@ -2,9 +2,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  experimental: {
-    appDir: false, // Using pages directory
-  },
   images: {
     domains: ['your-supabase-project.supabase.co'],
     formats: ['image/webp', 'image/avif'],
@@ -12,7 +9,6 @@ const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
   reactStrictMode: true,
-  swcMinify: true,
   env: {
     CUSTOM_KEY: process.env.CUSTOM_KEY,
   },
