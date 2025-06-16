@@ -1,3 +1,4 @@
+
 import { useState } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -29,7 +30,7 @@ export default function Login() {
     if (Object.keys(newErrors).length === 0) {
       // Check if account exists
       const storedAccount = localStorage.getItem(`neurolog_account_${formData.email}`)
-
+      
       if (storedAccount) {
         const accountData = JSON.parse(storedAccount)
         if (accountData.password === formData.password) {
@@ -277,7 +278,7 @@ export default function Login() {
 
           <div style={{ textAlign: 'center', marginTop: '24px' }}>
             <p style={{ color: '#666', margin: 0 }}>
-              Don&apos;t have an account?{' '}
+              Don't have an account?{' '}
               <Link href="/auth/signup" style={{ color: '#005EB8', textDecoration: 'none', fontWeight: '500' }}>
                 Register
               </Link>

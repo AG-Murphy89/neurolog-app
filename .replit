@@ -5,14 +5,13 @@ modules = ["nodejs-22"]
 
 [nix]
 channel = "stable-24_11"
-packages = ["gh"]
 
 [env]
 NEXT_TELEMETRY_DISABLED = "1"
 
 [deployment]
-build = ["sh", "-c", "npm run build"]
-run = ["sh", "-c", "npm run start"]
+build = ["npm", "run", "build"]
+run = ["npm", "run", "start"]
 deploymentTarget = "cloudrun"
 
 [[ports]]

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -24,14 +25,14 @@ export default function CareHomeLogin() {
           .eq('email', session.user.email)
           .eq('is_active', true)
           .single()
-
+        
         if (staffData) {
           router.push('/care-home-portal')
         }
       }
     }
     checkUser()
-  }, [router])
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -150,7 +151,7 @@ export default function CareHomeLogin() {
           boxShadow: '0 25px 60px rgba(0,0,0,0.15)',
           border: '1px solid rgba(255,255,255,0.2)'
         }}>
-
+          
           <div style={{ textAlign: 'center', marginBottom: '40px' }}>
             <div style={{
               width: '80px',
@@ -222,7 +223,7 @@ export default function CareHomeLogin() {
                 required
               />
             </div>
-
+            
             <button 
               type="submit"
               disabled={isLoading}
@@ -312,7 +313,7 @@ export default function CareHomeLogin() {
               </Link>
             </div>
           </div>
-
+          
           {message && (
             <div style={{ 
               marginTop: '24px', 

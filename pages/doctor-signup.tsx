@@ -1,3 +1,4 @@
+
 import { useState } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -118,7 +119,7 @@ export default function DoctorSignup() {
           padding: '48px',
           boxShadow: '0 25px 60px rgba(0,0,0,0.15)'
         }}>
-
+          
           <div style={{ textAlign: 'center', marginBottom: '40px' }}>
             <div style={{
               width: '80px',
@@ -367,7 +368,7 @@ export default function DoctorSignup() {
                   </span>
                 </label>
               </div>
-
+              
               <div>
                 <label style={{ display: 'flex', alignItems: 'flex-start', cursor: 'pointer' }}>
                   <input
@@ -383,7 +384,7 @@ export default function DoctorSignup() {
                 </label>
               </div>
             </div>
-
+            
             <button 
               type="submit"
               disabled={isLoading}
@@ -423,7 +424,7 @@ export default function DoctorSignup() {
               ← Back to main site
             </Link>
           </div>
-
+          
           {message && (
             <div style={{ 
               marginTop: '24px', 
