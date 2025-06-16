@@ -59,15 +59,14 @@ export default function Register() {
         createdAt: new Date().toISOString()
       }
 
-      // Store user data (in real app, this would be sent to backend)
-      localStorage.setItem('neurolog_user', JSON.stringify(userData))
+      // Store user account data (in real app, this would be sent to backend)
       localStorage.setItem(`neurolog_account_${formData.email}`, JSON.stringify({
         ...userData,
         password: formData.password // In real app, password would be hashed
       }))
 
-      // Redirect to dashboard
-      router.push('/dashboard')
+      // Redirect to login page after successful registration
+      router.push('/auth/login')
     }
   }
 
