@@ -126,10 +126,11 @@ export default function Home() {
           <p style={{
             fontSize: '20px',
             color: '#666',
-            margin: '0 0 40px 0',
-            maxWidth: '600px',
-            margin: '0 auto 40px auto'
-          }}>
+           
+  maxWidth: '600px',
+  margin: '0 auto 40px auto'
+}
+          }>
             Comprehensive platform for patients, families, and healthcare providers to track, monitor, and manage epilepsy with precision and care.
           </p>
 

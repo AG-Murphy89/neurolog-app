@@ -36,7 +36,7 @@ class ErrorBoundary extends Component<Props, State> {
           justifyContent: 'center',
           alignItems: 'center'
         }}>
-          <h2 style={{ color: '#dc3545', marginBottom: '16px' }}>Something went wrong</h2>
+          <h2 style={{ color: '#dc3545', marginBottom: '16px' }}>Something went wrong.</h2>
           <p style={{ color: '#666', marginBottom: '20px' }}>
             We&apos;re sorry, but something went wrong. Please try refreshing the page.
           </p>

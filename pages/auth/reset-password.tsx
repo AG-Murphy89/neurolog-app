@@ -279,7 +279,8 @@ export default function ResetPassword() {
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: '48px', marginBottom: '16px' }}>📧</div>
               <p style={{ color: '#666', marginBottom: '24px' }}>
-                If an account exists with that email, you'll receive a password reset link shortly.
+               If an account exists with that email, you&apos;ll receive a password reset link shortly.
+
               </p>
               <button
                 onClick={() => router.push('/')}

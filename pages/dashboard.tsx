@@ -586,7 +586,8 @@ export default function Dashboard() {
                 {seizures.length === 0 && (
                   <div style={{ textAlign: 'center', color: '#666', padding: '40px 0' }}>
                     <div style={{ fontSize: '48px', marginBottom: '16px' }}>📊</div>
-                    <div>No seizures recorded yet. Click "Record New Seizure" to get started.</div>
+                    <div>No seizures recorded yet. Click &quot;Record New Seizure&quot; to get started.</div>
+
                   </div>
                 )}
               </div>
@@ -1714,7 +1715,7 @@ export default function Dashboard() {
               </div>
 
               <div style={{ background: '#d1ecf1', padding: '16px', borderRadius: '8px', marginBottom: '24px', border: '1px solid #bee5eb' }}>
-                <strong style={{ color: '#0c5460' }}>Legal Information:</strong> This person will be contacted for medical decisions if you're unable to make them yourself.
+                <strong style={{ color: '#0c5460' }}>Legal Information:</strong> This person will be contacted for medical decisions if you are unable to make them yourself.
               </div>
 
               <form onSubmit={(e) => { e.preventDefault(); alert('Next of kin information saved! This feature will be fully implemented soon.'); }}>
@@ -1893,7 +1894,7 @@ export default function Dashboard() {
                           style={{ marginRight: '12px', transform: 'scale(1.2)' }}
                         />
                         <span style={{ fontSize: '15px', color: '#333' }}>
-                          This person has the authority to make medical decisions on my behalf if I'm unable to do so
+                          This person has the authority to make medical decisions on my behalf if I am unable to do so
                         </span>
                       </label>
                       <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>

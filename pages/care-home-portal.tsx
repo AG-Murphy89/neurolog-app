@@ -847,7 +847,8 @@ export default function CareHomePortal() {
               </div>
               
               <div style={{ marginBottom: '24px' }}>
-                <h3 style={{ color: '#003087', marginBottom: '12px' }}>Today's Medication Schedule</h3>
+               <h3 style={{ color: '#003087', marginBottom: '12px' }}>Today&apos;s Medication Schedule</h3>
+
                 <div style={{ display: 'grid', gap: '8px' }}>
                   {medicationSchedule.map(med => (
                     <div key={med.id} style={{

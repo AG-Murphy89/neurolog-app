@@ -11,7 +11,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  const ip = request.ip ?? request.headers.get('x-forwarded-for') ?? '127.0.0.1'
+  const ip = request.headers.get('x-forwarded-for') ?? '127.0.0.1'
   const now = Date.now()
   const windowStart = now - 60 * 1000 // 1 minute window
 
