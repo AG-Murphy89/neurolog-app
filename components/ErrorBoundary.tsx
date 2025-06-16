@@ -38,7 +38,7 @@ class ErrorBoundary extends Component<Props, State> {
         }}>
           <h2 style={{ color: '#dc3545', marginBottom: '16px' }}>Something went wrong</h2>
           <p style={{ color: '#666', marginBottom: '20px' }}>
-            We're sorry, but something went wrong. Please try refreshing the page.
+            We&apos;re sorry, but something went wrong. Please try refreshing the page.
           </p>
           <button
             onClick={() => window.location.reload()}
