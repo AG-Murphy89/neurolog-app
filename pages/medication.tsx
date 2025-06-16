@@ -116,7 +116,7 @@ export default function MedicationPage() {
   useEffect(() => {
     checkUser()
     requestNotificationPermission()
-  }, [checkUser])
+  }, [])
 
   const loadMedications = async (userId: string) => {
     try {
