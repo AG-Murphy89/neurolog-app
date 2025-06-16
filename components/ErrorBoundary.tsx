@@ -1,16 +1,29 @@
+<<<<<<< HEAD
 import React, { Component, ErrorInfo, ReactNode } from 'react'
 
 interface Props {
   children: ReactNode
 }
+=======
+'use client'
+import React from 'react'
+>>>>>>> 6091c2daa5af0a447ec6fc607fa2447557d51561
 
 interface State {
   hasError: boolean
   error?: Error
 }
 
+<<<<<<< HEAD
 class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
+=======
+class ErrorBoundary extends React.Component<
+  React.PropsWithChildren<{}>,
+  ErrorBoundaryState
+> {
+  constructor(props: React.PropsWithChildren<{}>) {
+>>>>>>> 6091c2daa5af0a447ec6fc607fa2447557d51561
     super(props)
     this.state = { hasError: false }
   }
@@ -61,5 +74,9 @@ class ErrorBoundary extends Component<Props, State> {
   }
 }
 
+<<<<<<< HEAD
 export default ErrorBoundary
 export { ErrorBoundary }
+=======
+export { ErrorBoundary }
+>>>>>>> 6091c2daa5af0a447ec6fc607fa2447557d51561

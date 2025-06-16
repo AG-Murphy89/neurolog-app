@@ -1,3 +1,4 @@
+import React from 'react'
 import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
@@ -21,9 +22,15 @@ export default function Home() {
   const handleQuickStart = () => {
     router.push('/auth/signup')
   }
+<<<<<<< HEAD
 
   return (
     <ErrorBoundary>
+=======
+return (
+  <React.Fragment>
+    <>
+>>>>>>> 6091c2daa5af0a447ec6fc607fa2447557d51561
       <Head>
         <title>NeuroLog - Seizure Tracking & Management</title>
         <meta name="description" content="Professional seizure tracking and management platform for patients, families, and healthcare providers" />

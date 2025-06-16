@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 
+=======
+import React from 'react'
+>>>>>>> 6091c2daa5af0a447ec6fc607fa2447557d51561
 import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -162,7 +166,7 @@ export default function MedicationPage() {
 
       setTodaysMedications(todaysSchedule)
     } catch (error) {
-      console.error('Error loading today\'s medications:', error)
+      console.error('Error loading today&apos;s medications:', error)
     }
   }
 
@@ -546,7 +550,7 @@ export default function MedicationPage() {
                   textTransform: 'capitalize'
                 }}
               >
-                {section === 'schedule' ? "Today's Schedule" : section}
+                {section === 'schedule' ? "Today&apos;s Schedule" : section}
               </button>
             ))}
           </div>
@@ -569,7 +573,11 @@ export default function MedicationPage() {
                 border: '1px solid #e1e5e9'
               }}>
                 <h2 style={{ margin: '0 0 24px 0', color: '#003087' }}>Today&apos;s Medication Schedule</h2>
+<<<<<<< HEAD
                 
+=======
+
+>>>>>>> 6091c2daa5af0a447ec6fc607fa2447557d51561
                 {['AM', 'Midday', 'PM'].map(period => {
                   const periodMeds = todaysMedications.filter(m => m.period === period)
                   

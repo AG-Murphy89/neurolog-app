@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 
 import { useState, useEffect } from 'react'
+=======
+import React from 'react'
+import { useState, useEffect, useCallback } from 'react'
+>>>>>>> 6091c2daa5af0a447ec6fc607fa2447557d51561
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabase'
@@ -49,11 +54,15 @@ export default function Dashboard() {
   })
   const router = useRouter()
 
+<<<<<<< HEAD
   useEffect(() => {
     checkUser()
   }, [])
 
   const checkUser = async () => {
+=======
+  const checkUser = useCallback(async () => {
+>>>>>>> 6091c2daa5af0a447ec6fc607fa2447557d51561
     try {
       // Check if user is authenticated
       const { data: { session }, error } = await supabase.auth.getSession()
@@ -111,7 +120,11 @@ export default function Dashboard() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [router])
+
+  useEffect(() => {
+    checkUser()
+  }, [checkUser])
 
   const loadSeizures = async (userId: string) => {
     try {
@@ -587,7 +600,10 @@ export default function Dashboard() {
                   <div style={{ textAlign: 'center', color: '#666', padding: '40px 0' }}>
                     <div style={{ fontSize: '48px', marginBottom: '16px' }}>📊</div>
                     <div>No seizures recorded yet. Click &quot;Record New Seizure&quot; to get started.</div>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6091c2daa5af0a447ec6fc607fa2447557d51561
                   </div>
                 )}
               </div>
@@ -1715,7 +1731,11 @@ export default function Dashboard() {
               </div>
 
               <div style={{ background: '#d1ecf1', padding: '16px', borderRadius: '8px', marginBottom: '24px', border: '1px solid #bee5eb' }}>
+<<<<<<< HEAD
                 <strong style={{ color: '#0c5460' }}>Legal Information:</strong> This person will be contacted for medical decisions if you are unable to make them yourself.
+=======
+                <strong style={{ color: '#0c5460' }}>Legal Information:</strong> This person will be contacted for medical decisions if you&apos;re unable to make them yourself.
+>>>>>>> 6091c2daa5af0a447ec6fc607fa2447557d51561
               </div>
 
               <form onSubmit={(e) => { e.preventDefault(); alert('Next of kin information saved! This feature will be fully implemented soon.'); }}>

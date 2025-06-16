@@ -1,8 +1,20 @@
+<<<<<<< HEAD
 
+=======
+import React from 'react'
+>>>>>>> 6091c2daa5af0a447ec6fc607fa2447557d51561
 import { useState, useEffect } from 'react'
 import Head from 'next/head'
-import { useRouter } from 'next/router'
-import { supabase } from '../lib/supabase'
+// ... other imports
+
+export default function CareHomePortal() {
+  // ... component code
+  
+  return (
+    <>
+      <Head>
+        <title>Care Home Portal - NeuroLog</title>
+      </Head>
 
 interface Resident {
   id: string
@@ -488,7 +500,124 @@ export default function CareHomePortal() {
                 <h3 style={{ margin: '0 0 16px 0', color: '#003087', fontSize: '18px' }}>
                   🎯 Priority Actions Today
                 </h3>
+<<<<<<< HEAD
                 
+=======
+
+                <div style={{ display: 'grid', gap: '16px' }}>
+                  {residents.map(resident => {
+                    const careLevel = getCareLevel(resident.care_level)
+                    return (
+                      <div key={resident.id} style={{
+                        border: '1px solid #e1e5e9',
+                        borderRadius: '8px',
+                        padding: '16px',
+                        backgroundColor: 'white'
+                      }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                              <h4 style={{ margin: '0', color: '#003087', fontSize: '18px' }}>
+                                {resident.full_name}
+                              </h4>
+                              <div style={{
+                                padding: '2px 8px',
+                                borderRadius: '12px',
+                                fontSize: '11px',
+                                fontWeight: '600',
+                                backgroundColor: getRiskColor(resident.risk_assessment),
+                                color: 'white'
+                              }}>
+                                {resident.risk_assessment.toUpperCase()}
+                              </div>
+                              <div style={{
+                                padding: '2px 8px',
+                                borderRadius: '12px',
+                                fontSize: '11px',
+                                fontWeight: '600',
+                                backgroundColor: careLevel.color,
+                                color: 'white'
+                              }}>
+                                {careLevel.label} Care
+                              </div>
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px', fontSize: '14px', color: '#666' }}>
+                              <div><strong>Room:</strong> {resident.room_number}</div>
+                              <div><strong>DOB:</strong> {new Date(resident.date_of_birth).toLocaleDateString()}</div>
+                              <div><strong>Seizure Type:</strong> {resident.seizure_type}</div>
+                              <div><strong>Last Seizure:</strong> {resident.last_seizure_date ? new Date(resident.last_seizure_date).toLocaleDateString() : 'None recorded'}</div>
+                              <div><strong>GP:</strong> {resident.gp_name}</div>
+                              <div><strong>Medications:</strong> {resident.medications_count} active</div>
+                              <div><strong>Next of Kin:</strong> {resident.next_of_kin}</div>
+                              <div><strong>Mobility:</strong> {resident.mobility_level}</div>
+                            </div>
+                          </div>
+
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button
+                              onClick={() => setSelectedResident(resident)}
+                              style={{
+                                background: '#007bff',
+                                color: 'white',
+                                border: 'none',
+                                padding: '6px 12px',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                fontSize: '12px'
+                              }}
+                            >
+                              View Profile
+                            </button>
+                            <button
+                              onClick={() => showNotification('success', `Care plan opened for ${resident.full_name}`)}
+                              style={{
+                                background: '#28a745',
+                                color: 'white',
+                                border: 'none',
+                                padding: '6px 12px',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                fontSize: '12px'
+                              }}
+                            >
+                              Care Plan
+                            </button>
+                            <button
+                              onClick={() => showNotification('warning', `Emergency contact called for ${resident.full_name}`)}
+                              style={{
+                                background: '#dc3545',
+                                color: 'white',
+                                border: 'none',
+                                padding: '6px 12px',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                fontSize: '12px'
+                              }}
+                            >
+                              Emergency
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* Priority Actions */}
+              <div style={{
+                background: 'white',
+                borderRadius: '12px',
+                padding: '20px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                border: '1px solid #e1e5e9'
+              }}>
+                <h3 style={{ margin: '0 0 16px 0', color: '#003087', fontSize: '18px' }}>
+                  🚨 Urgent Actions Required
+                </h3>
+
+>>>>>>> 6091c2daa5af0a447ec6fc607fa2447557d51561
                 <div style={{ display: 'grid', gap: '12px' }}>
                   <div style={{
                     display: 'flex',
@@ -582,6 +711,7 @@ export default function CareHomePortal() {
                 </div>
               </div>
 
+              {/* Recent Incidents */}
               {/* Recent Incidents */}
               <div style={{
                 background: 'white',
@@ -706,8 +836,13 @@ export default function CareHomePortal() {
                   </button>
                 </div>
               </div>
+<<<<<<< HEAD
               
               <div style={{ display: 'grid', gap: '16px' }}>
+=======
+
+              <div style={{ display: 'grid', gap: '12px' }}>
+>>>>>>> 6091c2daa5af0a447ec6fc607fa2447557d51561
                 {residents.map(resident => {
                   const careLevel = getCareLevel(resident.care_level)
                   return (
@@ -717,7 +852,7 @@ export default function CareHomePortal() {
                       padding: '16px',
                       backgroundColor: 'white'
                     }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div style={{ flex: 1 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
                             <h4 style={{ margin: '0', color: '#003087', fontSize: '18px' }}>
@@ -751,9 +886,11 @@ export default function CareHomePortal() {
                             <div><strong>Seizure Type:</strong> {resident.seizure_type}</div>
                             <div><strong>Last Seizure:</strong> {resident.last_seizure_date ? new Date(resident.last_seizure_date).toLocaleDateString() : 'None recorded'}</div>
                             <div><strong>GP:</strong> {resident.gp_name}</div>
-                            <div><strong>Medications:</strong> {resident.medications_count} active</div>
                             <div><strong>Next of Kin:</strong> {resident.next_of_kin}</div>
+                            <div><strong>Emergency Contact:</strong> {resident.emergency_contact}</div>
                             <div><strong>Mobility:</strong> {resident.mobility_level}</div>
+                            <div><strong>Diet:</strong> {resident.dietary_requirements}</div>
+                            <div><strong>Medications:</strong> {resident.medications_count} active</div>
                           </div>
                         </div>
 
@@ -785,20 +922,6 @@ export default function CareHomePortal() {
                             }}
                           >
                             Care Plan
-                          </button>
-                          <button
-                            onClick={() => showNotification('warning', `Emergency contact called for ${resident.full_name}`)}
-                            style={{
-                              background: '#dc3545',
-                              color: 'white',
-                              border: 'none',
-                              padding: '6px 12px',
-                              borderRadius: '4px',
-                              cursor: 'pointer',
-                              fontSize: '12px'
-                            }}
-                          >
-                            Emergency
                           </button>
                         </div>
                       </div>
@@ -847,8 +970,12 @@ export default function CareHomePortal() {
               </div>
               
               <div style={{ marginBottom: '24px' }}>
+<<<<<<< HEAD
                <h3 style={{ color: '#003087', marginBottom: '12px' }}>Today&apos;s Medication Schedule</h3>
 
+=======
+                <h3 style={{ color: '#003087', marginBottom: '12px' }}>Today&apos;s Medication Schedule</h3>
+>>>>>>> 6091c2daa5af0a447ec6fc607fa2447557d51561
                 <div style={{ display: 'grid', gap: '8px' }}>
                   {medicationSchedule.map(med => (
                     <div key={med.id} style={{
@@ -931,7 +1058,228 @@ export default function CareHomePortal() {
             </div>
           )}
 
-          {/* Other tabs would be implemented similarly... */}
+          {/* Staff Tab */}
+          {activeTab === 'staff' && (
+            <div style={{
+              background: 'white',
+              borderRadius: '12px',
+              padding: '20px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              border: '1px solid #e1e5e9'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <h2 style={{ margin: '0', color: '#003087' }}>Staff Management</h2>
+                <button style={{
+                  background: '#005EB8',
+                  color: 'white',
+                  border: 'none',
+                  padding: '8px 16px',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '14px'
+                }}>
+                  + Add Staff Member
+                </button>
+              </div>
+
+              <div style={{ display: 'grid', gap: '12px' }}>
+                {staff.map(member => (
+                  <div key={member.id} style={{
+                    border: '1px solid #e1e5e9',
+                    borderRadius: '8px',
+                    padding: '16px',
+                    backgroundColor: member.on_duty ? '#f8f9fa' : '#fff3cd'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                          <h4 style={{ margin: '0', color: '#003087', fontSize: '18px' }}>
+                            {member.name}
+                          </h4>
+                          <div style={{
+                            padding: '2px 8px',
+                            borderRadius: '12px',
+                            fontSize: '11px',
+                            fontWeight: '600',
+                            backgroundColor: member.on_duty ? '#28a745' : '#6c757d',
+                            color: 'white'
+                          }}>
+                            {member.on_duty ? 'ON DUTY' : 'OFF DUTY'}
+                          </div>
+                          <div style={{
+                            padding: '2px 8px',
+                            borderRadius: '12px',
+                            fontSize: '11px',
+                            fontWeight: '600',
+                            backgroundColor: '#005EB8',
+                            color: 'white'
+                          }}>
+                            {member.role.replace('_', ' ').toUpperCase()}
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px', fontSize: '14px', color: '#666' }}>
+                          <div><strong>Shift:</strong> {member.shift_start} - {member.shift_end}</div>
+                          <div><strong>Training Expires:</strong> {new Date(member.training_expires).toLocaleDateString()}</div>
+                          <div><strong>Competency:</strong> {member.competency_level}%</div>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button
+                          style={{
+                            background: '#007bff',
+                            color: 'white',
+                            border: 'none',
+                            padding: '6px 12px',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '12px'
+                          }}
+                        >
+                          View Profile
+                        </button>
+                        <button
+                          style={{
+                            background: '#28a745',
+                            color: 'white',
+                            border: 'none',
+                            padding: '6px 12px',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '12px'
+                          }}
+                        >
+                          Training
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Incidents Tab */}
+          {activeTab === 'incidents' && (
+            <div style={{
+              background: 'white',
+              borderRadius: '12px',
+              padding: '20px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              border: '1px solid #e1e5e9'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <h2 style={{ margin: '0', color: '#003087' }}>Incident Management</h2>
+                <button
+                  onClick={() => setShowAddIncident(true)}
+                  style={{
+                    background: '#dc3545',
+                    color: 'white',
+                    border: 'none',
+                    padding: '8px 16px',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '14px'
+                  }}
+                >
+                  📋 Report New Incident
+                </button>
+              </div>
+
+              <div style={{ display: 'grid', gap: '12px' }}>
+                {incidents.map(incident => (
+                  <div key={incident.id} style={{
+                    border: '1px solid #e1e5e9',
+                    borderRadius: '8px',
+                    padding: '16px',
+                    backgroundColor: 'white'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                          <h4 style={{ margin: '0', color: '#003087', fontSize: '18px' }}>
+                            {incident.resident_name} - {incident.incident_type.replace('_', ' ')}
+                          </h4>
+                          <div style={{
+                            padding: '2px 8px',
+                            borderRadius: '12px',
+                            fontSize: '11px',
+                            fontWeight: '600',
+                            backgroundColor: incident.severity >= 4 ? '#dc3545' : 
+                                           incident.severity >= 3 ? '#fd7e14' : '#28a745',
+                            color: 'white'
+                          }}>
+                            Severity {incident.severity}
+                          </div>
+                          <div style={{
+                            padding: '2px 8px',
+                            borderRadius: '12px',
+                            fontSize: '11px',
+                            fontWeight: '600',
+                            backgroundColor: incident.status === 'open' ? '#dc3545' : 
+                                           incident.status === 'investigating' ? '#ffc107' : '#28a745',
+                            color: incident.status === 'investigating' ? '#000' : 'white'
+                          }}>
+                            {incident.status.toUpperCase()}
+                          </div>
+                        </div>
+
+                        <div style={{ fontSize: '14px', color: '#666', marginBottom: '8px' }}>
+                          <strong>Date/Time:</strong> {new Date(incident.date_time).toLocaleDateString()} at {new Date(incident.date_time).toLocaleTimeString()}<br/>
+                          <strong>Witnessed by:</strong> {incident.staff_witness}<br/>
+                          <strong>Family Notified:</strong> {incident.family_notified ? 'Yes' : 'No'} • 
+                          <strong> GP Contacted:</strong> {incident.gp_contacted ? 'Yes' : 'No'}
+                        </div>
+
+                        <div style={{ fontSize: '14px', color: '#333', marginBottom: '8px' }}>
+                          <strong>Description:</strong> {incident.description}
+                        </div>
+
+                        <div style={{ fontSize: '14px', color: '#333' }}>
+                          <strong>Actions Taken:</strong> {incident.actions_taken}
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button
+                          style={{
+                            background: '#007bff',
+                            color: 'white',
+                            border: 'none',
+                            padding: '6px 12px',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '12px'
+                          }}
+                        >
+                          View Details
+                        </button>
+                        {incident.status !== 'closed' && (
+                          <button
+                            onClick={() => showNotification('success', `Incident ${incident.id} updated`)}
+                            style={{
+                              background: '#28a745',
+                              color: 'white',
+                              border: 'none',
+                              padding: '6px 12px',
+                              borderRadius: '4px',
+                              cursor: 'pointer',
+                              fontSize: '12px'
+                            }}
+                          >
+                            Update Status
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Compliance Tab */}
           {activeTab === 'compliance' && (
             <div style={{
               background: 'white',
@@ -989,6 +1337,34 @@ export default function CareHomePortal() {
                   </div>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* Family Tab */}
+          {activeTab === 'family' && (
+            <div style={{
+              background: 'white',
+              borderRadius: '12px',
+              padding: '20px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              border: '1px solid #e1e5e9'
+            }}>
+              <h2 style={{ margin: '0 0 20px 0', color: '#003087' }}>Family Communications</h2>
+              <p style={{ color: '#666' }}>Family portal and communication features would be implemented here.</p>
+            </div>
+          )}
+
+          {/* Reports Tab */}
+          {activeTab === 'reports' && (
+            <div style={{
+              background: 'white',
+              borderRadius: '12px',
+              padding: '20px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              border: '1px solid #e1e5e9'
+            }}>
+              <h2 style={{ margin: '0 0 20px 0', color: '#003087' }}>Reports & Analytics</h2>
+              <p style={{ color: '#666' }}>Reporting and analytics features would be implemented here.</p>
             </div>
           )}
         </div>

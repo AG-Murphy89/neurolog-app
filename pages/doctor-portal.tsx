@@ -1,8 +1,20 @@
+<<<<<<< HEAD
 
+=======
+import React from 'react'
+>>>>>>> 6091c2daa5af0a447ec6fc607fa2447557d51561
 import { useState, useEffect } from 'react'
 import Head from 'next/head'
-import { useRouter } from 'next/router'
-import { supabase } from '../lib/supabase'
+// ... other imports
+
+export default function Doctorportal() {
+  // ... component code
+  
+  return (
+    <>
+      <Head>
+        <title>Care Home Portal - NeuroLog</title>
+      </Head>
 
 interface Patient {
   id: string
@@ -781,6 +793,7 @@ export default function DoctorPortal() {
                               fontSize: '12px'
                             }}
                           >
+<<<<<<< HEAD
                             Add Note
                           </button>
                         </div>
@@ -1296,3 +1309,5 @@ export default function DoctorPortal() {
     </>
   )
 }
+=======
+>>>>>>> 6091c2daa5af0a447ec6fc607fa2447557d51561
