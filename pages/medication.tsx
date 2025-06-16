@@ -113,10 +113,10 @@ export default function MedicationPage() {
     }
   }
 
-  useEffect(() => {
-    checkUser()
-    requestNotificationPermission()
-  }, [])
+  // useEffect(() => {
+  //   checkUser()
+  //   requestNotificationPermission()
+  // }, [])
 
   const loadMedications = async (userId: string) => {
     try {
