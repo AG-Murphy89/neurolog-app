@@ -1,6 +1,6 @@
 import '../styles/globals.css'
 import type { AppProps } from 'next/app'
-import { ErrorBoundary } from '../components/ErrorBoundary'
+import ErrorBoundary from '../components/ErrorBoundary'
 import { useEffect } from 'react'
 import { offlineUtils } from '../lib/notifications'
 
