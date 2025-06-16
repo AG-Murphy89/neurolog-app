@@ -259,38 +259,7 @@ export default function Home() {
               Comprehensive seizure documentation for patients and families dealing with complex epilepsy. Clinical-quality data for better treatment decisions.
             </p>
 
-            <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Link 
-                href="/auth/signup"
-                style={{
-                  background: 'white',
-                  color: '#003087',
-                  textDecoration: 'none',
-                  padding: '16px 32px',
-                  borderRadius: '12px',
-                  fontSize: '16px',
-                  fontWeight: '600'
-                }}
-              >
-                Register Account
-              </Link>
-
-              <Link 
-                href="/auth/login"
-                style={{
-                  background: 'transparent',
-                  color: 'white',
-                  border: '2px solid white',
-                  textDecoration: 'none',
-                  padding: '14px 30px',
-                  borderRadius: '12px',
-                  fontSize: '16px',
-                  fontWeight: '600'
-                }}
-              >
-                Sign In
-              </Link>
-            </div>
+            
           </div>
         </section>
 
