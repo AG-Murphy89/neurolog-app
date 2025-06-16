@@ -246,16 +246,17 @@ export default function Home() {
             <h2 style={{
               fontSize: '32px',
               fontWeight: 'bold',
-              margin: '0 0 16px 0'
+              margin: '0 0 16px 0',
+              color: 'white'
             }}>
-              Ready to Take Control?
+              Medical Precision, Family-Focused Care
             </h2>
             <p style={{
               fontSize: '18px',
               margin: '0 0 32px 0',
-              opacity: 0.9
+              color: 'white'
             }}>
-              Join thousands of patients and healthcare providers using NeuroLog for better seizure management.
+              Comprehensive seizure documentation for patients and families dealing with complex epilepsy. Clinical-quality data for better treatment decisions.
             </p>
 
             <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
