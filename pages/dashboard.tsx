@@ -1767,40 +1767,21 @@ export default function Dashboard() {
                     </div>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                    <div>
-                      <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
-                        Date of Birth
-                      </label>
-                      <input
-                        type="date"
-                        style={{
-                          width: '100%',
-                          padding: '12px',
-                          borderRadius: '8px',
-                          border: '2px solid #e1e5e9',
-                          fontSize: '16px',
-                          boxSizing: 'border-box'
-                        }}
-                      />
-                    </div>
-                    <div>
-                      <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
-                        National Insurance Number
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="AB 12 34 56 C"
-                        style={{
-                          width: '100%',
-                          padding: '12px',
-                          borderRadius: '8px',
-                          border: '2px solid #e1e5e9',
-                          fontSize: '16px',
-                          boxSizing: 'border-box'
-                        }}
-                      />
-                    </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
+                      Date of Birth
+                    </label>
+                    <input
+                      type="date"
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        borderRadius: '8px',
+                        border: '2px solid #e1e5e9',
+                        fontSize: '16px',
+                        boxSizing: 'border-box'
+                      }}
+                    />
                   </div>
 
                   <div>
