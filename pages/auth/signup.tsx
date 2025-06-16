@@ -1,4 +1,3 @@
-
 import { useState } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -10,9 +9,7 @@ interface RegisterFormData {
   confirmPassword: string
   firstName: string
   lastName: string
-  userType: 'patient' | 'family' | 'home_carer' | 'care_home' | 'professional'
-  organizationName?: string
-  professionalId?: string
+  userType: 'patient' | 'family' | 'home_carer'
   gdprConsent: boolean
 }
 
@@ -24,8 +21,6 @@ export default function Register() {
     firstName: '',
     lastName: '',
     userType: 'patient',
-    organizationName: '',
-    professionalId: '',
     gdprConsent: false
   })
   const [errors, setErrors] = useState<{[key: string]: string}>({})
@@ -35,21 +30,18 @@ export default function Register() {
     e.preventDefault()
     const newErrors: {[key: string]: string} = {}
 
-    // Validation
-    if (!formData.email) newErrors.email = 'Email is required'
+    // Validate required fields
+    if (!formData.firstName.trim()) newErrors.firstName = 'First name is required'
+    if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required'
+    if (!formData.email.trim()) newErrors.email = 'Email is required'
     if (!formData.password) newErrors.password = 'Password is required'
-    if (formData.password.length < 8) newErrors.password = 'Password must be at least 8 characters'
-    if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match'
-    if (!formData.firstName) newErrors.firstName = 'First name is required'
-    if (!formData.lastName) newErrors.lastName = 'Last name is required'
-    if (!formData.gdprConsent) newErrors.gdprConsent = 'You must accept the privacy policy'
-    
-    if ((formData.userType === 'care_home' || formData.userType === 'professional') && !formData.organizationName) {
-      newErrors.organizationName = 'Organization name is required'
-    }
-    
-    if (formData.userType === 'professional' && !formData.professionalId) {
-      newErrors.professionalId = 'Professional ID is required'
+    if (!formData.confirmPassword) newErrors.confirmPassword = 'Please confirm your password'
+    if (!formData.userType) newErrors.userType = 'Please select an account type'
+    if (!formData.gdprConsent) newErrors.gdprConsent = 'GDPR consent is required'
+
+    // Validate passwords match
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match'
     }
 
     setErrors(newErrors)
@@ -64,8 +56,6 @@ export default function Register() {
         lastName: formData.lastName,
         name: `${formData.firstName} ${formData.lastName}`,
         type: formData.userType,
-        organizationName: formData.organizationName,
-        professionalId: formData.professionalId,
         createdAt: new Date().toISOString()
       }
 
@@ -185,92 +175,25 @@ export default function Register() {
                 <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
                   Account Type *
                 </label>
-                <div style={{ marginBottom: '16px' }}>
-                  <h4 style={{ color: '#003087', margin: '0 0 8px 0', fontSize: '16px' }}>Individual/Family Care</h4>
-                  <select
-                    value={formData.userType === 'patient' || formData.userType === 'family' || formData.userType === 'home_carer' ? formData.userType : ''}
-                    onChange={(e) => setFormData({...formData, userType: e.target.value as any})}
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      borderRadius: '8px',
-                      border: '2px solid #e1e5e9',
-                      fontSize: '16px',
-                      backgroundColor: 'white',
-                      boxSizing: 'border-box'
-                    }}
-                  >
-                    <option value="">Select individual/family type</option>
-                    <option value="patient">Patient</option>
-                    <option value="family">Family Member</option>
-                    <option value="home_carer">Home Carer</option>
-                  </select>
-                </div>
-                <div>
-                  <h4 style={{ color: '#003087', margin: '0 0 8px 0', fontSize: '16px' }}>Professional/Care Home</h4>
-                  <select
-                    value={formData.userType === 'care_home' || formData.userType === 'professional' ? formData.userType : ''}
-                    onChange={(e) => setFormData({...formData, userType: e.target.value as any})}
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      borderRadius: '8px',
-                      border: '2px solid #e1e5e9',
-                      fontSize: '16px',
-                      backgroundColor: 'white',
-                      boxSizing: 'border-box'
-                    }}
-                  >
-                    <option value="">Select professional type</option>
-                    <option value="care_home">Care Home</option>
-                    <option value="professional">Healthcare Professional</option>
-                  </select>
-                </div>
+                <select
+                  value={formData.userType}
+                  onChange={(e) => setFormData({...formData, userType: e.target.value as any})}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    border: '2px solid #e1e5e9',
+                    fontSize: '16px',
+                    backgroundColor: 'white',
+                    boxSizing: 'border-box'
+                  }}
+                >
+                  <option value="">Select account type</option>
+                  <option value="patient">Patient</option>
+                  <option value="family">Family Member</option>
+                  <option value="home_carer">Home Carer</option>
+                </select>
               </div>
-
-              {(formData.userType === 'care_home' || formData.userType === 'professional') && (
-                <div>
-                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
-                    Organization Name *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.organizationName}
-                    onChange={(e) => setFormData({...formData, organizationName: e.target.value})}
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      borderRadius: '8px',
-                      border: errors.organizationName ? '2px solid #ff4757' : '2px solid #e1e5e9',
-                      fontSize: '16px',
-                      boxSizing: 'border-box'
-                    }}
-                  />
-                  {errors.organizationName && <div style={{ color: '#ff4757', fontSize: '14px', marginTop: '4px' }}>{errors.organizationName}</div>}
-                </div>
-              )}
-
-              {formData.userType === 'professional' && (
-                <div>
-                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
-                    Professional ID/Registration Number *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.professionalId}
-                    onChange={(e) => setFormData({...formData, professionalId: e.target.value})}
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      borderRadius: '8px',
-                      border: errors.professionalId ? '2px solid #ff4757' : '2px solid #e1e5e9',
-                      fontSize: '16px',
-                      boxSizing: 'border-box'
-                    }}
-                  />
-                  {errors.professionalId && <div style={{ color: '#ff4757', fontSize: '14px', marginTop: '4px' }}>{errors.professionalId}</div>}
-                </div>
-              )}
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <div>

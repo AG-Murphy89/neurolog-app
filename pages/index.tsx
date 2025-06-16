@@ -153,7 +153,7 @@ export default function Home() {
             </button>
 
             <Link 
-              href="/doctor-portal"
+              href="/doctor-login"
               style={{
                 background: 'transparent',
                 color: '#005EB8',
@@ -276,7 +276,7 @@ export default function Home() {
               </Link>
 
               <Link 
-                href="/doctor-portal"
+                href="/doctor-login"
                 style={{
                   background: 'transparent',
                   color: 'white',
