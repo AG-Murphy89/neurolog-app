@@ -65,28 +65,22 @@ export default function Home() {
             </div>
 
             <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-              {user ? (
-                <span style={{ color: '#666' }}>Welcome, {user.name}</span>
-              ) : (
-                <>
-                  <Link href="/auth/login" style={{ color: '#005EB8', textDecoration: 'none', fontWeight: '500' }}>
-                    Sign In
-                  </Link>
-                  <Link 
-                    href="/auth/signup"
-                    style={{
-                      background: 'linear-gradient(135deg, #005EB8 0%, #003087 100%)',
-                      color: 'white',
-                      textDecoration: 'none',
-                      padding: '12px 24px',
-                      borderRadius: '8px',
-                      fontWeight: '500'
-                    }}
-                  >
-                    Get Started
-                  </Link>
-                </>
-              )}
+              <Link href="/auth/login" style={{ color: '#005EB8', textDecoration: 'none', fontWeight: '500' }}>
+                Sign In
+              </Link>
+              <Link 
+                href="/auth/signup"
+                style={{
+                  background: 'linear-gradient(135deg, #005EB8 0%, #003087 100%)',
+                  color: 'white',
+                  textDecoration: 'none',
+                  padding: '12px 24px',
+                  borderRadius: '8px',
+                  fontWeight: '500'
+                }}
+              >
+                Get Started
+              </Link>
             </div>
           </div>
         </nav>
