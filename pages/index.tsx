@@ -66,7 +66,7 @@ export default function Home() {
 
             <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
               <Link href="/auth/login" style={{ color: '#005EB8', textDecoration: 'none', fontWeight: '500' }}>
-                Sign In
+                CQC & GDPR Compliant
               </Link>
               <Link 
                 href="/auth/signup"
@@ -79,7 +79,7 @@ export default function Home() {
                   fontWeight: '500'
                 }}
               >
-                Get Started
+                CQC & GDPR Compliant
               </Link>
             </div>
           </div>
