@@ -3,6 +3,14 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabase'
 import { dataExportUtils } from '../lib/dataExport'
+import dynamic from 'next/dynamic'
+
+// Dynamically import PDF libraries to avoid SSR issues
+const generatePDF = dynamic(() => import('html2canvas').then(html2canvas => {
+  return import('jspdf').then(({ jsPDF }) => {
+    return { html2canvas: html2canvas.default, jsPDF }
+  })
+}), { ssr: false })
 
 interface SeizureEntry {
   id: string
@@ -316,12 +324,19 @@ export default function Dashboard() {
 
   const handleDownloadInsightsPDF = async () => {
     try {
+      if (typeof window === 'undefined') return
+      
       // Dynamic import to avoid SSR issues
-      const html2canvas = (await import('html2canvas')).default
-      const jsPDF = (await import('jspdf')).jsPDF
+      const [html2canvas, jsPDF] = await Promise.all([
+        import('html2canvas').then(mod => mod.default),
+        import('jspdf').then(mod => mod.jsPDF)
+      ])
 
       const element = document.getElementById('insights-content')
-      if (!element) return
+      if (!element) {
+        alert('Content not found. Please try again.')
+        return
+      }
 
       // Show print headers for PDF
       const printHeaders = document.querySelectorAll('.print-header')
@@ -333,7 +348,9 @@ export default function Dashboard() {
       const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        allowTaint: true,
+        logging: false
       })
 
       // Hide print headers
@@ -356,7 +373,7 @@ export default function Dashboard() {
       pdf.save(`neurolog-insights-${new Date().toISOString().split('T')[0]}.pdf`)
     } catch (error) {
       console.error('Error generating PDF:', error)
-      alert('Error generating PDF. Please try again.')
+      alert('PDF generation failed. Please use the print button instead.')
     }
   }
 
