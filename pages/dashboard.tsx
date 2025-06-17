@@ -273,6 +273,93 @@ export default function Dashboard() {
     return Object.entries(triggerCount).sort(([,a], [,b]) => b - a)[0][0]
   }
 
+  const getMostCommonSeizureType = () => {
+    if (seizures.length === 0) return 'None recorded'
+    const types = seizures.map(s => s.seizure_type).filter(t => t && t.trim())
+    if (types.length === 0) return 'None recorded'
+
+    const typeCount: {[key: string]: number} = {}
+    types.forEach(type => {
+      typeCount[type] = (typeCount[type] || 0) + 1
+    })
+
+    return Object.entries(typeCount).sort(([,a], [,b]) => b - a)[0][0]
+  }
+
+  const getAverageDuration = () => {
+    if (seizures.length === 0) return 'No data'
+    const durations = seizures.map(s => s.duration).filter(d => d && d.trim())
+    if (durations.length === 0) return 'No data'
+
+    // Simple average calculation - could be improved to handle different units
+    const avgLength = durations.reduce((acc, curr) => acc + curr.length, 0) / durations.length
+    return `${avgLength.toFixed(1)} characters avg`
+  }
+
+  const handlePrintInsights = () => {
+    // Show print-specific elements
+    const printHeaders = document.querySelectorAll('.print-header')
+    printHeaders.forEach(header => {
+      (header as HTMLElement).style.display = 'block'
+    })
+
+    // Trigger print
+    window.print()
+
+    // Hide print-specific elements after print
+    setTimeout(() => {
+      printHeaders.forEach(header => {
+        (header as HTMLElement).style.display = 'none'
+      })
+    }, 1000)
+  }
+
+  const handleDownloadInsightsPDF = async () => {
+    try {
+      // Dynamic import to avoid SSR issues
+      const html2canvas = (await import('html2canvas')).default
+      const jsPDF = (await import('jspdf')).jsPDF
+
+      const element = document.getElementById('insights-content')
+      if (!element) return
+
+      // Show print headers for PDF
+      const printHeaders = document.querySelectorAll('.print-header')
+      printHeaders.forEach(header => {
+        (header as HTMLElement).style.display = 'block'
+      })
+
+      // Create canvas from element
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff'
+      })
+
+      // Hide print headers
+      printHeaders.forEach(header => {
+        (header as HTMLElement).style.display = 'none'
+      })
+
+      const imgData = canvas.toDataURL('image/png')
+      const pdf = new jsPDF('p', 'mm', 'a4')
+      
+      const pdfWidth = pdf.internal.pageSize.getWidth()
+      const pdfHeight = pdf.internal.pageSize.getHeight()
+      const imgWidth = canvas.width
+      const imgHeight = canvas.height
+      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight)
+      const imgX = (pdfWidth - imgWidth * ratio) / 2
+      const imgY = 10
+
+      pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio)
+      pdf.save(`neurolog-insights-${new Date().toISOString().split('T')[0]}.pdf`)
+    } catch (error) {
+      console.error('Error generating PDF:', error)
+      alert('Error generating PDF. Please try again.')
+    }
+  }
+
   if (isLoading) {
     return (
       <div style={{
@@ -1032,32 +1119,174 @@ export default function Dashboard() {
               boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
               border: '1px solid #e1e5e9'
             }}>
-              <h2 style={{ margin: '0 0 20px 0', color: '#003087' }}>Seizure Insights & Analytics</h2>
-              {seizures.length < 3 ? (
-                <div style={{ textAlign: 'center', color: '#666', padding: '40px 0' }}>
-                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>📈</div>
-                  <div>Record at least 3 seizures to see insights and patterns.</div>
-                </div>
-              ) : (
-                <div style={{ display: 'grid', gap: '24px' }}>
-                  <div style={{
-                    background: '#f8f9fa',
-                    padding: '20px',
-                    borderRadius: '12px',
-                    border: '1px solid #e1e5e9'
-                  }}>
-                    <h3 style={{ margin: '0 0 16px 0', color: '#003087' }}>Frequency Analysis</h3>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-                      <div>
-                        <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#005EB8' }}>
-                          {(seizures.length / Math.max(1, Math.ceil((new Date().getTime() - new Date(seizures[seizures.length - 1]?.seizure_date || new Date()).getTime()) / (1000 * 60 * 60 * 24 * 30)))).toFixed(1)}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <h2 style={{ margin: '0', color: '#003087' }}>Seizure Insights & Analytics</h2>
+                {seizures.length >= 3 && (
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button
+                      onClick={() => handlePrintInsights()}
+                      style={{
+                        background: '#28a745',
+                        color: 'white',
+                        border: 'none',
+                        padding: '8px 16px',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        fontWeight: '500'
+                      }}
+                    >
+                      🖨️ Print Report
+                    </button>
+                    <button
+                      onClick={() => handleDownloadInsightsPDF()}
+                      style={{
+                        background: '#007bff',
+                        color: 'white',
+                        border: 'none',
+                        padding: '8px 16px',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        fontWeight: '500'
+                      }}
+                    >
+                      📄 Download PDF
+                    </button>
+                  </div>
+                )}
+              </div>
+              
+              <div id="insights-content">
+                {seizures.length < 3 ? (
+                  <div style={{ textAlign: 'center', color: '#666', padding: '40px 0' }}>
+                    <div style={{ fontSize: '48px', marginBottom: '16px' }}>📈</div>
+                    <div>Record at least 3 seizures to see insights and patterns.</div>
+                  </div>
+                ) : (
+                  <div style={{ display: 'grid', gap: '24px' }}>
+                    {/* Header for print */}
+                    <div className="print-header" style={{ display: 'none' }}>
+                      <h1 style={{ color: '#003087', marginBottom: '8px' }}>NeuroLog - Seizure Insights Report</h1>
+                      <p style={{ color: '#666', marginBottom: '20px' }}>
+                        Patient: {user?.full_name} | Generated: {new Date().toLocaleDateString()}
+                      </p>
+                    </div>
+
+                    {/* Summary Statistics */}
+                    <div style={{
+                      background: '#f8f9fa',
+                      padding: '20px',
+                      borderRadius: '12px',
+                      border: '1px solid #e1e5e9'
+                    }}>
+                      <h3 style={{ margin: '0 0 16px 0', color: '#003087' }}>Summary Statistics</h3>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+                        <div>
+                          <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#005EB8' }}>
+                            {seizures.length}
+                          </div>
+                          <div style={{ color: '#666' }}>Total Seizures</div>
                         </div>
-                        <div style={{ color: '#666' }}>Seizures per month</div>
+                        <div>
+                          <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#005EB8' }}>
+                            {getRecentSeizures().length}
+                          </div>
+                          <div style={{ color: '#666' }}>Last 30 Days</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#005EB8' }}>
+                            {getAverageSeverity()}
+                          </div>
+                          <div style={{ color: '#666' }}>Average Severity</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#005EB8' }}>
+                            {(seizures.length / Math.max(1, Math.ceil((new Date().getTime() - new Date(seizures[seizures.length - 1]?.seizure_date || new Date()).getTime()) / (1000 * 60 * 60 * 24 * 30)))).toFixed(1)}
+                          </div>
+                          <div style={{ color: '#666' }}>Seizures per month</div>
+                        </div>
                       </div>
                     </div>
+
+                    {/* Frequency Analysis */}
+                    <div style={{
+                      background: '#f8f9fa',
+                      padding: '20px',
+                      borderRadius: '12px',
+                      border: '1px solid #e1e5e9'
+                    }}>
+                      <h3 style={{ margin: '0 0 16px 0', color: '#003087' }}>Frequency Analysis</h3>
+                      <div style={{ display: 'grid', gap: '12px' }}>
+                        <div style={{ padding: '12px', background: 'white', borderRadius: '8px' }}>
+                          <strong>Most Common Trigger:</strong> {getMostCommonTrigger()}
+                        </div>
+                        <div style={{ padding: '12px', background: 'white', borderRadius: '8px' }}>
+                          <strong>Most Common Type:</strong> {getMostCommonSeizureType()}
+                        </div>
+                        <div style={{ padding: '12px', background: 'white', borderRadius: '8px' }}>
+                          <strong>Average Duration:</strong> {getAverageDuration()}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Recent Trends */}
+                    <div style={{
+                      background: '#f8f9fa',
+                      padding: '20px',
+                      borderRadius: '12px',
+                      border: '1px solid #e1e5e9'
+                    }}>
+                      <h3 style={{ margin: '0 0 16px 0', color: '#003087' }}>Recent Trends (Last 30 Days)</h3>
+                      <div style={{ display: 'grid', gap: '8px' }}>
+                        {getRecentSeizures().map((seizure, index) => (
+                          <div key={seizure.id} style={{
+                            padding: '12px',
+                            background: 'white',
+                            borderRadius: '8px',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                          }}>
+                            <div>
+                              <strong>{seizure.seizure_date} {seizure.seizure_time}</strong>
+                              <div style={{ fontSize: '14px', color: '#666' }}>
+                                {seizure.seizure_type} • {seizure.duration}
+                              </div>
+                            </div>
+                            <div style={{
+                              padding: '4px 8px',
+                              borderRadius: '12px',
+                              fontSize: '12px',
+                              fontWeight: 'bold',
+                              backgroundColor: seizure.severity > 3 ? '#ff4757' : seizure.severity > 2 ? '#ffa502' : '#2ed573',
+                              color: 'white'
+                            }}>
+                              Severity {seizure.severity}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Recommendations */}
+                    <div style={{
+                      background: '#e3f2fd',
+                      padding: '20px',
+                      borderRadius: '12px',
+                      border: '1px solid #bbdefb'
+                    }}>
+                      <h3 style={{ margin: '0 0 16px 0', color: '#1976d2' }}>📋 Clinical Recommendations</h3>
+                      <ul style={{ margin: '0', paddingLeft: '20px', color: '#1565c0' }}>
+                        <li>Share this report with your healthcare provider</li>
+                        <li>Monitor patterns in seizure frequency and triggers</li>
+                        <li>Continue tracking medications and their effectiveness</li>
+                        <li>Note any lifestyle factors that may influence seizure activity</li>
+                      </ul>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           )}
 

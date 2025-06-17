@@ -137,13 +137,20 @@ textarea:focus {
     background: white !important;
     box-shadow: none !important;
     border: none !important;
+    padding: 20px !important;
   }
   
   /* Hide navigation and header elements during print */
   header,
   nav,
-  .no-print {
+  .no-print,
+  button {
     display: none !important;
+  }
+  
+  /* Show print headers */
+  .print-header {
+    display: block !important;
   }
   
   /* Ensure proper page breaks */
@@ -154,11 +161,24 @@ textarea:focus {
   /* Optimize colors for print */
   * {
     color: #000 !important;
-    background: white !important;
   }
   
-  /* Keep chart colors visible */
-  [style*="background-color"] {
-    background: #f0f0f0 !important;
+  /* Keep important background colors */
+  [style*="background-color: #f8f9fa"] {
+    background: #f8f9fa !important;
+  }
+  
+  [style*="background-color: #e3f2fd"] {
+    background: #e3f2fd !important;
+  }
+  
+  /* Ensure proper spacing */
+  h1, h2, h3 {
+    color: #003087 !important;
+  }
+  
+  /* Print specific formatting */
+  @page {
+    margin: 0.5in;
   }
 }
