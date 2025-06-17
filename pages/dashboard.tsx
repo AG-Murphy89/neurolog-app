@@ -5,13 +5,6 @@ import { supabase } from '../lib/supabase'
 import { dataExportUtils } from '../lib/dataExport'
 import dynamic from 'next/dynamic'
 
-// Dynamically import PDF libraries to avoid SSR issues
-const generatePDF = dynamic(() => import('html2canvas').then(html2canvas => {
-  return import('jspdf').then(({ jsPDF }) => {
-    return { html2canvas: html2canvas.default, jsPDF }
-  })
-}), { ssr: false })
-
 interface SeizureEntry {
   id: string
   seizure_date: string
@@ -57,61 +50,61 @@ export default function Dashboard() {
   const router = useRouter()
 
   useEffect(() => {
-    checkUser()
-  }, [checkUser])
+    const checkUser = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession()
 
-  const checkUser = async () => {
-    try {
-      const { data: { session }, error } = await supabase.auth.getSession()
-
-      if (error || !session) {
-        router.push('/')
-        return
-      }
-
-      // Get user profile or use session data
-      let userData = {
-        id: session.user.id,
-        full_name: session.user.user_metadata?.full_name || session.user.email,
-        email: session.user.email,
-        account_type: session.user.user_metadata?.account_type || 'personal'
-      }
-
-      // Try to get profile from user_profiles table
-      const { data: profile, error: profileError } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('id', session.user.id)
-        .single()
-
-      if (profile) {
-        userData = profile
-      } else {
-        // Create user profile if it doesn't exist
-        const { error: insertError } = await supabase
-          .from('user_profiles')
-          .insert([{
-            id: session.user.id,
-            full_name: userData.full_name,
-            email: userData.email,
-            account_type: userData.account_type,
-            created_at: new Date().toISOString()
-          }])
-
-        if (insertError) {
-          console.error('Error creating user profile:', insertError)
+        if (error || !session) {
+          router.push('/')
+          return
         }
-      }
 
-      setUser(userData)
-      await loadSeizures(session.user.id)
-    } catch (error) {
-      console.error('Error checking user:', error)
-      router.push('/')
-    } finally {
-      setIsLoading(false)
+        // Get user profile or use session data
+        let userData = {
+          id: session.user.id,
+          full_name: session.user.user_metadata?.full_name || session.user.email,
+          email: session.user.email,
+          account_type: session.user.user_metadata?.account_type || 'personal'
+        }
+
+        // Try to get profile from user_profiles table
+        const { data: profile, error: profileError } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single()
+
+        if (profile) {
+          userData = profile
+        } else {
+          // Create user profile if it doesn't exist
+          const { error: insertError } = await supabase
+            .from('user_profiles')
+            .insert([{
+              id: session.user.id,
+              full_name: userData.full_name,
+              email: userData.email,
+              account_type: userData.account_type,
+              created_at: new Date().toISOString()
+            }])
+
+          if (insertError) {
+            console.error('Error creating user profile:', insertError)
+          }
+        }
+
+        setUser(userData)
+        await loadSeizures(session.user.id)
+      } catch (error) {
+        console.error('Error checking user:', error)
+        router.push('/')
+      } finally {
+        setIsLoading(false)
+      }
     }
-  }
+
+    checkUser()
+  }, [])
 
   const loadSeizures = async (userId: string) => {
     try {
