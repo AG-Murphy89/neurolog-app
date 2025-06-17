@@ -754,7 +754,7 @@ export default function Dashboard() {
                       min="1"
                       max="5"
                       value={formData.severity}
-                      onChange={(e) => setFormData({...formData, severity: parseInt(e.target.value)})}
+                      onChange={(e) => setFormData({...formData, severity: parseInt(e.target.value))}
                       style={{ width: '100%' }}
                     />
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#666', marginTop: '4px' }}>
