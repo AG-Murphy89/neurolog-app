@@ -104,7 +104,7 @@ export default function Dashboard() {
     }
 
     checkUser()
-  }, [])
+  }, [router])
 
   const loadSeizures = async (userId: string) => {
     try {
