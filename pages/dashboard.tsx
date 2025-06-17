@@ -1121,40 +1121,38 @@ export default function Dashboard() {
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                 <h2 style={{ margin: '0', color: '#003087' }}>Seizure Insights & Analytics</h2>
-                {seizures.length >= 3 && (
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <button
-                      onClick={() => handlePrintInsights()}
-                      style={{
-                        background: '#28a745',
-                        color: 'white',
-                        border: 'none',
-                        padding: '8px 16px',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        fontSize: '14px',
-                        fontWeight: '500'
-                      }}
-                    >
-                      🖨️ Print Report
-                    </button>
-                    <button
-                      onClick={() => handleDownloadInsightsPDF()}
-                      style={{
-                        background: '#007bff',
-                        color: 'white',
-                        border: 'none',
-                        padding: '8px 16px',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        fontSize: '14px',
-                        fontWeight: '500'
-                      }}
-                    >
-                      📄 Download PDF
-                    </button>
-                  </div>
-                )}
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    onClick={() => handlePrintInsights()}
+                    style={{
+                      background: '#28a745',
+                      color: 'white',
+                      border: 'none',
+                      padding: '8px 16px',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: '500'
+                    }}
+                  >
+                    🖨️ Print Report
+                  </button>
+                  <button
+                    onClick={() => handleDownloadInsightsPDF()}
+                    style={{
+                      background: '#007bff',
+                      color: 'white',
+                      border: 'none',
+                      padding: '8px 16px',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: '500'
+                    }}
+                  >
+                    📄 Download PDF
+                  </button>
+                </div>
               </div>
               
               <div id="insights-content">
