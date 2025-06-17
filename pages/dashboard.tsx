@@ -343,7 +343,7 @@ export default function Dashboard() {
 
       const imgData = canvas.toDataURL('image/png')
       const pdf = new jsPDF('p', 'mm', 'a4')
-      
+
       const pdfWidth = pdf.internal.pageSize.getWidth()
       const pdfHeight = pdf.internal.pageSize.getHeight()
       const imgWidth = canvas.width
@@ -840,12 +840,21 @@ export default function Dashboard() {
                       type="range"
                       min="1"
                       max="5"
-                      value=
-                  {formData.severity}
-                      onChange={(e) => setFormData({...formData, severity: parseInt(e.target.value) })}
-/>                      
-                      
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#666', marginTop: '4px' }}>
+                      value={formData.severity}
+                      onChange={(e) => setFormData({...formData, severity: parseInt(e.target.value)})}
+                      style={{
+                        width: '100%',
+                        height: '6px',
+                        borderRadius: '3px',
+                        background: '#e1e5e9',
+                        outline: 'none',
+                        opacity: '0.7',
+                        transition: 'opacity 0.2s',
+                        cursor: 'pointer',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#666', marginTop: '4px' }}>
                       <span>Mild</span>
                       <span>Severe</span>
                     </div>
@@ -880,7 +889,7 @@ export default function Dashboard() {
                         padding: '12px',
                         borderRadius: '8px',
                         border: '2px solid #e1e5e9',
-                        fontSize: '16px',
+                        fontSize: '16px,
                         minHeight: '80px',
                         resize: 'vertical',
                         boxSizing: 'border-box'
@@ -1154,7 +1163,7 @@ export default function Dashboard() {
                   </button>
                 </div>
               </div>
-              
+
               <div id="insights-content">
                 {seizures.length < 3 ? (
                   <div style={{ textAlign: 'center', color: '#666', padding: '40px 0' }}>
