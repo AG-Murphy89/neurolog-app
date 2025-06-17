@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabase'
@@ -77,11 +77,7 @@ export default function DoctorPortal() {
   const [notification, setNotification] = useState<{type: 'success' | 'error', message: string} | null>(null)
   const router = useRouter()
 
-  useEffect(() => {
-    checkDoctorAuth()
-  }, [router, checkDoctorAuth])
-
-  const checkDoctorAuth = async () => {
+  const checkDoctorAuth = useCallback(async () => {
     try {
       const { data: { session }, error } = await supabase.auth.getSession()
       
@@ -115,7 +111,11 @@ export default function DoctorPortal() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [router])
+
+  useEffect(() => {
+    checkDoctorAuth()
+  }, [checkDoctorAuth])
 
   const loadPatients = async (doctorId: string) => {
     try {

@@ -58,7 +58,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     checkUser()
-  }, [])
+  }, [checkUser])
 
   const checkUser = async () => {
     try {

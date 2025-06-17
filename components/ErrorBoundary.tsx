@@ -59,7 +59,7 @@ class ErrorBoundary extends Component<Props, State> {
             <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚠️</div>
             <h2 style={{ color: '#dc3545', marginBottom: '16px' }}>Something went wrong</h2>
             <p style={{ color: '#666', marginBottom: '24px' }}>
-              We're sorry, but something unexpected happened. Please refresh the page or try again later.
+              We&apos;re sorry, but something unexpected happened. Please refresh the page or try again later.
             </p>
             <button
               onClick={() => window.location.reload()}

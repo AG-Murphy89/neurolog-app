@@ -88,84 +88,84 @@ export default function CareHomePortal() {
   const [notification, setNotification] = useState<{type: 'success' | 'error' | 'warning', message: string} | null>(null)
   const router = useRouter()
 
-  // Sample data for demonstration
-  const sampleResidents: Resident[] = [
-    {
-      id: '1', full_name: 'Margaret Thompson', date_of_birth: '1935-03-15', room_number: '12A',
-      care_level: 'high', seizure_type: 'Focal seizures', last_seizure_date: '2024-01-15',
-      next_of_kin: 'Susan Thompson (Daughter)', gp_name: 'Dr. Wilson', medications_count: 5,
-      risk_assessment: 'amber', mobility_level: 'Wheelchair', dietary_requirements: 'Diabetic diet',
-      emergency_contact: '07700 900123', admission_date: '2023-08-10', care_plan_review_date: '2024-02-10'
-    },
-    {
-      id: '2', full_name: 'Arthur Davies', date_of_birth: '1940-07-22', room_number: '8B',
-      care_level: 'medium', seizure_type: 'Generalized tonic-clonic', last_seizure_date: '2024-01-12',
-      next_of_kin: 'Michael Davies (Son)', gp_name: 'Dr. Patel', medications_count: 3,
-      risk_assessment: 'green', mobility_level: 'Walking frame', dietary_requirements: 'Low sodium',
-      emergency_contact: '07700 900456', admission_date: '2023-11-02', care_plan_review_date: '2024-02-15'
-    },
-    {
-      id: '3', full_name: 'Dorothy Williams', date_of_birth: '1938-12-03', room_number: '15C',
-      care_level: 'critical', seizure_type: 'Status epilepticus', last_seizure_date: '2024-01-18',
-      next_of_kin: 'Robert Williams (Son)', gp_name: 'Dr. Singh', medications_count: 8,
-      risk_assessment: 'red', mobility_level: 'Bed bound', dietary_requirements: 'Pureed diet',
-      emergency_contact: '07700 900789', admission_date: '2023-05-20', care_plan_review_date: '2024-01-25'
-    }
-  ]
-
-  const sampleStaff: Staff[] = [
-    {
-      id: '1', name: 'Sarah Johnson', role: 'senior_carer', shift_start: '07:00', shift_end: '19:00',
-      on_duty: true, training_expires: '2024-06-15', competency_level: 95
-    },
-    {
-      id: '2', name: 'Michael Brown', role: 'healthcare_assistant', shift_start: '19:00', shift_end: '07:00',
-      on_duty: true, training_expires: '2024-04-20', competency_level: 88
-    },
-    {
-      id: '3', name: 'Emma Wilson', role: 'nurse', shift_start: '07:00', shift_end: '15:00',
-      on_duty: true, training_expires: '2024-08-10', competency_level: 98
-    }
-  ]
-
-  const sampleIncidents: Incident[] = [
-    {
-      id: '1', resident_id: '1', resident_name: 'Margaret Thompson',
-      incident_type: 'seizure', severity: 3, description: 'Focal seizure lasting 2 minutes in dining room',
-      staff_witness: 'Sarah Johnson', date_time: '2024-01-18T14:30:00',
-      actions_taken: 'Positioned safely, timed seizure, post-ictal care provided',
-      family_notified: true, gp_contacted: false, status: 'closed'
-    },
-    {
-      id: '2', resident_id: '3', resident_name: 'Dorothy Williams',
-      incident_type: 'seizure', severity: 5, description: 'Prolonged seizure requiring emergency medication',
-      staff_witness: 'Emma Wilson', date_time: '2024-01-18T09:15:00',
-      actions_taken: 'Emergency medication administered, 999 called, family contacted',
-      family_notified: true, gp_contacted: true, status: 'investigating'
-    }
-  ]
-
-  const sampleMedicationSchedule: MedicationSchedule[] = [
-    {
-      id: '1', resident_id: '1', resident_name: 'Margaret Thompson',
-      medication_name: 'Levetiracetam 500mg', dosage: '1 tablet', time_due: '08:00',
-      administered: true, administered_by: 'Emma Wilson', administered_time: '08:05'
-    },
-    {
-      id: '2', resident_id: '1', resident_name: 'Margaret Thompson',
-      medication_name: 'Lamotrigine 100mg', dosage: '1 tablet', time_due: '20:00',
-      administered: false
-    },
-    {
-      id: '3', resident_id: '2', resident_name: 'Arthur Davies',
-      medication_name: 'Phenytoin 100mg', dosage: '2 capsules', time_due: '12:00',
-      administered: true, administered_by: 'Sarah Johnson', administered_time: '12:10'
-    }
-  ]
-
   useEffect(() => {
     // Simulate authentication check
     const checkAuth = () => {
+      // Sample data for demonstration
+      const sampleResidents: Resident[] = [
+        {
+          id: '1', full_name: 'Margaret Thompson', date_of_birth: '1935-03-15', room_number: '12A',
+          care_level: 'high', seizure_type: 'Focal seizures', last_seizure_date: '2024-01-15',
+          next_of_kin: 'Susan Thompson (Daughter)', gp_name: 'Dr. Wilson', medications_count: 5,
+          risk_assessment: 'amber', mobility_level: 'Wheelchair', dietary_requirements: 'Diabetic diet',
+          emergency_contact: '07700 900123', admission_date: '2023-08-10', care_plan_review_date: '2024-02-10'
+        },
+        {
+          id: '2', full_name: 'Arthur Davies', date_of_birth: '1940-07-22', room_number: '8B',
+          care_level: 'medium', seizure_type: 'Generalized tonic-clonic', last_seizure_date: '2024-01-12',
+          next_of_kin: 'Michael Davies (Son)', gp_name: 'Dr. Patel', medications_count: 3,
+          risk_assessment: 'green', mobility_level: 'Walking frame', dietary_requirements: 'Low sodium',
+          emergency_contact: '07700 900456', admission_date: '2023-11-02', care_plan_review_date: '2024-02-15'
+        },
+        {
+          id: '3', full_name: 'Dorothy Williams', date_of_birth: '1938-12-03', room_number: '15C',
+          care_level: 'critical', seizure_type: 'Status epilepticus', last_seizure_date: '2024-01-18',
+          next_of_kin: 'Robert Williams (Son)', gp_name: 'Dr. Singh', medications_count: 8,
+          risk_assessment: 'red', mobility_level: 'Bed bound', dietary_requirements: 'Pureed diet',
+          emergency_contact: '07700 900789', admission_date: '2023-05-20', care_plan_review_date: '2024-01-25'
+        }
+      ]
+
+      const sampleStaff: Staff[] = [
+        {
+          id: '1', name: 'Sarah Johnson', role: 'senior_carer', shift_start: '07:00', shift_end: '19:00',
+          on_duty: true, training_expires: '2024-06-15', competency_level: 95
+        },
+        {
+          id: '2', name: 'Michael Brown', role: 'healthcare_assistant', shift_start: '19:00', shift_end: '07:00',
+          on_duty: true, training_expires: '2024-04-20', competency_level: 88
+        },
+        {
+          id: '3', name: 'Emma Wilson', role: 'nurse', shift_start: '07:00', shift_end: '15:00',
+          on_duty: true, training_expires: '2024-08-10', competency_level: 98
+        }
+      ]
+
+      const sampleIncidents: Incident[] = [
+        {
+          id: '1', resident_id: '1', resident_name: 'Margaret Thompson',
+          incident_type: 'seizure', severity: 3, description: 'Focal seizure lasting 2 minutes in dining room',
+          staff_witness: 'Sarah Johnson', date_time: '2024-01-18T14:30:00',
+          actions_taken: 'Positioned safely, timed seizure, post-ictal care provided',
+          family_notified: true, gp_contacted: false, status: 'closed'
+        },
+        {
+          id: '2', resident_id: '3', resident_name: 'Dorothy Williams',
+          incident_type: 'seizure', severity: 5, description: 'Prolonged seizure requiring emergency medication',
+          staff_witness: 'Emma Wilson', date_time: '2024-01-18T09:15:00',
+          actions_taken: 'Emergency medication administered, 999 called, family contacted',
+          family_notified: true, gp_contacted: true, status: 'investigating'
+        }
+      ]
+
+      const sampleMedicationSchedule: MedicationSchedule[] = [
+        {
+          id: '1', resident_id: '1', resident_name: 'Margaret Thompson',
+          medication_name: 'Levetiracetam 500mg', dosage: '1 tablet', time_due: '08:00',
+          administered: true, administered_by: 'Emma Wilson', administered_time: '08:05'
+        },
+        {
+          id: '2', resident_id: '1', resident_name: 'Margaret Thompson',
+          medication_name: 'Lamotrigine 100mg', dosage: '1 tablet', time_due: '20:00',
+          administered: false
+        },
+        {
+          id: '3', resident_id: '2', resident_name: 'Arthur Davies',
+          medication_name: 'Phenytoin 100mg', dosage: '2 capsules', time_due: '12:00',
+          administered: true, administered_by: 'Sarah Johnson', administered_time: '12:10'
+        }
+      ]
+
       setCurrentUser({ name: 'Sarah Johnson', role: 'Senior Carer' })
       setCareHome({
         id: '1',
@@ -184,7 +184,7 @@ export default function CareHomePortal() {
       setIsLoading(false)
     }
     checkAuth()
-  }, [sampleIncidents, sampleMedicationSchedule, sampleResidents, sampleStaff])
+  }, [])
 
   const showNotification = (type: 'success' | 'error' | 'warning', message: string) => {
     setNotification({ type, message })
