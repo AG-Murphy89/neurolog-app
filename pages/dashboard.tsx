@@ -317,13 +317,14 @@ export default function Dashboard() {
 
   const handleDownloadInsightsPDF = async () => {
     try {
-      if (typeof window === 'undefined') return
+      if (typeof window === 'undefined') {
+        alert('PDF generation not available on server side.')
+        return
+      }
       
       // Dynamic import to avoid SSR issues
-      const [html2canvas, jsPDF] = await Promise.all([
-        import('html2canvas').then(mod => mod.default),
-        import('jspdf').then(mod => mod.jsPDF)
-      ])
+      const html2canvas = await import('html2canvas').then(mod => mod.default)
+      const { jsPDF } = await import('jspdf')
 
       const element = document.getElementById('insights-content')
       if (!element) {
@@ -337,36 +338,53 @@ export default function Dashboard() {
         (header as HTMLElement).style.display = 'block'
       })
 
-      // Create canvas from element
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#ffffff',
-        allowTaint: true,
-        logging: false
-      })
+      try {
+        // Create canvas from element
+        const canvas = await html2canvas(element, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: '#ffffff',
+          allowTaint: true,
+          logging: false,
+          width: element.scrollWidth,
+          height: element.scrollHeight
+        })
 
-      // Hide print headers
-      printHeaders.forEach(header => {
-        (header as HTMLElement).style.display = 'none'
-      })
+        // Hide print headers
+        printHeaders.forEach(header => {
+          (header as HTMLElement).style.display = 'none'
+        })
 
-      const imgData = canvas.toDataURL('image/png')
-      const pdf = new jsPDF('p', 'mm', 'a4')
+        const imgData = canvas.toDataURL('image/png')
+        const pdf = new jsPDF('p', 'mm', 'a4')
 
-      const pdfWidth = pdf.internal.pageSize.getWidth()
-      const pdfHeight = pdf.internal.pageSize.getHeight()
-      const imgWidth = canvas.width
-      const imgHeight = canvas.height
-      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight)
-      const imgX = (pdfWidth - imgWidth * ratio) / 2
-      const imgY = 10
+        const pdfWidth = pdf.internal.pageSize.getWidth()
+        const pdfHeight = pdf.internal.pageSize.getHeight()
+        const imgWidth = canvas.width
+        const imgHeight = canvas.height
+        
+        // Calculate dimensions to fit the page
+        const ratio = Math.min(pdfWidth / (imgWidth * 0.264583), pdfHeight / (imgHeight * 0.264583))
+        const finalWidth = (imgWidth * 0.264583) * ratio
+        const finalHeight = (imgHeight * 0.264583) * ratio
+        const imgX = (pdfWidth - finalWidth) / 2
+        const imgY = 10
 
-      pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio)
-      pdf.save(`neurolog-insights-${new Date().toISOString().split('T')[0]}.pdf`)
+        pdf.addImage(imgData, 'PNG', imgX, imgY, finalWidth, finalHeight)
+        pdf.save(`neurolog-insights-${new Date().toISOString().split('T')[0]}.pdf`)
+        
+        alert('PDF downloaded successfully!')
+      } catch (canvasError) {
+        console.error('Canvas generation error:', canvasError)
+        // Hide print headers in case of error
+        printHeaders.forEach(header => {
+          (header as HTMLElement).style.display = 'none'
+        })
+        throw canvasError
+      }
     } catch (error) {
       console.error('Error generating PDF:', error)
-      alert('PDF generation failed. Please use the print button instead.')
+      alert('PDF generation failed. This may be due to browser security restrictions. Please try using the print button instead and save as PDF from your browser.')
     }
   }
 
