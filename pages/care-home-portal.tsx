@@ -184,7 +184,7 @@ export default function CareHomePortal() {
       setIsLoading(false)
     }
     checkAuth()
-  }, [])
+  }, [sampleIncidents, sampleMedicationSchedule, sampleResidents, sampleStaff])
 
   const showNotification = (type: 'success' | 'error' | 'warning', message: string) => {
     setNotification({ type, message })

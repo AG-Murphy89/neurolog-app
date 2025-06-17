@@ -12,6 +12,7 @@ const nextConfig: NextConfig = {
   env: {
     CUSTOM_KEY: process.env.CUSTOM_KEY,
   },
+  allowedDevOrigins: ['replit.dev', 'replit.app'],
   async headers() {
     return [
       {

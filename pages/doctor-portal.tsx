@@ -79,7 +79,7 @@ export default function DoctorPortal() {
 
   useEffect(() => {
     checkDoctorAuth()
-  }, [router])
+  }, [router, checkDoctorAuth])
 
   const checkDoctorAuth = async () => {
     try {

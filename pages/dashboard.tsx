@@ -889,7 +889,7 @@ export default function Dashboard() {
                         padding: '12px',
                         borderRadius: '8px',
                         border: '2px solid #e1e5e9',
-                        fontSize: '16px,
+                        fontSize: '16px',
                         minHeight: '80px',
                         resize: 'vertical',
                         boxSizing: 'border-box'
