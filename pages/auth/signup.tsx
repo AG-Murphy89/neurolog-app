@@ -14,6 +14,17 @@ interface RegisterFormData {
   lastName: string
   userType: 'patient' | 'family' | 'home_carer'
   gdprConsent: boolean
+  // Patient Information
+  address: string
+  gpSurgery: string
+  gpAddress: string
+  nhsNumber: string
+  contactDetails: string
+  // Next of Kin
+  nokName: string
+  nokRelationship: string
+  nokAddress: string
+  nokContact: string
 }
 
 export default function Register() {
@@ -24,7 +35,16 @@ export default function Register() {
     firstName: '',
     lastName: '',
     userType: 'patient',
-    gdprConsent: false
+    gdprConsent: false,
+    address: '',
+    gpSurgery: '',
+    gpAddress: '',
+    nhsNumber: '',
+    contactDetails: '',
+    nokName: '',
+    nokRelationship: '',
+    nokAddress: '',
+    nokContact: ''
   })
   const [errors, setErrors] = useState<{[key: string]: string}>({})
   const [isLoading, setIsLoading] = useState(false)
@@ -72,7 +92,7 @@ export default function Register() {
         if (error) {
           setErrors({ email: error.message })
         } else {
-          // Create user profile
+          // Create user profile with extended information
           const { error: profileError } = await supabase
             .from('user_profiles')
             .insert([{
@@ -80,6 +100,15 @@ export default function Register() {
               full_name: `${formData.firstName} ${formData.lastName}`,
               email: formData.email,
               account_type: formData.userType,
+              address: formData.address,
+              gp_surgery: formData.gpSurgery,
+              gp_address: formData.gpAddress,
+              nhs_number: formData.nhsNumber,
+              contact_details: formData.contactDetails,
+              nok_name: formData.nokName,
+              nok_relationship: formData.nokRelationship,
+              nok_address: formData.nokAddress,
+              nok_contact: formData.nokContact,
               created_at: new Date().toISOString()
             }])
 
@@ -121,7 +150,7 @@ export default function Register() {
           padding: '40px',
           boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
           border: '1px solid #e1e5e9',
-          maxWidth: '500px',
+          maxWidth: '600px',
           width: '100%'
         }}>
           <div style={{ textAlign: 'center', marginBottom: '32px' }}>
@@ -151,6 +180,7 @@ export default function Register() {
 
           <form onSubmit={handleSubmit}>
             <div style={{ display: 'grid', gap: '20px' }}>
+              {/* Basic Information */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
@@ -190,6 +220,231 @@ export default function Register() {
                     }}
                   />
                   {errors.lastName && <div style={{ color: '#ff4757', fontSize: '14px', marginTop: '4px' }}>{errors.lastName}</div>}
+                </div>
+              </div>
+
+              {/* Patient Information Section */}
+              <div style={{
+                background: '#f8f9fa',
+                padding: '24px',
+                borderRadius: '12px',
+                border: '1px solid #e1e5e9'
+              }}>
+                <h3 style={{ 
+                  color: '#003087', 
+                  margin: '0 0 20px 0',
+                  fontSize: '18px',
+                  fontWeight: '600'
+                }}>
+                  Patient Information
+                </h3>
+
+                <div style={{ display: 'grid', gap: '16px' }}>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
+                      Address
+                    </label>
+                    <textarea
+                      value={formData.address}
+                      onChange={(e) => setFormData({...formData, address: e.target.value})}
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        borderRadius: '8px',
+                        border: '2px solid #e1e5e9',
+                        fontSize: '16px',
+                        minHeight: '80px',
+                        resize: 'vertical',
+                        boxSizing: 'border-box'
+                      }}
+                      placeholder="Enter your full address"
+                    />
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
+                        GP Surgery
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.gpSurgery}
+                        onChange={(e) => setFormData({...formData, gpSurgery: e.target.value})}
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          borderRadius: '8px',
+                          border: '2px solid #e1e5e9',
+                          fontSize: '16px',
+                          boxSizing: 'border-box'
+                        }}
+                        placeholder="GP Surgery name"
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
+                        NHS Number
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.nhsNumber}
+                        onChange={(e) => setFormData({...formData, nhsNumber: e.target.value})}
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          borderRadius: '8px',
+                          border: '2px solid #e1e5e9',
+                          fontSize: '16px',
+                          boxSizing: 'border-box'
+                        }}
+                        placeholder="NHS Number"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
+                      GP Surgery Address
+                    </label>
+                    <textarea
+                      value={formData.gpAddress}
+                      onChange={(e) => setFormData({...formData, gpAddress: e.target.value})}
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        borderRadius: '8px',
+                        border: '2px solid #e1e5e9',
+                        fontSize: '16px',
+                        minHeight: '60px',
+                        resize: 'vertical',
+                        boxSizing: 'border-box'
+                      }}
+                      placeholder="GP Surgery address"
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
+                      Contact Details
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.contactDetails}
+                      onChange={(e) => setFormData({...formData, contactDetails: e.target.value})}
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        borderRadius: '8px',
+                        border: '2px solid #e1e5e9',
+                        fontSize: '16px',
+                        boxSizing: 'border-box'
+                      }}
+                      placeholder="Phone number and/or mobile"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Next of Kin Section */}
+              <div style={{
+                background: '#fff3cd',
+                padding: '24px',
+                borderRadius: '12px',
+                border: '1px solid #ffeaa7'
+              }}>
+                <h3 style={{ 
+                  color: '#856404', 
+                  margin: '0 0 20px 0',
+                  fontSize: '18px',
+                  fontWeight: '600'
+                }}>
+                  Next of Kin Information
+                </h3>
+
+                <div style={{ display: 'grid', gap: '16px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
+                        Name
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.nokName}
+                        onChange={(e) => setFormData({...formData, nokName: e.target.value})}
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          borderRadius: '8px',
+                          border: '2px solid #e1e5e9',
+                          fontSize: '16px',
+                          boxSizing: 'border-box'
+                        }}
+                        placeholder="Next of kin full name"
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
+                        Relationship
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.nokRelationship}
+                        onChange={(e) => setFormData({...formData, nokRelationship: e.target.value})}
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          borderRadius: '8px',
+                          border: '2px solid #e1e5e9',
+                          fontSize: '16px',
+                          boxSizing: 'border-box'
+                        }}
+                        placeholder="e.g., Mother, Father, Spouse"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
+                      Address
+                    </label>
+                    <textarea
+                      value={formData.nokAddress}
+                      onChange={(e) => setFormData({...formData, nokAddress: e.target.value})}
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        borderRadius: '8px',
+                        border: '2px solid #e1e5e9',
+                        fontSize: '16px',
+                        minHeight: '80px',
+                        resize: 'vertical',
+                        boxSizing: 'border-box'
+                      }}
+                      placeholder="Next of kin address"
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
+                      Contact Details
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.nokContact}
+                      onChange={(e) => setFormData({...formData, nokContact: e.target.value})}
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        borderRadius: '8px',
+                        border: '2px solid #e1e5e9',
+                        fontSize: '16px',
+                        boxSizing: 'border-box'
+                      }}
+                      placeholder="Phone number and/or email"
+                    />
+                  </div>
                 </div>
               </div>
 
