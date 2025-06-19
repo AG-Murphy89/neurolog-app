@@ -137,9 +137,9 @@ export default function DoctorVerification() {
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: '32px',
-              color: 'white'
+              color: '#00A651'
             }}>
-              ⚕️
+              ✚
             </div>
             <h1 style={{ 
               color: '#003087', 
