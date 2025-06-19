@@ -94,8 +94,8 @@ export default function DoctorPortal() {
         .single()
 
       if (doctorError || !doctorData) {
-        // Redirect to doctor verification page
-        router.push('/doctor-verification')
+        // Redirect to doctor verification page immediately without showing portal
+        router.replace('/doctor-verification')
         return
       }
 
@@ -105,11 +105,10 @@ export default function DoctorPortal() {
         loadRecentSeizures(doctorData.id),
         loadClinicalNotes(doctorData.id)
       ])
+      setIsLoading(false)
     } catch (error) {
       console.error('Error checking doctor auth:', error)
       router.push('/')
-    } finally {
-      setIsLoading(false)
     }
   }, [router])
 
@@ -315,7 +314,7 @@ export default function DoctorPortal() {
     return Math.max(0, daysLeft)
   }
 
-  if (isLoading) {
+  if (isLoading || !doctor) {
     return (
       <div style={{
         minHeight: '100vh',
