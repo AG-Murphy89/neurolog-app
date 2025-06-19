@@ -1186,7 +1186,7 @@ export default function Dashboard() {
                 <div className="no-print" style={{ display: 'flex', gap: '8px' }}>
                   
                  <button
-  onClick={() => window.exportData('pdf')}
+  onClick={() => exportData('pdf')}
   style={{
     background: '#28a745',
     color: 'white',
