@@ -60,7 +60,7 @@ export default function Home() {
               alignItems: 'center',
               gap: '8px'
             }}>
-              ✚ NeuroLog
+              <span style={{ color: '#00A651' }}>✚</span> NeuroLog
             </div>
 
             <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
@@ -275,7 +275,7 @@ export default function Home() {
               fontWeight: 'bold',
               marginBottom: '16px'
             }}>
-              ✚ NeuroLog
+              <span style={{ color: '#00A651' }}>✚</span> NeuroLog
             </div>
             <p style={{ margin: '0', opacity: 0.8 }}>
               Professional seizure tracking and management platform
