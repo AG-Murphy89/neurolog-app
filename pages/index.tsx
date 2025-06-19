@@ -37,9 +37,8 @@ export default function Home() {
       }}>
         {/* Navigation */}
         <nav style={{
-          background: 'rgba(255, 255, 255, 0.95)',
-          backdropFilter: 'blur(10px)',
-          borderBottom: '1px solid #e1e5e9',
+          background: '#005EB8',
+          borderBottom: '1px solid #004499',
           padding: '16px 0',
           position: 'sticky',
           top: 0,
@@ -56,7 +55,7 @@ export default function Home() {
             <div style={{
               fontSize: '24px',
               fontWeight: 'bold',
-              color: '#003087',
+              color: 'white',
               display: 'flex',
               alignItems: 'center',
               gap: '8px'
@@ -65,7 +64,7 @@ export default function Home() {
             </div>
 
             <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-              <span style={{ color: '#005EB8', fontWeight: '500' }}>
+              <span style={{ color: 'white', fontWeight: '500' }}>
                 CQC & GDPR Compliant
               </span>
               
