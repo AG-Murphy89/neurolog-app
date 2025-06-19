@@ -232,17 +232,17 @@ export default function Dashboard() {
 
     try {
       if (format === 'pdf') {
+        // Use the medical report PDF generation
         const result = await dataExportUtils.generateMedicalReportPDF(user.id)
         if (!result.success) {
+          console.error('PDF generation error:', result.error)
           alert(`Failed to generate PDF: ${result.error}`)
-        } else {
-          alert('PDF downloaded successfully!')
         }
+        // Success is handled in the PDF generation function itself
       } else {
         const result = await dataExportUtils.exportAllUserData(user.id)
         if (result.success && result.data) {
           dataExportUtils.downloadAsJSON(result.data)
-          alert('Data exported successfully!')
         } else {
           alert(`Failed to export data: ${result.error}`)
         }
@@ -391,64 +391,19 @@ export default function Dashboard() {
   }
 
   const handleDownloadInsightsPDF = async () => {
+    if (!user) return
+
     try {
-      // Use the existing medical report PDF generation from dataExportUtils
+      // Use the medical report PDF generation from dataExportUtils
       const result = await dataExportUtils.generateMedicalReportPDF(user.id)
       if (!result.success) {
+        console.error('PDF generation error:', result.error)
         alert(`Failed to generate PDF: ${result.error}`)
-      } else {
-        alert('PDF downloaded successfully!')
       }
+      // Success message is handled in the PDF generation function
     } catch (error: any) {
-      // Fallback to browser-based PDF generation
-      try {
-        const element = document.getElementById('insights-content')
-        if (!element) {
-          alert('Content not found. Please try again.')
-          return
-        }
-
-        // Dynamic import to avoid SSR issues
-        const html2canvas = (await import('html2canvas')).default
-        const { jsPDF } = await import('jspdf')
-
-        // Create canvas from element
-        const canvas = await html2canvas(element, {
-          scale: 2,
-          useCORS: true,
-          backgroundColor: '#ffffff',
-          allowTaint: true,
-          logging: false
-        })
-
-        const imgData = canvas.toDataURL('image/png')
-        const pdf = new jsPDF('p', 'mm', 'a4')
-
-        // Add title
-        pdf.setFontSize(16)
-        pdf.text('NeuroLog - Seizure Insights Report', 20, 20)
-        pdf.setFontSize(12)
-        pdf.text(`Patient: ${user?.full_name}`, 20, 30)
-        pdf.text(`Generated: ${new Date().toLocaleDateString()}`, 20, 40)
-
-        // Add image
-        const pdfWidth = pdf.internal.pageSize.getWidth()
-        const pdfHeight = pdf.internal.pageSize.getHeight()
-        const imgWidth = canvas.width
-        const imgHeight = canvas.height
-        
-        const ratio = Math.min((pdfWidth - 40) / (imgWidth * 0.264583), (pdfHeight - 60) / (imgHeight * 0.264583))
-        const finalWidth = (imgWidth * 0.264583) * ratio
-        const finalHeight = (imgHeight * 0.264583) * ratio
-
-        pdf.addImage(imgData, 'PNG', 20, 50, finalWidth, finalHeight)
-        pdf.save(`neurolog-insights-${new Date().toISOString().split('T')[0]}.pdf`)
-        
-        alert('PDF downloaded successfully!')
-      } catch (fallbackError) {
-        console.error('PDF generation failed:', fallbackError)
-        alert('PDF generation failed. Please try using the print button and save as PDF from your browser.')
-      }
+      console.error('PDF generation failed:', error)
+      alert(`PDF generation failed: ${error.message}`)
     }
   }
 
