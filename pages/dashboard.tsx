@@ -4,6 +4,11 @@ import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabase'
 import { dataExportUtils } from '../lib/dataExport'
 import dynamic from 'next/dynamic'
+declare global {
+  interface Window {
+    exportData: (format: 'json' | 'pdf') => Promise<void>;
+  }
+}
 
 interface SeizureEntry {
   id: string
@@ -94,6 +99,31 @@ export default function Dashboard() {
         }
 
         setUser(userData)
+          window.exportData = async (format = 'json') => {
+  try {
+    if (format === 'pdf') {
+      const result = await dataExportUtils.generateMedicalReportPDF(userData.id);
+
+      if (!result || !result.success) {
+        alert(`Failed to generate PDF: ${result?.error || 'Something went wrong'}`);
+        return;
+      }
+
+      console.log('PDF generated successfully.');
+    } else {
+      const result = await dataExportUtils.exportAllUserData(userData.id);
+
+      if (result?.success && result.data) {
+        dataExportUtils.downloadAsJSON(result.data);
+      } else {
+        alert(`Failed to export data: ${result?.error || 'Something went wrong'}`);
+      }
+    }
+  } catch (err: any) {
+    alert(`Export failed: ${err.message || 'Unexpected error'}`);
+  }
+};
+
         await loadSeizures(session.user.id)
       } catch (error) {
         console.error('Error checking user:', error)
@@ -226,39 +256,40 @@ export default function Dashboard() {
       alert('Error deleting seizure. Please try again.')
     }
   }
+console.log("Export started — user:", user);
 
  const exportData = async (format: 'json' | 'pdf' = 'json') => {
-  if (!user) return
+  if (!user || !user.id) {
+    alert("You're not logged in or user info is missing.");
+    return;
+  }
+
   try {
     if (format === 'pdf') {
-      console.log('Checking PDF function...')
-      console.log(dataExportUtils)
-      
-      if (!dataExportUtils || !dataExportUtils.generateMedicalReportPDF) {
-        alert('PDF function is missing!')
-        return
+      const result = await dataExportUtils.generateMedicalReportPDF(user.id);
+
+      if (!result || !result.success) {
+        console.error('PDF generation error:', result?.error || 'Unknown error');
+        alert(`Failed to generate PDF: ${result?.error || 'Something went wrong'}`);
+        return;
       }
-      
-      console.log('Calling PDF function...')
-      const result = await dataExportUtils.generateMedicalReportPDF(user.id)
-      
-      if (!result.success) {
-        console.error('PDF generation error:', result.error)
-        alert(`Failed to generate PDF: ${result.error}`)
-      }
+
+      console.log('PDF generated successfully.');
     } else {
-      const result = await dataExportUtils.exportAllUserData(user.id)
-      if (result.success && result.data) {
-        dataExportUtils.downloadAsJSON(result.data)
+      const result = await dataExportUtils.exportAllUserData(user.id);
+
+      if (result?.success && result.data) {
+        dataExportUtils.downloadAsJSON(result.data);
       } else {
-        alert(`Failed to export data: ${result.error}`)
+        alert(`Failed to export data: ${result?.error || 'Something went wrong'}`);
       }
     }
   } catch (error: any) {
-    console.error('Export error:', error)
-    alert(`Export failed: ${error.message}`)
+    console.error('Export error:', error);
+    alert(`Export failed: ${error.message || 'An unknown error occurred'}`);
   }
-}
+};
+
 
   const getRecentSeizures = () => {
     const thirtyDaysAgo = new Date()
