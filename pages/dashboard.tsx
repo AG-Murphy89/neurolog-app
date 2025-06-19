@@ -298,93 +298,153 @@ export default function Dashboard() {
   }
 
   const handlePrintInsights = () => {
-    // Show print-specific elements
-    const printHeaders = document.querySelectorAll('.print-header')
-    printHeaders.forEach(header => {
-      (header as HTMLElement).style.display = 'block'
-    })
+    // Create a new window for printing
+    const printWindow = window.open('', '_blank')
+    if (!printWindow) {
+      alert('Please allow popups to print the report')
+      return
+    }
 
-    // Trigger print
-    window.print()
+    const printContent = document.getElementById('insights-content')
+    if (!printContent) {
+      alert('Content not found. Please try again.')
+      return
+    }
 
-    // Hide print-specific elements after print
+    // Create print-friendly HTML
+    const printHTML = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>NeuroLog - Seizure Insights Report</title>
+          <style>
+            body {
+              font-family: system-ui, -apple-system, sans-serif;
+              margin: 20px;
+              line-height: 1.6;
+              color: #333;
+            }
+            .print-header {
+              display: block !important;
+              margin-bottom: 20px;
+              border-bottom: 2px solid #003087;
+              padding-bottom: 10px;
+            }
+            .no-print {
+              display: none !important;
+            }
+            h1, h2, h3 {
+              color: #003087;
+            }
+            .stats-grid {
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+              gap: 16px;
+              margin: 20px 0;
+            }
+            .stat-card {
+              padding: 15px;
+              border: 1px solid #e1e5e9;
+              border-radius: 8px;
+              background: #f8f9fa;
+            }
+            .stat-value {
+              font-size: 24px;
+              font-weight: bold;
+              color: #005EB8;
+            }
+            .seizure-entry {
+              padding: 12px;
+              margin: 8px 0;
+              border: 1px solid #e1e5e9;
+              border-radius: 8px;
+              background: white;
+            }
+            @media print {
+              body { margin: 0; }
+              .no-print { display: none !important; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="print-header">
+            <h1>NeuroLog - Seizure Insights Report</h1>
+            <p>Patient: ${user?.full_name} | Generated: ${new Date().toLocaleDateString()}</p>
+          </div>
+          ${printContent.innerHTML}
+        </body>
+      </html>
+    `
+
+    printWindow.document.write(printHTML)
+    printWindow.document.close()
+    
+    // Wait for content to load then print
     setTimeout(() => {
-      printHeaders.forEach(header => {
-        (header as HTMLElement).style.display = 'none'
-      })
-    }, 1000)
+      printWindow.print()
+      printWindow.close()
+    }, 500)
   }
 
   const handleDownloadInsightsPDF = async () => {
     try {
-      if (typeof window === 'undefined') {
-        alert('PDF generation not available on server side.')
-        return
+      // Use the existing medical report PDF generation from dataExportUtils
+      const result = await dataExportUtils.generateMedicalReportPDF(user.id)
+      if (!result.success) {
+        alert(`Failed to generate PDF: ${result.error}`)
+      } else {
+        alert('PDF downloaded successfully!')
       }
-      
-      // Dynamic import to avoid SSR issues
-      const html2canvas = await import('html2canvas').then(mod => mod.default)
-      const { jsPDF } = await import('jspdf')
-
-      const element = document.getElementById('insights-content')
-      if (!element) {
-        alert('Content not found. Please try again.')
-        return
-      }
-
-      // Show print headers for PDF
-      const printHeaders = document.querySelectorAll('.print-header')
-      printHeaders.forEach(header => {
-        (header as HTMLElement).style.display = 'block'
-      })
-
+    } catch (error: any) {
+      // Fallback to browser-based PDF generation
       try {
+        const element = document.getElementById('insights-content')
+        if (!element) {
+          alert('Content not found. Please try again.')
+          return
+        }
+
+        // Dynamic import to avoid SSR issues
+        const html2canvas = (await import('html2canvas')).default
+        const { jsPDF } = await import('jspdf')
+
         // Create canvas from element
         const canvas = await html2canvas(element, {
           scale: 2,
           useCORS: true,
           backgroundColor: '#ffffff',
           allowTaint: true,
-          logging: false,
-          width: element.scrollWidth,
-          height: element.scrollHeight
-        })
-
-        // Hide print headers
-        printHeaders.forEach(header => {
-          (header as HTMLElement).style.display = 'none'
+          logging: false
         })
 
         const imgData = canvas.toDataURL('image/png')
         const pdf = new jsPDF('p', 'mm', 'a4')
 
+        // Add title
+        pdf.setFontSize(16)
+        pdf.text('NeuroLog - Seizure Insights Report', 20, 20)
+        pdf.setFontSize(12)
+        pdf.text(`Patient: ${user?.full_name}`, 20, 30)
+        pdf.text(`Generated: ${new Date().toLocaleDateString()}`, 20, 40)
+
+        // Add image
         const pdfWidth = pdf.internal.pageSize.getWidth()
         const pdfHeight = pdf.internal.pageSize.getHeight()
         const imgWidth = canvas.width
         const imgHeight = canvas.height
         
-        // Calculate dimensions to fit the page
-        const ratio = Math.min(pdfWidth / (imgWidth * 0.264583), pdfHeight / (imgHeight * 0.264583))
+        const ratio = Math.min((pdfWidth - 40) / (imgWidth * 0.264583), (pdfHeight - 60) / (imgHeight * 0.264583))
         const finalWidth = (imgWidth * 0.264583) * ratio
         const finalHeight = (imgHeight * 0.264583) * ratio
-        const imgX = (pdfWidth - finalWidth) / 2
-        const imgY = 10
 
-        pdf.addImage(imgData, 'PNG', imgX, imgY, finalWidth, finalHeight)
+        pdf.addImage(imgData, 'PNG', 20, 50, finalWidth, finalHeight)
         pdf.save(`neurolog-insights-${new Date().toISOString().split('T')[0]}.pdf`)
         
         alert('PDF downloaded successfully!')
-      } catch (canvasError) {
-        console.error('Canvas generation error:', canvasError)
-        // Hide print headers in case of error
-        printHeaders.forEach(header => {
-          (header as HTMLElement).style.display = 'none'
-        })
-        throw canvasError
+      } catch (fallbackError) {
+        console.error('PDF generation failed:', fallbackError)
+        alert('PDF generation failed. Please try using the print button and save as PDF from your browser.')
       }
-    } catch (error) {
-      console.error('Error generating PDF:', error)
-      alert('PDF generation failed. This may be due to browser security restrictions. Please try using the print button instead and save as PDF from your browser.')
     }
   }
 
@@ -425,6 +485,23 @@ export default function Dashboard() {
     <>
       <Head>
         <title>Dashboard - NeuroLog</title>
+        <style jsx global>{`
+          @media print {
+            .no-print {
+              display: none !important;
+            }
+            .print-header {
+              display: block !important;
+            }
+            body {
+              -webkit-print-color-adjust: exact;
+              color-adjust: exact;
+            }
+          }
+          .print-header {
+            display: none;
+          }
+        `}</style>
       </Head>
 
       <div style={{
@@ -1158,7 +1235,7 @@ export default function Dashboard() {
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                 <h2 style={{ margin: '0', color: '#003087' }}>Seizure Insights & Analytics</h2>
-                <div style={{ display: 'flex', gap: '8px' }}>
+                <div className="no-print" style={{ display: 'flex', gap: '8px' }}>
                   <button
                     onClick={() => handlePrintInsights()}
                     style={{
