@@ -227,11 +227,41 @@ export default function Dashboard() {
     }
   }
 
-  const exportData = async (format: 'json' | 'pdf' = 'json') => {
-    if (!user) return
+ const exportData = async (format: 'json' | 'pdf' = 'json') => {
+  if (!user) return
+  try {
+    if (format === 'pdf') {
+      console.log('Checking PDF function...')
+      console.log(dataExportUtils)
+      
+      if (!dataExportUtils || !dataExportUtils.generateMedicalReportPDF) {
+        alert('PDF function is missing!')
+        return
+      }
+      
+      console.log('Calling PDF function...')
+      const result = await dataExportUtils.generateMedicalReportPDF(user.id)
+      
+      if (!result.success) {
+        console.error('PDF generation error:', result.error)
+        alert(`Failed to generate PDF: ${result.error}`)
+      }
+    } else {
+      const result = await dataExportUtils.exportAllUserData(user.id)
+      if (result.success && result.data) {
+        dataExportUtils.downloadAsJSON(result.data)
+      } else {
+        alert(`Failed to export data: ${result.error}`)
+      }
+    }
+  } catch (error: any) {
+    console.error('Export error:', error)
+    alert(`Export failed: ${error.message}`)
+  }
+}
 
     try {
-      if (format === 'pdf') {
+      if (formData === 'pdf') {
         // Use the medical report PDF generation
         const result = await dataExportUtils.generateMedicalReportPDF(user.id)
         if (!result.success) {
