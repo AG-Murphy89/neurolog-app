@@ -60,14 +60,14 @@ export default function Home() {
               alignItems: 'center',
               gap: '8px'
             }}>
-              ⚕️ NeuroLog
+              ✚ NeuroLog
             </div>
 
             <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
               <span style={{ color: 'white', fontWeight: '500' }}>
                 CQC & GDPR Compliant
               </span>
-              
+
             </div>
           </div>
         </nav>
@@ -258,7 +258,7 @@ export default function Home() {
               Comprehensive seizure documentation for patients and families dealing with complex epilepsy. Clinical-quality data for better treatment decisions.
             </p>
 
-            
+
           </div>
         </section>
 
@@ -275,7 +275,7 @@ export default function Home() {
               fontWeight: 'bold',
               marginBottom: '16px'
             }}>
-              ⚕️ NeuroLog
+              ✚ NeuroLog
             </div>
             <p style={{ margin: '0', opacity: 0.8 }}>
               Professional seizure tracking and management platform
