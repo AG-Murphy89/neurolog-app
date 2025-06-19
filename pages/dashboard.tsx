@@ -235,16 +235,20 @@ export default function Dashboard() {
         const result = await dataExportUtils.generateMedicalReportPDF(user.id)
         if (!result.success) {
           alert(`Failed to generate PDF: ${result.error}`)
+        } else {
+          alert('PDF downloaded successfully!')
         }
       } else {
         const result = await dataExportUtils.exportAllUserData(user.id)
         if (result.success && result.data) {
           dataExportUtils.downloadAsJSON(result.data)
+          alert('Data exported successfully!')
         } else {
           alert(`Failed to export data: ${result.error}`)
         }
       }
     } catch (error: any) {
+      console.error('Export error:', error)
       alert(`Export failed: ${error.message}`)
     }
   }
@@ -1060,7 +1064,7 @@ export default function Dashboard() {
                 <h2 style={{ margin: '0', color: '#003087' }}>Seizure History</h2>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <button
-                    onClick={() => exportData('json')}
+                    onClick={() => exportData('pdf')}
                     style={{
                       background: '#28a745',
                       color: 'white',
@@ -1074,7 +1078,7 @@ export default function Dashboard() {
                     📄 Download PDF
                   </button>
                   <button
-                    onClick={() => exportData('pdf')}
+                    onClick={() => window.print()}
                     style={{
                       background: '#007bff',
                       color: 'white',
