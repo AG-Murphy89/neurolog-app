@@ -1,0 +1,69 @@
+Hi, I need help fixing my PDF download functionality in my Next.js dashboard. The issue is that when I click the PDF button (in the History and Insights sections), I get an alert saying “User not loaded. Please wait and try again.” I use Supabase for authentication, but the error isn’t coming from Supabase—it’s because my export function is capturing a stale user value.
+
+Currently, in dashboard.tsx I have this code (right after setting the user):
+
+  setUser(userData);
+  
+  // Attach export function to window after user is loaded
+  window.exportData = async (format = 'json') => {
+    if (!user || !user.id) { 
+      alert("User not loaded. Please wait and try again."); 
+      return; 
+    }
+    try {
+      if (format === 'pdf') {
+        const result = await dataExportUtils.generateMedicalReportPDF(user.id);
+        if (!result || !result.success) {
+          alert(`Failed to generate PDF: ${result?.error || 'Something went wrong'}`);
+          return;
+        }
+        console.log('PDF generated successfully.');
+      } else {
+        const result = await dataExportUtils.exportAllUserData(user.id);
+        if (result?.success && result.data) {
+          dataExportUtils.downloadAsJSON(result.data);
+        } else {
+          alert(`Failed to export data: ${result?.error || 'Something went wrong'}`);
+        }
+      }
+    } catch (err: any) {
+      alert(`Export failed: ${err.message || 'Unexpected error'}`);
+    }
+  };
+  
+  await loadSeizures(session.user.id);
+
+The problem is that when this function is defined, the React state variable "user" isn’t yet updated, so the function always finds user to be empty.
+
+Please update only this block of code—do not change anything else—to instead define window.exportData inside a useEffect hook that depends on the “user” state. The updated code block should look exactly like this:
+
+------------------------------------------------------------
+useEffect(() => {
+  if (!user || !user.id) return;
+  
+  // Attach export function to window after user state is available
+  window.exportData = async (format = 'json') => {
+    try {
+      if (format === 'pdf') {
+        const result = await dataExportUtils.generateMedicalReportPDF(user.id);
+        if (!result || !result.success) {
+          alert(`Failed to generate PDF: ${result?.error || 'Something went wrong'}`);
+          return;
+        }
+        console.log('PDF generated successfully.');
+      } else {
+        const result = await dataExportUtils.exportAllUserData(user.id);
+        if (result?.success && result.data) {
+          dataExportUtils.downloadAsJSON(result.data);
+        } else {
+          alert(`Failed to export data: ${result?.error || 'Something went wrong'}`);
+        }
+      }
+    } catch (err: any) {
+      alert(`Export failed: ${err.message || 'Unexpected error'}`);
+    }
+  };
+}, [user]);
+------------------------------------------------------------
+
+Please provide me with exactly this updated code block for dashboard.tsx that I can copy and paste. Do not change anything else in the file.
