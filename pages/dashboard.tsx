@@ -101,35 +101,35 @@ export default function Dashboard() {
         setUser(userData);
 
         // Attach export function to window after user is loaded
-       window.exportData = async (format = 'json') => {
-  if (!user || !user.id) {
-    alert("User not loaded. Please wait and try again.");
-    return;
-  }
+        window.exportData = async (format = 'json') => {
+          if (!userData || !userData.id) {
+            alert("User not loaded. Please wait and try again.");
+            return;
+          }
 
-  try {
-    if (format === 'pdf') {
-      const result = await dataExportUtils.generateMedicalReportPDF(user.id);
+          try {
+            if (format === 'pdf') {
+              const result = await dataExportUtils.generateMedicalReportPDF(userData.id);
 
-      if (!result || !result.success) {
-        alert(`Failed to generate PDF: ${result?.error || 'Something went wrong'}`);
-        return;
-      }
+              if (!result || !result.success) {
+                alert(`Failed to generate PDF: ${result?.error || 'Something went wrong'}`);
+                return;
+              }
 
-      console.log('PDF generated successfully.');
-    } else {
-      const result = await dataExportUtils.exportAllUserData(user.id);
+              console.log('PDF generated successfully.');
+            } else {
+              const result = await dataExportUtils.exportAllUserData(userData.id);
 
-      if (result?.success && result.data) {
-        dataExportUtils.downloadAsJSON(result.data);
-      } else {
-        alert(`Failed to export data: ${result?.error || 'Something went wrong'}`);
-      }
-    }
-  } catch (err: any) {
-    alert(`Export failed: ${err.message || 'Unexpected error'}`);
-  }
-};
+              if (result?.success && result.data) {
+                dataExportUtils.downloadAsJSON(result.data);
+              } else {
+                alert(`Failed to export data: ${result?.error || 'Something went wrong'}`);
+              }
+            }
+          } catch (err: any) {
+            alert(`Export failed: ${err.message || 'Unexpected error'}`);
+          }
+        };
 
 
         await loadSeizures(session.user.id)
