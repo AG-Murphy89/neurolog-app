@@ -901,7 +901,8 @@ export default function Dashboard() {
                         boxSizing: 'border-box'
                       }}
                     />
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#666', marginTop: '4px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color```
+: '#666', marginTop: '4px' }}>
                       <span>Mild</span>
                       <span>Severe</span>
                     </div>
@@ -1412,59 +1413,65 @@ export default function Dashboard() {
                   </div>
                 </div>
 
+                {/* Patient Information Section */}
                 <div style={{
-                  background: '#f8f9fa',
-                  padding: '20px',
-                  borderRadius: '12px',
-                  border: '1px solid #e1e5e9'
-                }}>
-                  <h3 style={{ margin: '0 0 16px 0', color: '#003087' }}>Data & Privacy</h3>
-                  <div style={{ display: 'grid', gap: '12px' }}>
-                    <button
-                      onClick={() => exportData('json')}
-                      style={{
-                        background: '#28a745',
-                        color: 'white',
-                        border: 'none',
-                        padding: '8px 16px',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        fontSize: '14px',
-                        textAlign: 'left'
-                      }}
-                    >
-                      📄 Download JSON Data (GDPR)
-                    </button>
-                    <button
-                      onClick={() => exportData('pdf')}
-                      style={{
-                        background: '#007bff',
-                        color: 'white',
-                        border: 'none',
-                        padding: '8px 16px',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        fontSize: '14px',
-                        textAlign: 'left'
-                      }}
-                    >
-                      📄 Download Medical Report PDF
-                    </button>
+                    background: '#f8f9fa',
+                    padding: '20px',
+                    borderRadius: '12px',
+                    border: '1px solid #e1e5e9'
+                  }}>
+                    <h3 style={{ margin: '0 0 16px 0', color: '#003087' }}>Patient Information</h3>
+                    <div style={{ display: 'grid', gap: '12px' }}>
+                      <div>
+                        <label htmlFor="name"><strong>Name:</strong></label>
+                        <input type="text" id="name" style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                      </div>
+                      <div>
+                        <label htmlFor="address"><strong>Address:</strong></label>
+                        <input type="text" id="address" style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                      </div>
+                      <div>
+                        <label htmlFor="gpSurgery"><strong>GP Surgery and Address:</strong></label>
+                        <input type="text" id="gpSurgery" style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                      </div>
+                      <div>
+                        <label htmlFor="nhsNumber"><strong>NHS Number:</strong></label>
+                        <input type="text" id="nhsNumber" style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                      </div>
+                      <div>
+                        <label htmlFor="contactDetails"><strong>Contact Details:</strong></label>
+                        <input type="text" id="contactDetails" style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                      </div>
+                    </div>
                   </div>
-                </div>
 
-                <div style={{
-                  background: '#e3f2fd',
-                  padding: '20px',
-                  borderRadius: '12px',
-                  border: '1px solid #bbdefb'
-                }}>
-                  <h3 style={{ margin: '0 0 16px 0', color: '#1976d2' }}>🔒 Data Security</h3>
-                  <div style={{ fontSize: '14px', color: '#1565c0', lineHeight: '1.6' }}>
-                    Your seizure data is stored securely with bank-grade encryption.
-                    NeuroLog is fully GDPR compliant and your data is protected.
+                  {/* Next of Kin Section */}
+                  <div style={{
+                      background: '#f8f9fa',
+                      padding: '20px',
+                      borderRadius: '12px',
+                      border: '1px solid #e1e5e9'
+                    }}>
+                    <h3 style={{ margin: '0 0 16px 0', color: '#003087' }}>Next of Kin Information</h3>
+                    <div style={{ display: 'grid', gap: '12px' }}>
+                      <div>
+                        <label htmlFor="kinName"><strong>Name:</strong></label>
+                        <input type="text" id="kinName" style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                      </div>
+                      <div>
+                        <label htmlFor="kinRelationship"><strong>Relationship:</strong></label>
+                        <input type="text" id="kinRelationship" style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                      </div>
+                      <div>
+                        <label htmlFor="kinAddress"><strong>Address:</strong></label>
+                        <input type="text" id="kinAddress" style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                      </div>
+                      <div>
+                        <label htmlFor="kinContactDetails"><strong>Contact Details:</strong></label>
+                        <input type="text" id="kinContactDetails" style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                      </div>
+                    </div>
                   </div>
-                </div>
               </div>
             </div>
           )}
