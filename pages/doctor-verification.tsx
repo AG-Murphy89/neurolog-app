@@ -95,7 +95,6 @@ export default function DoctorVerification() {
         backgroundColor: '#f8f9fa'
       }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚕️</div>
           <div style={{ color: '#005EB8', fontSize: '18px' }}>Loading...</div>
         </div>
       </div>
