@@ -901,8 +901,7 @@ export default function Dashboard() {
                         boxSizing: 'border-box'
                       }}
                     />
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color```
-: '#666', marginTop: '4px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#666',marginTop: '4px' }}>
                       <span>Mild</span>
                       <span>Severe</span>
                     </div>
@@ -1728,7 +1727,7 @@ export default function Dashboard() {
                       cursor: 'pointer',
                       boxShadow: '0 6px 20px rgba(220, 53, 69, 0.4)'
                     }}
-                  >
+                  >```python
                     Save Emergency Contacts
                   </button>
                 </div>
@@ -2009,6 +2008,6 @@ export default function Dashboard() {
           )}
         </div>
       </div>
-    </>
+    
   )
 }
