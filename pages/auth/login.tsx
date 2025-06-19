@@ -19,15 +19,7 @@ export default function Login() {
   const [message, setMessage] = useState('')
   const router = useRouter()
 
-  useEffect(() => {
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (session) {
-        router.push('/dashboard')
-      }
-    }
-    checkUser()
-  }, [router])
+  // Removed automatic redirect to allow users to enter login details
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
