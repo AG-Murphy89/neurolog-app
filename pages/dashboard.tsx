@@ -102,14 +102,16 @@ export default function Dashboard() {
 
         // Attach export function to window after user is loaded
         window.exportData = async (format = 'json') => {
-          if (!userData || !userData.id) {
+          // Get current user state directly
+          const currentUser = userData;
+          if (!currentUser || !currentUser.id) {
             alert("User not loaded. Please wait and try again.");
             return;
           }
 
           try {
             if (format === 'pdf') {
-              const result = await dataExportUtils.generateMedicalReportPDF(userData.id);
+              const result = await dataExportUtils.generateMedicalReportPDF(currentUser.id);
 
               if (!result || !result.success) {
                 alert(`Failed to generate PDF: ${result?.error || 'Something went wrong'}`);
@@ -118,7 +120,7 @@ export default function Dashboard() {
 
               console.log('PDF generated successfully.');
             } else {
-              const result = await dataExportUtils.exportAllUserData(userData.id);
+              const result = await dataExportUtils.exportAllUserData(currentUser.id);
 
               if (result?.success && result.data) {
                 dataExportUtils.downloadAsJSON(result.data);
