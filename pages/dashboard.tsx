@@ -100,39 +100,6 @@ export default function Dashboard() {
 
         setUser(userData);
 
-        // Attach export function to window after user is loaded
-        window.exportData = async (format = 'json') => {
-          // Get current user state directly
-          const currentUser = userData;
-          if (!currentUser || !currentUser.id) {
-            alert("User not loaded. Please wait and try again.");
-            return;
-          }
-
-          try {
-            if (format === 'pdf') {
-              const result = await dataExportUtils.generateMedicalReportPDF(currentUser.id);
-
-              if (!result || !result.success) {
-                alert(`Failed to generate PDF: ${result?.error || 'Something went wrong'}`);
-                return;
-              }
-
-              console.log('PDF generated successfully.');
-            } else {
-              const result = await dataExportUtils.exportAllUserData(currentUser.id);
-
-              if (result?.success && result.data) {
-                dataExportUtils.downloadAsJSON(result.data);
-              } else {
-                alert(`Failed to export data: ${result?.error || 'Something went wrong'}`);
-              }
-            }
-          } catch (err: any) {
-            alert(`Export failed: ${err.message || 'Unexpected error'}`);
-          }
-        };
-
 
         await loadSeizures(session.user.id)
       } catch (error) {
@@ -145,6 +112,33 @@ export default function Dashboard() {
 
     checkUser()
   }, [router])
+
+  useEffect(() => {
+    if (!user || !user.id) return;
+    
+    // Attach export function to window after user state is available
+    window.exportData = async (format = 'json') => {
+      try {
+        if (format === 'pdf') {
+          const result = await dataExportUtils.generateMedicalReportPDF(user.id);
+          if (!result || !result.success) {
+            alert(`Failed to generate PDF: ${result?.error || 'Something went wrong'}`);
+            return;
+          }
+          console.log('PDF generated successfully.');
+        } else {
+          const result = await dataExportUtils.exportAllUserData(user.id);
+          if (result?.success && result.data) {
+            dataExportUtils.downloadAsJSON(result.data);
+          } else {
+            alert(`Failed to export data: ${result?.error || 'Something went wrong'}`);
+          }
+        }
+      } catch (err: any) {
+        alert(`Export failed: ${err.message || 'Unexpected error'}`);
+      }
+    };
+  }, [user])
 
   const loadSeizures = async (userId: string) => {
     try {
