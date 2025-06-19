@@ -99,8 +99,6 @@ export default function Dashboard() {
         }
 
         setUser(userData);
-
-
         await loadSeizures(session.user.id)
       } catch (error) {
         console.error('Error checking user:', error)
@@ -115,7 +113,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!user || !user.id) return;
-    
+
     // Attach export function to window after user state is available
     window.exportData = async (format = 'json') => {
       try {
@@ -399,7 +397,7 @@ export default function Dashboard() {
 
     printWindow.document.write(printHTML)
     printWindow.document.close()
-    
+
     // Wait for content to load then print
     setTimeout(() => {
       printWindow.print()
@@ -1180,7 +1178,7 @@ export default function Dashboard() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                 <h2 style={{ margin: '0', color: '#003087' }}>Seizure Insights & Analytics</h2>
                 <div className="no-print" style={{ display: 'flex', gap: '8px' }}>
-                  
+
                  <button
   onClick={() => exportData('pdf')}
   style={{
