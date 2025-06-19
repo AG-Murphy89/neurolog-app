@@ -101,35 +101,36 @@ export default function Dashboard() {
         setUser(userData);
 
         // Attach export function to window after user is loaded
-        window.exportData = async (format = 'json') => {
-          try {
-            if (!userData || !userData.id) {
-              alert("User data not available. Please try again.");
-              return;
-            }
+       window.exportData = async (format = 'json') => {
+  if (!user || !user.id) {
+    alert("User not loaded. Please wait and try again.");
+    return;
+  }
 
-            if (format === 'pdf') {
-              const result = await dataExportUtils.generateMedicalReportPDF(userData.id);
+  try {
+    if (format === 'pdf') {
+      const result = await dataExportUtils.generateMedicalReportPDF(user.id);
 
-              if (!result || !result.success) {
-                alert(`Failed to generate PDF: ${result?.error || 'Something went wrong'}`);
-                return;
-              }
+      if (!result || !result.success) {
+        alert(`Failed to generate PDF: ${result?.error || 'Something went wrong'}`);
+        return;
+      }
 
-              console.log('PDF generated successfully.');
-            } else {
-              const result = await dataExportUtils.exportAllUserData(userData.id);
+      console.log('PDF generated successfully.');
+    } else {
+      const result = await dataExportUtils.exportAllUserData(user.id);
 
-              if (result?.success && result.data) {
-                dataExportUtils.downloadAsJSON(result.data);
-              } else {
-                alert(`Failed to export data: ${result?.error || 'Something went wrong'}`);
-              }
-            }
-          } catch (err: any) {
-            alert(`Export failed: ${err.message || 'Unexpected error'}`);
-          }
-        };
+      if (result?.success && result.data) {
+        dataExportUtils.downloadAsJSON(result.data);
+      } else {
+        alert(`Failed to export data: ${result?.error || 'Something went wrong'}`);
+      }
+    }
+  } catch (err: any) {
+    alert(`Export failed: ${err.message || 'Unexpected error'}`);
+  }
+};
+
 
         await loadSeizures(session.user.id)
       } catch (error) {
@@ -1183,21 +1184,23 @@ export default function Dashboard() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                 <h2 style={{ margin: '0', color: '#003087' }}>Seizure Insights & Analytics</h2>
                 <div className="no-print" style={{ display: 'flex', gap: '8px' }}>
-                  <button
-                    onClick={() => handleDownloadInsightsPDF()}
-                    style={{
-                      background: '#28a745',
-                      color: 'white',
-                      border: 'none',
-                      padding: '8px 16px',
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      fontSize: '14px',
-                      fontWeight: '500'
-                    }}
-                  >
-                    📄 Download PDF
-                  </button>
+                  
+                 <button
+  onClick={() => window.exportData('pdf')}
+  style={{
+    background: '#28a745',
+    color: 'white',
+    border: 'none',
+    padding: '8px 16px',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    fontSize: '14px',
+    fontWeight: '500'
+  }}
+>
+  📄 Download PDF
+</button>
+
                   <button
                     onClick={() => handlePrintInsights()}
                     style={{
