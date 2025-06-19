@@ -821,6 +821,78 @@ export default function MedicationPage() {
             </div>
           )}
 
+          {/* History */}
+          {activeSection === 'history' && (
+            <div style={{
+              background: 'white',
+              borderRadius: '16px',
+              padding: '24px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              border: '1px solid #e1e5e9'
+            }}>
+              <h2 style={{ margin: '0 0 24px 0', color: '#003087' }}>Medication History</h2>
+
+              {medications.length === 0 ? (
+                <div style={{ textAlign: 'center', color: '#666', padding: '60px 20px' }}>
+                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>📋</div>
+                  <div style={{ fontSize: '18px', marginBottom: '8px' }}>No history available</div>
+                  <div style={{ fontSize: '14px' }}>Add medications to start tracking your history</div>
+                </div>
+              ) : (
+                <div style={{ display: 'grid', gap: '16px' }}>
+                  {medications.map(medication => (
+                    <div key={medication.id} style={{
+                      border: '1px solid #e1e5e9',
+                      borderRadius: '12px',
+                      padding: '20px',
+                      backgroundColor: 'white'
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                        <div>
+                          <h3 style={{ margin: '0 0 8px 0', color: '#003087', fontSize: '18px' }}>
+                            {medication.name}
+                          </h3>
+                          <div style={{ color: '#666', fontSize: '14px', marginBottom: '8px' }}>
+                            <strong>Period:</strong> {new Date(medication.start_date).toLocaleDateString()} 
+                            {medication.end_date && ` - ${new Date(medication.end_date).toLocaleDateString()}`}
+                            {!medication.end_date && medication.status === 'active' && ' - Present'}
+                          </div>
+                          <div style={{ color: '#666', fontSize: '14px' }}>
+                            <strong>Dosage:</strong> {medication.dosage} {medication.dosage_unit} • 
+                            <strong> Frequency:</strong> {medication.frequency}
+                          </div>
+                        </div>
+                        <div style={{
+                          padding: '4px 8px',
+                          borderRadius: '12px',
+                          fontSize: '12px',
+                          fontWeight: '600',
+                          backgroundColor: getStatusColor(medication.status),
+                          color: 'white'
+                        }}>
+                          {medication.status}
+                        </div>
+                      </div>
+                      
+                      {medication.notes && (
+                        <div style={{ 
+                          background: '#f8f9fa', 
+                          padding: '12px', 
+                          borderRadius: '8px',
+                          fontSize: '14px',
+                          color: '#666',
+                          marginTop: '12px'
+                        }}>
+                          <strong>Notes:</strong> {medication.notes}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Statistics */}
           {activeSection === 'statistics' && (
             <div style={{ display: 'grid', gap: '24px' }}>
