@@ -1205,7 +1205,7 @@ export default function Dashboard() {
                 <h2 style={{ margin: '0', color: '#003087' }}>Seizure Insights & Analytics</h2>
                 <div className="no-print" style={{ display: 'flex', gap: '8px' }}>
                   <button
-                    onClick={() => handlePrintInsights()}
+                    onClick={() => handleDownloadInsightsPDF()}
                     style={{
                       background: '#28a745',
                       color: 'white',
@@ -1220,7 +1220,7 @@ export default function Dashboard() {
                     🖨️ Print Report
                   </button>
                   <button
-                    onClick={() => handleDownloadInsightsPDF()}
+                    onClick={() => handlePrintInsights()}
                     style={{
                       background: '#007bff',
                       color: 'white',
