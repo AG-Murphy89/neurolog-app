@@ -98,31 +98,38 @@ export default function Dashboard() {
           }
         }
 
-        setUser(userData)
-          window.exportData = async (format = 'json') => {
-  try {
-    if (format === 'pdf') {
-      const result = await dataExportUtils.generateMedicalReportPDF(userData.id);
+        setUser(userData);
 
-      if (!result || !result.success) {
-        alert(`Failed to generate PDF: ${result?.error || 'Something went wrong'}`);
-        return;
-      }
+        // Attach export function to window after user is loaded
+        window.exportData = async (format = 'json') => {
+          try {
+            if (!userData || !userData.id) {
+              alert("User data not available. Please try again.");
+              return;
+            }
 
-      console.log('PDF generated successfully.');
-    } else {
-      const result = await dataExportUtils.exportAllUserData(userData.id);
+            if (format === 'pdf') {
+              const result = await dataExportUtils.generateMedicalReportPDF(userData.id);
 
-      if (result?.success && result.data) {
-        dataExportUtils.downloadAsJSON(result.data);
-      } else {
-        alert(`Failed to export data: ${result?.error || 'Something went wrong'}`);
-      }
-    }
-  } catch (err: any) {
-    alert(`Export failed: ${err.message || 'Unexpected error'}`);
-  }
-};
+              if (!result || !result.success) {
+                alert(`Failed to generate PDF: ${result?.error || 'Something went wrong'}`);
+                return;
+              }
+
+              console.log('PDF generated successfully.');
+            } else {
+              const result = await dataExportUtils.exportAllUserData(userData.id);
+
+              if (result?.success && result.data) {
+                dataExportUtils.downloadAsJSON(result.data);
+              } else {
+                alert(`Failed to export data: ${result?.error || 'Something went wrong'}`);
+              }
+            }
+          } catch (err: any) {
+            alert(`Export failed: ${err.message || 'Unexpected error'}`);
+          }
+        };
 
         await loadSeizures(session.user.id)
       } catch (error) {
@@ -256,39 +263,14 @@ export default function Dashboard() {
       alert('Error deleting seizure. Please try again.')
     }
   }
-console.log("Export started — user:", user);
-
- const exportData = async (format: 'json' | 'pdf' = 'json') => {
-  if (!user || !user.id) {
-    alert("You're not logged in or user info is missing.");
-    return;
-  }
-
-  try {
-    if (format === 'pdf') {
-      const result = await dataExportUtils.generateMedicalReportPDF(user.id);
-
-      if (!result || !result.success) {
-        console.error('PDF generation error:', result?.error || 'Unknown error');
-        alert(`Failed to generate PDF: ${result?.error || 'Something went wrong'}`);
-        return;
-      }
-
-      console.log('PDF generated successfully.');
+// Export function that uses window.exportData (attached after user loads)
+  const exportData = async (format: 'json' | 'pdf' = 'json') => {
+    if (window.exportData) {
+      await window.exportData(format);
     } else {
-      const result = await dataExportUtils.exportAllUserData(user.id);
-
-      if (result?.success && result.data) {
-        dataExportUtils.downloadAsJSON(result.data);
-      } else {
-        alert(`Failed to export data: ${result?.error || 'Something went wrong'}`);
-      }
+      alert("Export function not ready. Please wait for the page to fully load.");
     }
-  } catch (error: any) {
-    console.error('Export error:', error);
-    alert(`Export failed: ${error.message || 'An unknown error occurred'}`);
-  }
-};
+  };
 
 
   const getRecentSeizures = () => {
@@ -1454,7 +1436,7 @@ console.log("Export started — user:", user);
                         textAlign: 'left'
                       }}
                     >
-                      📄 Download PDF (GDPR)
+                      📄 Download JSON Data (GDPR)
                     </button>
                     <button
                       onClick={() => exportData('pdf')}
@@ -1469,7 +1451,7 @@ console.log("Export started — user:", user);
                         textAlign: 'left'
                       }}
                     >
-                      🖨️ Print Medical Report
+                      📄 Download Medical Report PDF
                     </button>
                   </div>
                 </div>
