@@ -1217,7 +1217,7 @@ export default function Dashboard() {
                       fontWeight: '500'
                     }}
                   >
-                    🖨️ Print Report
+                    📄 Download PDF
                   </button>
                   <button
                     onClick={() => handlePrintInsights()}
@@ -1232,7 +1232,7 @@ export default function Dashboard() {
                       fontWeight: '500'
                     }}
                   >
-                    📄 Download PDF
+                    🖨️ Print Report
                   </button>
                 </div>
               </div>
