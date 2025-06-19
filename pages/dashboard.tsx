@@ -480,7 +480,7 @@ export default function Dashboard() {
                     fontWeight: '500'
                   }}
                 >
-                  📄 Export JSON
+                  📄 Download PDF
                 </button>
                 <button
                   onClick={() => exportData('pdf')}
@@ -495,7 +495,7 @@ export default function Dashboard() {
                     fontWeight: '500'
                   }}
                 >
-                  📋 Medical Report
+                  🖨️ Print
                 </button>
               </div>
               <button
@@ -1026,7 +1026,7 @@ export default function Dashboard() {
                       fontSize: '14px'
                     }}
                   >
-                    📄 Export JSON
+                    📄 Download PDF
                   </button>
                   <button
                     onClick={() => exportData('pdf')}
@@ -1040,7 +1040,7 @@ export default function Dashboard() {
                       fontSize: '14px'
                     }}
                   >
-                    📋 Medical Report
+                    🖨️ Print
                   </button>
                 </div>
               </div>
@@ -1412,7 +1412,7 @@ export default function Dashboard() {
                         textAlign: 'left'
                       }}
                     >
-                      📄 Export All My Data (GDPR)
+                      📄 Download PDF (GDPR)
                     </button>
                     <button
                       onClick={() => exportData('pdf')}
@@ -1427,7 +1427,7 @@ export default function Dashboard() {
                         textAlign: 'left'
                       }}
                     >
-                      📋 Generate Medical Report
+                      🖨️ Print Medical Report
                     </button>
                   </div>
                 </div>
