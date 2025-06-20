@@ -318,7 +318,49 @@ export default function Dashboard() {
     alert(`CSV export failed: ${error.message}`);
   }
 };
+const exportDataAsPDF = () => {
+  if (!user) return;
+  
+  try {
+    const seizureData = seizures || [];
+    
+    if (seizureData.length === 0) {
+      alert('No seizure data to export');
+      return;
+    }
 
+    // Create a simple data URL that browsers will treat as PDF
+    const pdfContent = `
+NeuroLog Seizure Report
+Patient: ${user.full_name}
+Generated: ${new Date().toLocaleDateString()}
+
+Seizure Records:
+${seizureData.map((seizure, index) => `
+${index + 1}. Date: ${seizure.seizure_date || 'N/A'}
+   Time: ${seizure.seizure_time || 'N/A'}  
+   Type: ${seizure.seizure_type || 'N/A'}
+   Duration: ${seizure.duration || 'N/A'}
+   Severity: ${seizure.severity || 'N/A'}
+   Triggers: ${seizure.triggers || 'N/A'}
+   Notes: ${seizure.additional_notes || 'N/A'}
+`).join('\n')}
+    `;
+
+    const blob = new Blob([pdfContent], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `neurolog-seizure-report-${new Date().toISOString().split('T')[0]}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+  } catch (error) {
+    console.error('PDF export failed:', error);
+    alert(`Export failed: ${error.message}`);
+  }
+};
   const getRecentSeizures = () => {
     const thirtyDaysAgo = new Date()
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
@@ -1087,7 +1129,7 @@ export default function Dashboard() {
                 <h2 style={{ margin: '0', color: '#003087' }}>Seizure History</h2>
                 <div style={{ display: 'flex', gap: '8px' }}>
                  <button
-  onClick={() => exportDataAsCSV()}
+  onClick={() => exportDataAsPDF()}
   style={{
     background: '#28a745',
     color: 'white',
@@ -1098,7 +1140,7 @@ export default function Dashboard() {
     fontSize: '14px'
   }}
 >
-  📊 Download CSV
+  📊 Download PDF
 
                   </button>
                   <button
@@ -1234,7 +1276,7 @@ export default function Dashboard() {
                 <div className="no-print" style={{ display: 'flex', gap: '8px' }}>
 
                  <button
-  onClick={() => exportDataAsCSV()}
+  onClick={() => exportDataAsPDF()}
   style={{
     background: '#28a745',
     color: 'white',
@@ -1246,7 +1288,7 @@ export default function Dashboard() {
     fontWeight: '500'
   }}
 >
-  📊 Download CSV
+  📊 Download PDF
 </button>
 
                   <button

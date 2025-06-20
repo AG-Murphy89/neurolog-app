@@ -1,0 +1,92 @@
+[33m8bd3c76[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m Assistant checkpoint: Fixed syntax errors and changed CSV to PDF buttons
+[33m4481435[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Assistant checkpoint: Remove Next of Kin section from signup
+[33m2113493[m Assistant checkpoint: Remove Patient Information section from signup
+[33m6a97ecd[m Assistant checkpoint: Replace brain emoji with green medical cross
+[33meb0fb2c[m Assistant checkpoint: Updated CSV button color to match history page
+[33m1061d1c[m Checkpoint before assistant change: Make the seizure data download button visually consistent across the site
+[33m45866f7[m Assistant checkpoint: Fixed syntax error and added CSV export with BOM
+[33m204d2b2[m Assistant checkpoint: Add BOM for Excel CSV compatibility
+[33m59fd716[m Assistant checkpoint: Fix import typo and JSX fragment syntax
+[33mc68ed24[m Assistant checkpoint: Fixed syntax error and updated profile with patient/NOK forms
+[33mddd4c44[m Assistant checkpoint: Fixed dashboard syntax error and added patient info fields
+[33mef622d0[m Add mobile-only CSS fixes
+[33m93c7b9a[m Trigger deployment
+[33m2b41479[m Add remaining changes
+[33m63e4799[m Merge branch 'main' of https://github.com/AG-Murphy89/neurolog-app
+[33m84555d7[m Assistant checkpoint: Replace medical symbols with pharmacy green crosses
+[33mf3e5bd3[m Assistant checkpoint: Remove medical symbol from loading screen
+[33m41223ed[m Assistant checkpoint: Fix portal flash by checking verification first
+[33mc9471df[m Assistant checkpoint: Create missing doctor verification page
+[33m2072a73[m Assistant checkpoint: Change medical cross to pharmacy green
+[33m383eaa4[m Assistant checkpoint: Update medical symbols to white cross
+[33m355bbdb[m Assistant checkpoint: Replace brain emoji with medical cross icon
+[33m90d6b1e[m Assistant checkpoint: Updated landing page header to NHS blue with white text
+[33m31e280c[m Assistant checkpoint: Add medication history section with no history message
+[33mc9104ac[m Assistant checkpoint: Fix medication page loading by enabling useEffect
+[33mfd3415b[m Assistant checkpoint: Fix PDF download with useEffect hook
+[33me4d9491[m Checkpoint before assistant change: Fix the PDF download function so it works correctly after user login
+[33md12ac2f[m Assistant checkpoint: Fix PDF download by moving window.exportData to user-dependent useEffect
+[33m5a088ed[m Assistant checkpoint: Fix PDF download by using userData instead of stale user state
+[33m87c4678[m Assistant checkpoint: Fix PDF download button to use proper function
+[33mbb366d0[m Assistant checkpoint: Fix PDF download by using userData in window.exportData
+[33mfeae0c9[m Checkpoint before assistant change: Enable PDF downloads for insights and history from the dashboard
+[33m242035b[m Assistant checkpoint: Fixed export function timing and window attachment
+[33mc9fc9a6[m Checkpoint before assistant change: Ensure data export only runs after user loads and is accessible globally
+[33mdf7689a[m Assistant checkpoint: Fix async/await errors and remove duplicate code
+[33m9fed191[m Checkpoint before assistant change: Improve data exporting with better error handling and PDF support checks
+[33me8df36f[m Assistant checkpoint: Fix PDF download functionality
+[33m2556b0b[m Assistant checkpoint: Fix PDF download functionality for both pages
+[33md42948b[m Assistant checkpoint: Swap insights page button names
+[33m61a853f[m Assistant checkpoint: Swapped button names and functions on insights page
+[33m11e3d68[m Assistant checkpoint: Remove automatic login redirect
+[33mf9ac015[m Assistant checkpoint: Remove export buttons from header banner
+[33mb3ce583[m Assistant checkpoint: Fix print and PDF functionality for insights
+[33mfaf43b5[m Assistant checkpoint: Updated export button labels throughout dashboard
+[33mb008f75[m Checkpoint before assistant change: Rename button labels to better reflect their intended function
+[33m71b8445[m Assistant checkpoint: Clean ErrorBoundary file from merge conflicts
+[33m164b960[m Checkpoint before assistant change: Add a safety net that catches errors and displays a user-friendly message
+[33m44f4b12[m Checkpoint before assistant change: Add error catching component to gracefully handle unexpected issues
+[33m020bb5c[m Checkpoint before assistant change: Push changes to the remote repository to trigger application deployment
+[33m348efdd[m Assistant checkpoint: Fix useEffect dependency warning by adding router
+[33m8f2abc0[m Checkpoint before assistant change: Correct minor typo in error message displayed to users on error pages
+[33ma7d4708[m Add files via upload
+[33m4d27ffa[m Add files via upload
+[33m978b646[m Assistant checkpoint: Fix PDF button: remove merge conflicts, install libraries, improve error handling
+[33m6cc9841[m Assistant checkpoint: Fix merge conflicts, dynamic imports, and React hooks
+[33m076e512[m Assistant checkpoint: Fixed deployment errors and React warnings
+[33m9486e5f[m Assistant checkpoint: Fix merge conflicts and PDF download error
+[33m5f4a509[m Assistant checkpoint: Fix merge conflicts, syntax errors, and dependencies
+[33mea18881[m Assistant checkpoint: Fix severity scale bar styling to reach full width
+[33m7cbfb77[m Assistant checkpoint: Always show print and PDF buttons in insights
+[33m7dba1a3[m Assistant checkpoint: Added print and PDF functionality to insights page
+[33m7739195[m Checkpoint before assistant change: Improve login page loading and address a problem on the dashboard
+[33ma00e56c[m Checkpoint before assistant change: Correct a problem that was causing the dashboard interface to not display correctly
+[33mf608604[m Force deployment
+[33m14425be[m Resolved merge conflicts
+[33m54bff36[m Assistant checkpoint: Comment out useEffect in medication.tsx
+[33med5c33d[m Assistant checkpoint: Fix React hooks dependency array error
+[33mf64753c[m Assistant checkpoint: Convert demo app to production Supabase integration
+[33mfb10453[m Assistant checkpoint: Fix merge conflicts and update auth flow
+[33m00c6afa[m Assistant checkpoint: Fix ErrorBoundary conflicts and remove CTA buttons
+[33m4f4aa3d[m Assistant checkpoint: Fix ErrorBoundary merge conflicts and update CTA section
+[33m368f467[m Assistant checkpoint: Fix merge conflicts and update navigation
+[33m4e314b7[m Assistant checkpoint: Fix merge conflicts and update nav buttons to show CQC & GDPR Compliant
+[33m15c70bb[m Assistant checkpoint: Fix merge conflicts and remove welcome message
+[33mb73af65[m Assistant checkpoint: Update Login button to match blue gradient style
+[33m6121ebe[m Assistant checkpoint: Fixed ErrorBoundary conflicts and updated button colors
+[33mbc1f96b[m Assistant checkpoint: Fixed merge conflicts and updated homepage buttons
+[33m3a0d6bf[m Assistant checkpoint: Remove dashboard button from navigation
+[33m6117894[m Assistant checkpoint: Fixed merge conflict and removed dashboard button
+[33m204385c[m Assistant checkpoint: Fixed ErrorBoundary merge conflicts and removed National Insurance Number field
+[33m9bf34f5[m Assistant checkpoint: Separated user types into distinct login flows
+[33mc3f8078[m Assistant checkpoint: Fix React hooks violation and rebuild
+[33mbbd682d[m Checkpoint before assistant change: Improve user experience and fix authentication issues across the site
+[33mb523372[m Assistant checkpoint: Fixed apostrophe and added _document.js file
+[33mdf2203c[m Assistant checkpoint: Fix ErrorBoundary import/export issues
+[33m25b63af[m Checkpoint before assistant change: Update login system to use local storage and improve user experience
+[33m020a94b[m Checkpoint before assistant change: Improve the application's stability and user experience on deployment
+[33mfc61727[m Assistant checkpoint: Fixed React syntax errors in components
+[33m22ca22d[m Assistant checkpoint: Fixed syntax errors and removed NI field
+[33me951ce3[m Assistant checkpoint: Fix syntax errors in React components
+[33m9b0828d[m Assistant checkpoint: Fix import and JSX syntax errors
+[33m446f29e[m Checkpoint before assista
