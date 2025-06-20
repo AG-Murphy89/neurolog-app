@@ -483,7 +483,7 @@ export default function Dashboard() {
         backgroundColor: '#f8f9fa'
       }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🧠</div>
+          <div style={{ fontSize: '48px', marginBottom: '16px', color: '#28a745' }}>✚</div>
           <div style={{ color: '#005EB8', fontSize: '18px' }}>Loading NeuroLog...</div>
         </div>
       </div>
@@ -558,9 +558,10 @@ export default function Dashboard() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 marginRight: '16px',
-                fontSize: '20px'
+                fontSize: '20px',
+                color: '#28a745'
               }}>
-                🧠
+                ✚
               </div>
               <div>
                 <h1 style={{ margin: '0', fontSize: '24px', fontWeight: 'bold' }}>NeuroLog</h1>
