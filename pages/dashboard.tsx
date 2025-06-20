@@ -267,6 +267,40 @@ export default function Dashboard() {
     }
   };
 
+  const exportDataAsCSV = async () => {
+    if (!user) {
+      alert("User data not loaded. Please wait.");
+      return;
+    }
+
+    try {
+      const result = await dataExportUtils.exportAllUserData(user.id);
+      if (result?.success && result.data) {
+        // Convert JSON data to CSV format
+        const csv = dataExportUtils.jsonToCsv(result.data);
+
+        // Add BOM (Byte Order Mark) for Excel compatibility
+        const BOM = '\uFEFF';
+        const csvWithBOM = BOM + csv;
+
+        // Create a Blob object from the CSV data
+        const blob = new Blob([csvWithBOM], { type: 'text/csv;charset=utf-8' });
+
+        // Create a download link and trigger the download
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'seizure_data.csv');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        alert(`Failed to export data: ${result?.error || 'Something went wrong'}`);
+      }
+    } catch (err: any) {
+      alert(`CSV Export failed: ${err.message || 'Unexpected error'}`);
+    }
+  };
 
   const getRecentSeizures = () => {
     const thirtyDaysAgo = new Date()
@@ -869,7 +903,8 @@ export default function Dashboard() {
                       >
                         <option value="">Select type</option>
                         <option value="Tonic-clonic">Tonic-clonic (Grand mal)</option>
-                        <option value="Focal">Focal (Partial)</option>
+                        ```
+        <option value="Focal">Focal (Partial)</option>
                         <option value="Absence">Absence (Petit mal)</option>
                         <option value="Myoclonic">Myoclonic</option>
                         <option value="Atonic">Atonic (Drop)</option>
@@ -1180,9 +1215,9 @@ export default function Dashboard() {
                 <div className="no-print" style={{ display: 'flex', gap: '8px' }}>
 
                  <button
-  onClick={() => exportData('pdf')}
+  onClick={() => exportDataAsCSV()}
   style={{
-    background: '#28a745',
+    background: '#17a2b8',
     color: 'white',
     border: 'none',
     padding: '8px 16px',
@@ -1192,7 +1227,7 @@ export default function Dashboard() {
     fontWeight: '500'
   }}
 >
-  📄 Download PDF
+  📊 Download CSV
 </button>
 
                   <button
