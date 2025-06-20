@@ -1727,7 +1727,7 @@ export default function Dashboard() {
                       cursor: 'pointer',
                       boxShadow: '0 6px 20px rgba(220, 53, 69, 0.4)'
                     }}
-                  >```python
+                  >
                     Save Emergency Contacts
                   </button>
                 </div>
@@ -2008,6 +2008,6 @@ export default function Dashboard() {
           )}
         </div>
       </div>
-    
+
   )
 }
