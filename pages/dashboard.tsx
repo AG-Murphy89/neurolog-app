@@ -268,39 +268,56 @@ export default function Dashboard() {
   };
 
   const exportDataAsCSV = async () => {
-    if (!user) {
-      alert("User data not loaded. Please wait.");
+  if (!user) return;
+  
+  try {
+    // Use your seizures data (I can see you have "seizures" variable)
+    const seizureData = seizures || [];
+    
+    if (seizureData.length === 0) {
+      alert('No seizure data to export');
       return;
     }
 
-    try {
-      const result = await dataExportUtils.exportAllUserData(user.id);
-      if (result?.success && result.data) {
-        // Convert JSON data to CSV format
-        const csv = dataExportUtils.jsonToCsv(result.data);
+    // CSV headers
+    const headers = ['Date', 'Time', 'Type', 'Duration', 'Severity', 'Triggers', 'Symptoms', 'Medication Taken', 'Notes'];
+    
+    // Convert data to CSV rows
+    const csvRows = [
+      headers.join(','),
+      ...seizureData.map(seizure => [
+        seizure.seizure_date || '',
+        seizure.seizure_time || '',
+        `"${seizure.seizure_type || ''}"`,
+        seizure.duration || '',
+        seizure.severity || '',
+        `"${seizure.triggers || ''}"`,
+        `"${seizure.symptoms || ''}"`,
+        `"${seizure.medication_taken || ''}"`,
+        `"${seizure.additional_notes || ''}"`
+      ].join(','))
+    ];
 
-        // Add BOM (Byte Order Mark) for Excel compatibility
-        const BOM = '\uFEFF';
-        const csvWithBOM = BOM + csv;
-
-        // Create a Blob object from the CSV data
-        const blob = new Blob([csvWithBOM], { type: 'text/csv;charset=utf-8' });
-
-        // Create a download link and trigger the download
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', 'seizure_data.csv');
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } else {
-        alert(`Failed to export data: ${result?.error || 'Something went wrong'}`);
-      }
-    } catch (err: any) {
-      alert(`CSV Export failed: ${err.message || 'Unexpected error'}`);
-    }
-  };
+    // Create and download CSV file
+    const csvContent = '\uFEFF' + csvRows.join('\n'); // Added BOM for Excel
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', `neurolog-seizure-data-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    console.log('CSV exported successfully');
+  } catch (error) {
+    console.error('CSV export failed:', error);
+    alert(`CSV export failed: ${error.message}`);
+  }
+};
 
   const getRecentSeizures = () => {
     const thirtyDaysAgo = new Date()
@@ -486,7 +503,7 @@ export default function Dashboard() {
           <div style={{ color: '#005EB8', fontSize: '18px' }}>Redirecting to login...</div>
         </div>
       </div>
-    )
+      );
   }
 
   return (
@@ -1068,19 +1085,20 @@ export default function Dashboard() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                 <h2 style={{ margin: '0', color: '#003087' }}>Seizure History</h2>
                 <div style={{ display: 'flex', gap: '8px' }}>
-                  <button
-                    onClick={() => exportData('pdf')}
-                    style={{
-                      background: '#28a745',
-                      color: 'white',
-                      border: 'none',
-                      padding: '8px 16px',
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      fontSize: '14px'
-                    }}
-                  >
-                    📄 Download PDF
+                 <button
+  onClick={() => exportDataAsCSV()}
+  style={{
+    background: '#28a745',
+    color: 'white',
+    border: 'none',
+    padding: '8px 16px',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    fontSize: '14px'
+  }}
+>
+  📊 Download CSV
+
                   </button>
                   <button
                     onClick={() => window.print()}
@@ -2043,6 +2061,6 @@ export default function Dashboard() {
           )}
         </div>
       </div>
-
+    </>
   )
 }
